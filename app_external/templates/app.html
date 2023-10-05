@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/standard.css">
+    <link rel="stylesheet" href="static/app.css">
+    <title>Bubble | App</title>
+</head>
+
+<body>
+    <div id="main">
+        <div id="sidebar">
+            <div id="sidebarLogo">Bubble</div>
+            <div id="sidebarCategory_mainLinks">
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>Chats</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>Groups</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>Contacts</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>Tasks</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>Calendar</div>
+                </div>
+            </div>
+            <div id="sidebarCategory_favorites">
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>person group</div>
+                </div>
+            </div>
+            <div id="sidebarBottom">
+                <div id="sidebarBottom_callBar" class="sidebarBottom_bar">
+                    <div id="sidebarBottom_callBar_currentCallInfo"></div>
+                    <button>X</button>
+                    <button>V</button>
+                    <button>A</button>
+                    <button>D</button>
+                </div>
+                <div id="sidebarBottom_userBar" class="sidebarBottom_bar">
+                    <div id="sidebarBottom_userBar_avatar"></div>
+                    <div id="sidebarBottom_userBar_info">
+                        <div id="sidebarBottom_userBar_visiblename"></div>
+                        <div id="sidebarBottom_userBar_handle"></div>
+                    </div>
+                    <button onclick="openUserInfoPage()">Get info</button>
+                </div>
+            </div>
+        </div>
+        <div id="rightSide">
+            <div id="innerView_group" class="innerView displaynone">
+                <div class="innerView_header"></div>
+                <div class="innerView_body">
+                    <div class="innerView_body_leftbar"></div>
+                    <div class="innerView_body_center"></div>
+                    <div class="innerView_body_rightbar"></div>
+                </div>
+            </div>
+            <div id="innerView_groupList" class="innerView">
+                <div class="groupList_header">Your groups</div>
+                <div class="groupList_list">
+                    <div class="groupList_card">
+                        <div class="groupList_avatar"></div>
+                        <div class="groupList_title">Group 1</div>
+                    </div>
+                    <div class="groupList_card">
+                        <div class="groupList_avatar"></div>
+                        <div class="groupList_title">Group 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    async function getCurrentUser() {
+        let res = await fetch(window.location.protocol + "//" +  window.location.host + "/testauth");
+        res = await res.json();
+        return res;
+    }
+    function openUserInfoPage() {
+        document.querySelector(".innerView_header").innerText = "User info";
+        getCurrentUser().then(res2 => {
+            console.log(res2);
+            res2 = JSON.stringify(res2);
+            document.querySelector(".innerView_body_center").innerText = "Your user info: \n\n" + res2;
+        });
+    }
+    function applyUserDataToApp() {
+        getCurrentUser().then(userdata => {
+            sidebarBottom_userBar_visiblename.innerText = userdata.visiblename;
+            sidebarBottom_userBar_handle.innerText = "@" + userdata.handle;
+        });
+    }
+    console.log("AAAAAAAAAAAAH");
+    applyUserDataToApp();
+</script>
+
+</html>

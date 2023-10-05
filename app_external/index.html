@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/standard.css">
+        <link rel="stylesheet" href="static/style.css">
+        <title>WebRTC</title>
+    </head>
+    <body>
+        <div style="padding: 8px 16px;">
+            <button onclick="mediaTest_video()">Video Test</button>
+            <button onclick="testWebSocket()">WebSocket Connect</button>
+            <button onclick="sendMessage()">WebSocket Send</button>
+            Connect to
+            <button onclick="start('USER_1')">User 1</button>
+            <button onclick="start('USER_2')">User 2</button>
+            <button onclick="start('USER_3')">User 3</button>
+            <button onclick="start('USER_4')">User 4</button>
+        </div>
+        <div id="videoElements" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <div>Peers</div>
+            <video id="videoTestElement" autoplay></video>
+            <!--<video id="remoteView" autoplay></video>-->
+        </div>
+        <div style="display: flex; gap: 16px; padding-top: 16px; justify-content: center;">
+            <div id="chatContainer">
+                <div id="chatHistory"></div>
+                <input id="chatInput" type="text" placeholder="Chat message..."/>
+            </div>
+            <div id="userList">Connect to</div>
+        </div>
+    </body>
+    <script src="static/script.js"></script>
+</html>
