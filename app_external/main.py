@@ -52,7 +52,7 @@ def getDBConnection():
 
 @app.get("/rtc", response_class=HTMLResponse)
 async def read_root():
-    f = open("app_external/index.html", "r")
+    f = open("app_external/index.html", "r", encoding="utf-8")
     return f.read()
 
 class Connection:
