@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="static/standard.css">
     <link rel="stylesheet" href="static/app.css">
     <title>Bubble | App</title>
@@ -19,9 +20,17 @@
                     <icon></icon>
                     <div>Chats</div>
                 </div>
-                <div class="sidebar_listItem">
+                <div class="sidebar_listItem" onclick="switchToView('innerView_groupList')">
                     <icon></icon>
                     <div>Groups</div>
+                </div>
+                <div class="sidebar_listItem" onclick="switchToView('innerView_group')">
+                    <icon></icon>
+                    <div>Test group view</div>
+                </div>
+                <div class="sidebar_listItem" onclick="switchToView('innerView_logo')">
+                    <icon></icon>
+                    <div>Test logo view</div>
                 </div>
                 <div class="sidebar_listItem">
                     <icon></icon>
@@ -37,9 +46,14 @@
                 </div>
             </div>
             <div id="sidebarCategory_favorites">
+                <div class="sidebarCategoryHeader">Favorites</div>
                 <div class="sidebar_listItem">
                     <icon></icon>
-                    <div>person group</div>
+                    <div>fav person</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <icon></icon>
+                    <div>fav group</div>
                 </div>
             </div>
             <div id="sidebarBottom">
@@ -82,10 +96,23 @@
                     </div>
                 </div>
             </div>
+            <div id="innerView_logo" class="innerView">
+                <div style="background: url('/static/images/logo.svg')"></div>
+                <div style="background: url('/static/images/chb bubble.svg')"></div>
+                <div style="background: url('/static/images/mono bubble.svg')"></div>
+            </div>
         </div>
     </div>
 </body>
 <script>
+    let rightSide = document.getElementById('rightSide');
+    function switchToView(elementId) {
+        [...rightSide.children].forEach(element => {
+            element.classList.add('displaynone');
+        });
+        let target = document.querySelector(`#rightSide #${elementId}`);
+        target.classList.remove('displaynone');
+    }
     async function getCurrentUser() {
         let res = await fetch(window.location.protocol + "//" +  window.location.host + "/testauth");
         res = await res.json();

@@ -285,3 +285,13 @@ input {
     font-weight: bold;
     font-size: 24px;
 }
+
+.sidebarCategoryHeader {
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+#innerView_logo div {
+    height: 400px;
+    background-repeat: no-repeat !important;
+}
