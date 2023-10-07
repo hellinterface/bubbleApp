@@ -12,9 +12,11 @@ from pydantic import BaseModel
 import httpx
 
 from .svc_users import svc_users
+from .svc_groups import svc_groups
 
 app = FastAPI()
 app.include_router(svc_users.router)
+app.include_router(svc_groups.router)
 
 @app.get("/api/test")
 async def list_users():
