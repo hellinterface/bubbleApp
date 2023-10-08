@@ -4,7 +4,7 @@
 }
 
 html {
-    background: #ddd;
+    background: #fff;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -34,38 +34,57 @@ body {
     border: solid 1px #0002;
 }
 
-input {
-    font-family: "Segoe UI";
-    color: #222;
-    border: solid 1px #0004;
-    border-radius: 3px;
-    background: #eee;
-    padding: 6px 12px;
-}
-
 #main {
     height: 100%;
     width: 100%;
     display: flex;
     max-width: 100%;
     max-height: 100%;
+    padding: 6px;
+    gap: 6px;
 }
 
 #sidebar {
     height: 100%;
-    background: #fff;
     width: 300px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 0 12px #0006;
     z-index: 20;
     flex-shrink: 0;
+    gap: 6px;
 }
 
-#sidebarCategory_mainLinks {
+#sidebar > div {
+    box-shadow: 0 0 6px #0004;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#sidebarCategory_searchContainer {
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+}
+
+#sidebar_searchIcon {
+    color: #888;
+    margin-left: 16px;
+    margin-right: 0px;
+}
+
+#sidebar_searchInput {
+    background: none;
+    border: none;
+    flex-grow: 1;
+}
+
+#sidebarCategory_mainLinks, #sidebarCategory_favorites {
     display: flex;
     flex-direction: column;
+    background: #fff;
 }
 
 #sidebarCategory_mainLinks .sidebar_listItem {
@@ -78,6 +97,16 @@ input {
     padding: 12px 24px;
     font-weight: 500;
     transition: 0.4s ease;
+}
+
+#sidebarCategory_mainLinks .sidebar_listItem::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 6px;
+    width: calc(100% - 6px*2);
+    height: 1px;
+    background: #0002;
 }
 
 #sidebarCategory_mainLinks .sidebar_listItem::before {
@@ -129,6 +158,12 @@ input {
     background: none;
     border: none;
     color: #222;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
 }
 
 #sidebarBottom button:hover {
@@ -141,6 +176,10 @@ input {
 
 #rightSide {
     flex-grow: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 18px #0004;
+    z-index: 18;
 }
 
 .innerView_header {
@@ -214,6 +253,29 @@ input {
     font-size: 12px;
 }
 
+@keyframes sidebarLogo_inner {
+    0% {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sidebarLogo_text {
+    0% {
+        transform: translateX(0);
+        width: 98px;
+    }
+    100% {
+        transform: translateX(-32px);
+        width: 0;
+        opacity: 0;
+    }
+}
+
 #sidebarLogo {
     font-weight: bold;
     font-size: 32px;
@@ -227,7 +289,31 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
+
+#sidebarLogo #sidebarLogo_inner {
+    height: 50px;
+    filter: invert(1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: sidebarLogo_inner 1s ease forwards 0.25s;
+    opacity: 0;
+}
+
+#sidebarLogo #sidebarLogo_icon {
+    height: 50px;
+}
+
+#sidebarLogo #sidebarLogo_text {
+    height: 24px;
+    width: 98px;
+    margin-left: 8px;
+    animation: sidebarLogo_text 0.5s ease forwards 1.5s;
+}
+
+
 
 #innerView_groupList {
     background: linear-gradient(#cce9f3, #f8f8f8);

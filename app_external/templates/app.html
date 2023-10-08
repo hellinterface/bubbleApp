@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="static/standard.css">
     <link rel="stylesheet" href="static/app.css">
     <title>Bubble | App</title>
@@ -14,33 +14,38 @@
 <body>
     <div id="main">
         <div id="sidebar">
-            <div id="sidebarLogo">Bubble</div>
+            <div id="sidebarLogo">
+                <div id="sidebarLogo_inner">
+                    <img id="sidebarLogo_icon" src="static/images/logo_small_mono_2.svg" alt="">
+                    <img id="sidebarLogo_text" src="static/images/logo_text.svg" alt="">
+                </div>
+            </div>
+            <div id="sidebarCategory_searchContainer">
+                <span id="sidebar_searchIcon" class="material-symbols-rounded">search</span>
+                <input type="text" id="sidebar_searchInput" placeholder="Search">
+            </div>
             <div id="sidebarCategory_mainLinks">
-                <div class="sidebar_listItem">
+                <div class="sidebar_listItem" bb-uimgr-view="chats">
                     <icon></icon>
                     <div>Chats</div>
                 </div>
-                <div class="sidebar_listItem" onclick="switchToView('innerView_groupList')">
+                <div class="sidebar_listItem" bb-uimgr-view="groupList">
                     <icon></icon>
                     <div>Groups</div>
                 </div>
-                <div class="sidebar_listItem" onclick="switchToView('innerView_group')">
+                <div class="sidebar_listItem" bb-uimgr-view="groupView">
                     <icon></icon>
                     <div>Test group view</div>
                 </div>
-                <div class="sidebar_listItem" onclick="switchToView('innerView_logo')">
-                    <icon></icon>
-                    <div>Test logo view</div>
-                </div>
-                <div class="sidebar_listItem">
+                <div class="sidebar_listItem" bb-uimgr-view="contacts">
                     <icon></icon>
                     <div>Contacts</div>
                 </div>
-                <div class="sidebar_listItem">
+                <div class="sidebar_listItem" bb-uimgr-view="tasks">
                     <icon></icon>
                     <div>Tasks</div>
                 </div>
-                <div class="sidebar_listItem">
+                <div class="sidebar_listItem" bb-uimgr-view="calendar">
                     <icon></icon>
                     <div>Calendar</div>
                 </div>
@@ -59,10 +64,18 @@
             <div id="sidebarBottom">
                 <div id="sidebarBottom_callBar" class="sidebarBottom_bar">
                     <div id="sidebarBottom_callBar_currentCallInfo"></div>
-                    <button>X</button>
-                    <button>V</button>
-                    <button>A</button>
-                    <button>D</button>
+                    <button>
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                    <button>
+                        <span class="material-symbols-rounded">videocam</span>
+                    </button>
+                    <button>
+                        <span class="material-symbols-rounded">mic</span>
+                    </button>
+                    <button>
+                        <span class="material-symbols-rounded">headset_mic</span>
+                    </button>
                 </div>
                 <div id="sidebarBottom_userBar" class="sidebarBottom_bar">
                     <div id="sidebarBottom_userBar_avatar"></div>
@@ -83,7 +96,7 @@
                     <div class="innerView_body_rightbar"></div>
                 </div>
             </div>
-            <div id="innerView_groupList" class="innerView">
+            <div id="innerView_groupList" class="innerView displaynone">
                 <div class="groupList_header">Your groups</div>
                 <div class="groupList_list">
                     <div class="groupList_card">
@@ -96,24 +109,70 @@
                     </div>
                 </div>
             </div>
-            <div id="innerView_logo" class="innerView">
-                <div style="background: url('/static/images/logo.svg')"></div>
-                <div style="background: url('/static/images/chb bubble.svg')"></div>
-                <div style="background: url('/static/images/mono bubble.svg')"></div>
+            <div id="innerView_contacts" class="innerView displaynone">
+                <div class="groupList_header">Contacts</div>
             </div>
+            <div id="innerView_tasks" class="innerView displaynone">
+                <div class="groupList_header">Tasks</div>
+            </div>
+            <div id="innerView_chats" class="innerView displaynone">
+                <div class="groupList_header">Chats</div>
+            </div>
+            <div id="innerView_calendar" class="innerView displaynone">
+                <div class="groupList_header">Calendar</div>
+            </div>
+        </div>
+    </div>
+    <div class="dialogWindow">
+        <div class="dialogWindowContent">
+            This is a test dialog window.
+            <button>test</button>
         </div>
     </div>
 </body>
 <script>
     console.log("Bubble v0.0.1");
     let rightSide = document.getElementById('rightSide');
-    function switchToView(elementId) {
-        [...rightSide.children].forEach(element => {
-            element.classList.add('displaynone');
-        });
-        let target = document.querySelector(`#rightSide #${elementId}`);
-        target.classList.remove('displaynone');
+    class UIView {
+        constructor(containerId) {
+            this.elementContainer = document.getElementById(containerId);
+            this.onMakeActive = () => {};
+        }
+        hide() {
+            this.elementContainer.classList.add('displaynone');
+        }
+        show() {
+            this.elementContainer.classList.remove('displaynone');
+        }
     }
+    const uiManager = {
+        mainContainer: rightSide,
+        views: {
+            groupView: new UIView("innerView_group"),
+            groupList: new UIView("innerView_groupList"),
+            chats: new UIView("innerView_chats"),
+            tasks: new UIView("innerView_tasks"),
+            calendar: new UIView("innerView_calendar"),
+            contacts: new UIView("innerView_contacts"),
+        },
+        hideAll: function() {
+            Object.values(this.views).forEach(entry => entry.hide())
+        },
+        switchTo: function(targetView) {
+            if (!Object.values(this.views).includes(targetView)) {
+                console.error("No such view exists.");
+                return;
+            }
+            this.hideAll();
+            targetView.show();
+        }
+    };
+    uiManager.switchTo(uiManager.views.groupList);
+    [...sidebarCategory_mainLinks.children].forEach(element => {
+        element.addEventListener('click', () => {
+            uiManager.switchTo(uiManager.views[element.getAttribute("bb-uimgr-view")]);
+        })
+    })
     async function getCurrentUser() {
         let res = await fetch(window.location.protocol + "//" +  window.location.host + "/testauth");
         res = await res.json();
@@ -133,7 +192,6 @@
             sidebarBottom_userBar_handle.innerText = "@" + userdata.handle;
         });
     }
-    console.log("AAAAAAAAAAAAH");
     applyUserDataToApp();
 </script>
 
