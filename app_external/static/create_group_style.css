@@ -64,6 +64,7 @@ input{
     border-bottom: 1.2px solid #1d6b8f;
     border-radius: 2px;
     padding: 0px 10px;
+    outline: none;
 }
 input::-webkit-input-placeholder {
     font-family: 'Raleway';

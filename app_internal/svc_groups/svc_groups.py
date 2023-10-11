@@ -1,6 +1,7 @@
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse, JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from ..dependencies import get_token_header
 from pydantic import BaseModel
 import sqlite3
@@ -14,6 +15,8 @@ router = APIRouter(
     # dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
+
+router.mount("/static", StaticFiles(directory="app_internal/svc_groups/"), name="static")
 
 def createGroupsTable(dbc):
     dbc.execute('''CREATE TABLE "Group_List" (
@@ -62,7 +65,7 @@ async def get_list():
 
 @router.get("/create", response_class=HTMLResponse)
 async def post_create():
-    f = open("app_internal/svc_groups/create.html", "r", encoding="utf-8")
+    f = open("app_internal/svc_groups/create_group.html", "r", encoding="utf-8")
     return f.read()
 
 @router.post("/create", response_class=JSONResponse)
