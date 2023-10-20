@@ -16,7 +16,7 @@
     src: url(fonts/MaterialSymbols-Rounded.woff2) format('woff2');
 }
   
-.material-symbols-rounded {
+icon {
     font-family: 'Material Symbols Rounded';
     font-weight: normal;
     font-style: normal;
@@ -68,7 +68,7 @@ input {
     color: #222;
     border: solid 1px #0004;
     border-radius: 3px;
-    background: #eee;
+    background: #fff;
     padding: 6px 12px;
     font-size: 14px;
     outline: none;

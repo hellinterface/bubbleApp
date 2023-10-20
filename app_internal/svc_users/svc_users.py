@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse, JSONResponse
 from ..dependencies import get_token_header
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import sqlite3
 import os
 import secrets
@@ -15,25 +15,15 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-def createUsersTable(dbc):
-    dbc.execute('''CREATE TABLE "Users" (
-	"id"	TEXT NOT NULL UNIQUE,
-	"handle"	TEXT NOT NULL UNIQUE,
-	"visiblename"	TEXT NOT NULL,
-	"email"	TEXT NOT NULL UNIQUE,
-	"password_hash"	TEXT NOT NULL,
-	"dob"	INTEGER NOT NULL,
-	"signupdate"	INTEGER NOT NULL,
-	"profiles"	TEXT NOT NULL,
-	PRIMARY KEY("id")
-);''')
 
 def dict_factory(cursor, row):
+    print(u"current directory: %s" % os.getcwd())
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
-    #print(d["profiles"])
-    d["profiles"]
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(d)
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     d["profiles"] = json.loads(d["profiles"].replace('\\"', '\"'))
     #print(d["profiles"])
     profileList = list()
@@ -44,56 +34,94 @@ def dict_factory(cursor, row):
     userObject = User(**d)
     return userObject
 
+DB_USERS_PATH = os.path.dirname(__file__) + '\\users_db.db'
+
+def createUsersTable(dbc):
+    dbc.execute('''CREATE TABLE "Users" (
+	"id"	TEXT NOT NULL UNIQUE,
+	"handle"	TEXT NOT NULL UNIQUE,
+	"visible_name"	TEXT NOT NULL,
+	"email"	TEXT NOT NULL UNIQUE,
+	"password_hash"	TEXT NOT NULL,
+	"join_date"	INTEGER NOT NULL,
+	"folder_id"	TEXT NOT NULL UNIQUE,
+	"profiles"	TEXT NOT NULL,
+	PRIMARY KEY("id")
+);''')
+
+# проверка файла базы данных на валидность
+def checkDB(filepath):
+    conn = sqlite3.connect(filepath)
+    conn.row_factory = sqlite3.Row
+    tables = conn.execute("SELECT * FROM sqlite_master WHERE type='table'").fetchall()
+    if len(tables) == 0:
+        return False
+    else:
+        return True
+
 # подключение к базе данных
 def getDBConnection():
-    conn = sqlite3.connect('users_db.db')
+    conn = sqlite3.connect(DB_USERS_PATH)
     conn.row_factory = dict_factory
-    #ooo = conn.execute("SELECT * FROM sqlite_master WHERE type='table'").fetchall()
-    #print(os.path.exists('users_db.db'))
-    #print(len(ooo))
-    #if len(ooo) == 0:
-    #    createUsersTable(conn)
-    #    print('Table created.')
+    if not checkDB(DB_USERS_PATH):
+        createUsersTable(conn)
+        print("******* database created. *******")
     return conn
 
 # position 0 = default profile
-class UserProfileNEW(BaseModel):
-    position: int
-    title: str
-    visiblename: str
-    avatar_fileid: str
-    contacts: list[str]
-    groups: list[str]
-
 class UserProfile(BaseModel):
     position: int
     title: str
+    visible_name: str
+    avatar_fileid: str | None = None
+    bio: str
     contacts: list[str]
     groups: list[str]
+    notifications: list[str]
+    events: list[str]
 
 class SignUpUserInfo(BaseModel):
     id: str | None = None
     handle: str
-    visiblename: str
+    visible_name: str
     email: str
     password_hash: str
-    # dob: int
-    signupdate: int
+    join_date: int
     profiles: list[dict] | None = None
+    folder_id: str | None = None
 
 class User(BaseModel):
-    id: str
+    id: str = Field(allow_mutation=False)
     handle: str
-    visiblename: str
+    visible_name: str
     email: str
     password_hash: str
-    # dob: int
-    signupdate: int
+    join_date: int
     profiles: list[UserProfile]
+    folder_id: str
 
 def convertToUserList(strlist: list[str]):
     for i in strlist:
         User()
+
+def replaceNoneWithEmptyString(x):
+    if x == None:
+        return ""
+    else:
+        return x
+
+def db_insert(dbc, table_name, dictionary: BaseModel):
+    # cur = dbc.cursor()
+    dictionary = dictionary.model_dump()
+    values = list(map(replaceNoneWithEmptyString, dictionary.values()))
+    for i in values:
+        if i == None:
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa")
+            i = ""
+    values = list(map(str, values))
+    query = f'''INSERT INTO {table_name} ({','.join(dictionary.keys())}) VALUES ("{'","'.join(values)}")'''
+    print(query)
+        
 
 def addUserToDB(user: SignUpUserInfo):
     dbc = getDBConnection()
@@ -102,8 +130,8 @@ def addUserToDB(user: SignUpUserInfo):
     #string = f'INSERT INTO Users (id, handle, visiblename, email, password_hash, dob, signupdate, profiles) VALUES ("{user.id}", "{user.visiblename}", "{user.email}", "{user.password_hash}", 19700101, {user.signupdate}, "{profilesString}")'
     #print(string)
     #return string
-    cur.execute("INSERT INTO Users (id, handle, visiblename, email, password_hash, dob, signupdate, profiles) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (user.id, user.handle, user.visiblename, user.email, user.password_hash, 19700101, user.signupdate, profilesString))
+    cur.execute("INSERT INTO Users (id, handle, visible_name, email, password_hash, join_date, folder_id, profiles) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user.id, user.handle, user.visible_name, user.email, user.password_hash, user.join_date, user.folder_id, profilesString))
     dbc.commit()
     dbc.close()
 
@@ -115,7 +143,7 @@ async def read_items():
     print("Userlist: " + str(len(userlist)))
     for i in userlist:
         print(i)
-    return {"soon": "yuah"}
+    return {"response": "success"}
 
 @router.post("/getByID", response_class=JSONResponse)
 async def getByID(req: dict):
@@ -140,51 +168,36 @@ async def try_login(req: dict):
     else:
         return {"response": "success", "user_id": targetUser.id} 
 
-@router.post("/try_signup", response_class=JSONResponse)
+@router.post("/signup", response_class=JSONResponse)
 async def get_create(user_info: SignUpUserInfo): #new_user: User
     # print(req)
     default_profile = {
         "position": 0,
         "title": "Default",
+        "visible_name": user_info.visible_name,
+        "bio": "",
         "contacts": list(),
-        "groups": list()
+        "groups": list(),
+        "notifications": list(),
+        "events": list()
     }
     new_profile = UserProfile(**default_profile)
-
-    #print(new_profile.model_dump())
-    #return {"fuck": "me"}
 
     user_info.id = secrets.token_urlsafe(6)
     user_info.profiles = list()
     user_info.profiles.append(new_profile.model_dump())
 
-    addUserToDB(user_info)
+    db_insert(None, "Users", user_info)
 
-    return {"gotcha": "success i guess"}
+    # addUserToDB(user_info)
 
-@router.get("/create_default", response_class=JSONResponse)
-async def get_create_default():
-    default_profile = {
-        "position": 0,
-        "title": "Default",
-        "contacts": list(),
-        "groups": list()
-    }
-    new_profile = UserProfile(**default_profile)
+    return {"response": "success", "user_id": user_info.id} 
 
-    print(json.dumps(default_profile))
-    print(new_profile.model_dump())
-
-    default_user = {
-        "id": secrets.token_urlsafe(6),
-        "handle": "cuntt",
-        "visiblename": "Cuntie Pookie",
-        #"dob": "20040401",
-        "signupdate": "20220710",
-        "email": "cunt@gmail.com",
-        "password_hash": "fake_password_hash",
-        "profiles": [new_profile.model_dump()]
-    }
-
-    new_user = User(**default_user)
-    return new_user.dict()
+@router.post("/edit", response_class=JSONResponse)
+async def post_edit(req: dict):
+    # dbc = getDBConnection()
+    # cur = dbc.cursor()
+    # cur.execute("UPDATE Users SET ? WHERE id = ?")
+    print(req)
+    for key,value in req.items():
+        print(f" --- {key}: {value}")

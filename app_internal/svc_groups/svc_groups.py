@@ -20,6 +20,10 @@ def createGroupsTable(dbc):
 	"id"	TEXT NOT NULL UNIQUE,
 	"title"	TEXT NOT NULL,
 	"handle"	TEXT,
+	"handle"	TEXT,
+	"handle"	TEXT,
+	"handle"	TEXT,
+	"handle"	TEXT,
 	PRIMARY KEY("id")
     );''')
 

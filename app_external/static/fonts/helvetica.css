@@ -1,0 +1,78 @@
+
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 100;
+    src: url(HelveticaNeueCyr-UltraLight.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 100;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-UltraLightItalic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 200;
+    src: url(HelveticaNeueCyr-Thin.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 200;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-ThinItalic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 300;
+    src: url(HelveticaNeueCyr-Light.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 300;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-LightItalic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 400;
+    src: url(HelveticaNeueCyr-Roman.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 400;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-Italic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 500;
+    src: url(HelveticaNeueCyr-Medium.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 500;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-Italic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 700;
+    src: url(HelveticaNeueCyr-Bold.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 700;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-BoldItalic.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 900;
+    src: url(HelveticaNeueCyr-Black.ttf);
+}
+@font-face {
+    font-family: HelveticaNeueCyr;
+    font-weight: 900;
+    font-style: italic;
+    src: url(HelveticaNeueCyr-BlackItalic.ttf);
+}
