@@ -18,6 +18,13 @@ router = APIRouter(
 
 router.mount("/static", StaticFiles(directory="app_internal/svc_groups/"), name="static")
 
+def groupInList_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    groupObject = GroupInList(**d)
+    return groupObject
+
 def createGroupsTable(dbc):
     dbc.execute('''CREATE TABLE "Group_List" (
 	"id"	TEXT NOT NULL UNIQUE,
@@ -44,9 +51,9 @@ def checkDB(filepath):
 DB_GROUP_LIST = 'group_list.db'
 
 # подключение к базе данных
-def getDBConnection(filepath):
+def getDBConnection(filepath, factory = groupInList_factory):
     conn = sqlite3.connect(filepath)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = factory
     if not checkDB(filepath):
         createGroupsTable(conn)
     return conn
@@ -58,7 +65,7 @@ class GroupCreateInfo(BaseModel):
 class GroupInList(BaseModel):
     id: str
     title: str
-    handle: str | None
+    handle: str
 
 @router.get("/list", response_class=JSONResponse)
 async def get_list():
@@ -66,6 +73,21 @@ async def get_list():
     grouplist = dbc.execute("SELECT * FROM Group_List").fetchall()
     print(grouplist)
     return {"hello": "none"}
+
+def addGroupToDB(groupObject: GroupInList):
+    dbc = getDBConnection(DB_GROUP_LIST, int)
+    ###################################################################################
+    check_string = f'SELECT COUNT(*) FROM Group_List WHERE id="{groupObject.id}" OR handle="{groupObject.handle}"'
+    if (dbc.execute(check_string).fetchone() != 0):
+        return False
+    dbc.close()
+    dbc = getDBConnection(DB_GROUP_LIST)
+    cur = dbc.cursor()
+    string = f'INSERT INTO Group_List (id, title, handle) VALUES ("{groupObject.id}", "{groupObject.title}", "{groupObject.handle}")'
+    cur.execute(string)
+    dbc.commit()
+    dbc.close()
+    return True
 
 @router.get("/create", response_class=HTMLResponse)
 async def post_create():
@@ -76,7 +98,7 @@ async def post_create():
 async def post_create(request: Request):
     data = await request.json()
     data["id"] = secrets.token_urlsafe(6)
-    print(data)
-    #dbc = getDBConnection(DB_GROUP_LIST)
-    #grouplist = dbc.execute("SELECT * FROM Group_List").fetchall()
+    object = GroupInList(**data)
+    print(object)
+    addGroupToDB(object)
     return {"hello": "none"}
