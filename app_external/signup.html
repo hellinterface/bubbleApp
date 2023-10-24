@@ -82,11 +82,11 @@
     <div id="userFormContainer">
         <div>
             <label for="username">Имя пользователя</label>
-            <input type="text" name="username" required="true" placeholder="username" value="testusername"></input>
+            <input type="text" name="handle" required="true" placeholder="username" value="testusername"></input>
         </div>
         <div>
-            <label for="visiblename">Видимое имя</label>
-            <input type="text" name="visiblename" required="true" placeholder="visiblename" value="Test User 1"></input>
+            <label for="visiblename">Публичное имя</label>
+            <input type="text" name="visible_name" required="true" placeholder="visiblename" value="Test User 1"></input>
         </div>
         <div>
             <label for="visiblename">Электронная почта</label>
@@ -97,10 +97,10 @@
             <input type="password" name="password" required="true" placeholder="password" value="test_password_1"></input>
         </div>
         <div>
-            <button id="sendRequestButton">sign up</button>
+            <button id="sendRequestButton">Зарегистрироваться</button>
         </div>
     </div>
-    <button><a href="/signup">log in</a></button>
+    <button><a href="/login">Вход</a></button>
     <script>
         async function sha256(message) {
             // encode as UTF-8

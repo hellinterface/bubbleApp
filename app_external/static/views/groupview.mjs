@@ -11,4 +11,7 @@ const template = `
 </div>
 `;
 
-export default {id, template};
+function onLoad() {
+}
+
+export default {id, template, onLoad};

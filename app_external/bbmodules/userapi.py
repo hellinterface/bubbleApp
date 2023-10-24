@@ -113,9 +113,10 @@ async def authenticate_user(email: str, passwordHash: str):
             objectToSend = {"email": email, "password_hash": passwordHash}
             r = await client.post('http://127.0.0.1:8080/api/users/login', json=objectToSend)
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            backendOutput = await r.json()
             print(backendOutput)
-            backendOutput = r.json()
             if (backendOutput["response"] == "success"):
+                print("!!!!!AAAA!!!!!!!!!!!!!!!!!!!!!")
                 return backendOutput["user_id"]
             else:   
                 raise Exception

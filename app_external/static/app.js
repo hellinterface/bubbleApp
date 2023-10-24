@@ -36,7 +36,8 @@ function openUserInfoPage() {
 
 function applyUserDataToApp() {
     getCurrentUser().then(userdata => {
-        sidebarBottom_userBar_visiblename.innerText = userdata.visiblename;
+        console.log(userdata);
+        sidebarBottom_userBar_visiblename.innerText = userdata.visible_name;
         sidebarBottom_userBar_handle.innerText = "@" + userdata.handle;
     });
 }
@@ -100,6 +101,7 @@ function router() {
         parentContainer.innerHTML = view.module.template;
         rightSide.innerHTML = "";
         rightSide.appendChild(parentContainer);
+        view.module.onLoad()
     }
     else {
         console.log("NOT FOUND VIEW");

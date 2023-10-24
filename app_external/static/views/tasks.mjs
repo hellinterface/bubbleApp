@@ -6,4 +6,7 @@ const template = `
 <div class="groupList_header">Tasks</div>
 `;
 
-export default {id, template};
+function onLoad() {
+}
+
+export default {id, template, onLoad};

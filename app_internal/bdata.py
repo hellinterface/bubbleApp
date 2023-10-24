@@ -108,7 +108,10 @@ class BData:
             string += self.__MAKE_WHERE(request)
         print(string)
         dbc = self.__connect()
-        return dbc.execute(string).fetchall()
+        res = dbc.execute(string).fetchall()
+        print(res)
+        dbc.close()
+        return res
 
     def __MAKE_WHERE(self, request: list|dict|None = None):
         if (request == None):
@@ -149,8 +152,6 @@ class BData:
             return x
 
     def insert(self, table_name, dictionary: BaseModel):
-        #dbc = self.__connect()
-        #cur = dbc.cursor()
         dictionary = dictionary.model_dump()
         values = list(map(self.replaceNoneWithEmptyString, dictionary.values()))
         for i in values:
@@ -159,7 +160,11 @@ class BData:
         values = list(map(str, values))
         query = f'''INSERT INTO {table_name} ({','.join(dictionary.keys())}) VALUES ("{'","'.join(values)}")'''
         print(query)
-        #dbc.commit()
+        dbc = self.__connect()
+        cur = dbc.cursor()
+        cur.execute(query)
+        dbc.commit()
+        dbc.close()
 
 # position 0 = default profile
 class UserProfile(BaseModel):

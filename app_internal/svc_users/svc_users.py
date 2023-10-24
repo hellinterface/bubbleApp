@@ -34,6 +34,7 @@ def user_factory(cursor, row):
 
 
 DB_USERS_PATH = os.path.dirname(__file__) + '\\users_db.db'
+print(DB_USERS_PATH)
 bdata = BData(DB_USERS_PATH, user_factory)
 
 # position 0 = default profile
@@ -68,6 +69,17 @@ class User(BaseModel):
     profiles: list[UserProfile] = Field(bdata_type=str)
     folder_id: str = Field(bdata_unique=True)
 
+class User_inDB(BaseModel):
+    id: str = Field(allow_mutation=False, bdata_unique=True)
+    handle: str = Field(bdata_unique=True)
+    visible_name: str = Field()
+    email: str = Field(bdata_unique=True)
+    password_hash: str = Field()
+    join_date: int = Field()
+    profiles: str = Field(bdata_type=str)
+    folder_id: str = Field(bdata_unique=True)
+
+
 def convertToUserList(strlist: list[str]):
     for i in strlist:
         User()
@@ -87,20 +99,23 @@ async def read_items():
 @router.post("/getByID", response_class=JSONResponse)
 async def getByID(req: dict):
     targetUser = bdata.select('Users', {"id": req["id"]})
+    print(targetUser)
     if targetUser != None:
-        return {"response": "success", "data": targetUser.model_dump()} 
+        return {"response": "success", "data": targetUser[0].model_dump()} 
     else:
         return {"response": "failure"}
 
-@router.post("/try_login", response_class=JSONResponse)
+@router.post("/login", response_class=JSONResponse)
 async def try_login(req: dict):
     print(req)
-    targetUser = bdata.select("Users", {"email": req["email"], "password_hash": req["password_hash"]})[0]
+    targetUser = bdata.select("Users", {"email": req["email"], "password_hash": req["password_hash"]})
     print(targetUser)
-    if (targetUser == None):
+    if (targetUser[0] == None):
+        print("FAUL")
         return {"response": "failure"}
     else:
-        return {"response": "success", "user_id": targetUser.id} 
+        print("YEAH")
+        return {"response": "success", "user_id": targetUser[0].id} 
 
 @router.post("/signup", response_class=JSONResponse)
 async def get_create(user_info: SignUpUserInfo): #new_user: User
@@ -120,10 +135,23 @@ async def get_create(user_info: SignUpUserInfo): #new_user: User
     user_info.id = secrets.token_urlsafe(6)
     user_info.profiles = list()
     user_info.profiles.append(new_profile.model_dump())
+    user_info.folder_id = secrets.token_urlsafe(8)
 
-    bdata.insert("Users", user_info)
+    dictionary = user_info.model_dump()
 
-    # addUserToDB(user_info)
+    profiles_str = json.dumps(json.dumps(user_info.profiles))
+    profiles_str = profiles_str[:-1]
+    profiles_str = profiles_str[1:]
+    profiles_str = profiles_str.replace('"', '""')
+    dictionary['profiles'] = profiles_str
+
+    user_indb = User_inDB(**dictionary)
+
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print(profiles_str)
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    bdata.insert("Users", user_indb)
 
     return {"response": "success", "user_id": user_info.id} 
 
