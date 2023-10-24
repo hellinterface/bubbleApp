@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import Annotated
 import httpx
+from .. import exceptions
 
 from ..bbmodules import userapi
 
@@ -15,6 +16,9 @@ router = APIRouter(
     # dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
+
+async def getCurrentUser(access_token: str):
+    return await userapi.get_current_user(access_token)
 
 @router.get("/users/list")
 async def list_users():
@@ -29,7 +33,7 @@ async def list_users():
 async def get_current_user_information(access_token: Annotated[str | None, Cookie()] = None):
     '''Get JSON information about the current user.'''
     print(access_token)
-    data = await userapi.get_current_user(access_token)
+    data = await getCurrentUser(access_token)
     print(data)
     return data
 
@@ -39,7 +43,7 @@ async def edit_current_user_information(request: Request, access_token: Annotate
     requestBody = await request.json()
     print(requestBody)
     print(access_token)
-    await userapi.get_current_user(access_token)
+    await getCurrentUser(access_token)
     async with httpx.AsyncClient() as client:
         try:
             r = await client.post('http://127.0.0.1:8080/api/users/edit', json=requestBody)

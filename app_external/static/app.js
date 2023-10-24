@@ -11,9 +11,18 @@ import settings from "/static/views/settings.mjs";
 console.log("Bubble v0.0.1");
 let rightSide = document.getElementById('rightSide');
 async function getCurrentUser() {
-    let res = await fetch(window.location.origin + "/api/users/me");
-    res = await res.json();
-    return res;
+    try {
+        let res = await fetch(window.location.origin + "/api/users/me");
+        console.log(res);
+        if (res.status >= 400 && res.status <= 600) {
+            throw new Error("Error " + res.status);
+        }
+        res = await res.json();
+        return res;
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
 
 function openUserInfoPage() {

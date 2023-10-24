@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status, Cookie
-from fastapi.responses import HTMLResponse, Response, RedirectResponse
+from fastapi.responses import HTMLResponse, Response, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
@@ -9,6 +9,7 @@ import secrets
 from typing import Annotated
 from pydantic import BaseModel
 
+from . import exceptions
 from .routers import internal_router
 from .bbmodules import userapi
 
@@ -23,11 +24,20 @@ templates = Jinja2Templates(directory="app_external/templates")
 @app.get('/app')
 @app.get("/app/{path}", response_class=HTMLResponse)
 async def catch_all(request: Request, path: str = ""):
+    """Обрабатывает все запросы, которые совершаются по адресу /app/*.
+
+    Также данная функция проверяет токен, который находится (или отсутствует) в куки, 
+    и на основе этого уже либо переводит пользователя в приложение, либо на страницу входа в аккаунт.
+    """
     access_token_cookie = request.cookies.get('access_token')
-    if (access_token_cookie == None or userapi.get_current_user(access_token_cookie) == None):
+    print(access_token_cookie)
+    if (access_token_cookie == None):
         return RedirectResponse("/login")
-    return templates.TemplateResponse("app.html", {"request": request})
-        
+    try:
+        user = await userapi.get_current_user(access_token_cookie)
+        return templates.TemplateResponse("app.html", {"request": request})
+    except:
+        return RedirectResponse("/login")
 
 #################################
 
@@ -48,6 +58,7 @@ def getDBConnection():
 
 @app.get("/rtc", response_class=HTMLResponse)
 async def read_root():
+    """Тестовая страница WebRTC."""
     f = open("app_external/index.html", "r", encoding="utf-8")
     return f.read()
 
@@ -150,13 +161,28 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_get(access_token: Annotated[str | None, Cookie()] = None):
-    if (access_token != None and userapi.get_current_user(access_token) != None):
-        return RedirectResponse("/app")
+    """Показать пользователю страницу входа в аккаунт, если его токен в куки недействителен либо отсутствует.
+    Если токен присутствует и он действителен, то перевести пользователя в приложение.
+    """
+    if (access_token != None):
+        try:
+            user = await userapi.get_current_user(access_token)
+            return RedirectResponse("/app")
+        except:
+            pass
     f = open("app_external/login.html", "r", encoding="utf-8")
     return f.read()
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_get():
+    """Показать пользователю страницу регистрации."""
     f = open("app_external/signup.html", "r", encoding="utf-8")
     return f.read()
 
+@app.exception_handler(exceptions.notFoundException)
+async def not_found_exception_handler(request: Request, exc: exceptions.notFoundException):
+    print("EXCEPTION HANDLED")
+    returnObject = {"status": "failure"}
+    if exc.detail: returnObject["detail"] = exc.detail
+    if exc.moreDetail: returnObject["moreDetail"] = exc.moreDetail
+    return JSONResponse(status_code=404, content=returnObject)
