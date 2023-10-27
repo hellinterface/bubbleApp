@@ -13,10 +13,14 @@ from . import exceptions
 from .routers import internal_router
 from .bbmodules import userapi
 
+import mimetypes
+mimetypes.add_type('application/javascript', '.vue')
+
 app = FastAPI()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app_external/static"), name="static")
+app.mount("/components", StaticFiles(directory="app_external/components"), name="components")
 app.include_router(internal_router.router)
 
 templates = Jinja2Templates(directory="app_external/templates")
@@ -160,7 +164,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await manager.broadcast(JSONWS("userlist_update", json.dumps(ws_userlist).replace('"', '\\"')))
 
 @app.get("/login", response_class=HTMLResponse)
-async def login_get(access_token: Annotated[str | None, Cookie()] = None):
+async def login_get(request: Request, access_token: Annotated[str | None, Cookie()] = None):
     """Показать пользователю страницу входа в аккаунт, если его токен в куки недействителен либо отсутствует.
     Если токен присутствует и он действителен, то перевести пользователя в приложение.
     """
@@ -170,14 +174,12 @@ async def login_get(access_token: Annotated[str | None, Cookie()] = None):
             return RedirectResponse("/app")
         except:
             pass
-    f = open("app_external/login.html", "r", encoding="utf-8")
-    return f.read()
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/signup", response_class=HTMLResponse)
-async def signup_get():
+async def signup_get(request: Request):
     """Показать пользователю страницу регистрации."""
-    f = open("app_external/signup.html", "r", encoding="utf-8")
-    return f.read()
+    return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.exception_handler(exceptions.notFoundException)
 async def not_found_exception_handler(request: Request, exc: exceptions.notFoundException):

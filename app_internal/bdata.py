@@ -12,14 +12,20 @@ class BData:
         self.row_factory = row_factory
         pass
 
-    def __check(self):
+    def __dict_factory(cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
+
+    def get_tables(self):
         conn = sqlite3.connect(self.path)
         conn.row_factory = sqlite3.Row
         tables = conn.execute("SELECT * FROM sqlite_master WHERE type='table'").fetchall()
-        if len(tables) == 0:
-            return False
-        else:
-            return True
+        result = []
+        for i in tables:
+            result.append(dict(i)['name'])
+        return result
 
     def create(self, table_name, model):
         primary_key = None
@@ -121,6 +127,7 @@ class BData:
             string = self.__JOIN_AND(request)
         elif isinstance(request, list):
             string = self.__JOIN_OR(request)
+        print(string)
         return string 
 
     def __JOIN_AND(self, entry: dict):

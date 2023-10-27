@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/fonts/helvetica.css">
-    <link rel="stylesheet" href="/static/standard.css">
-    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="static/fonts/helvetica.css">
+    <link rel="stylesheet" href="static/standard.css">
+    <link rel="stylesheet" href="static/app.css">
     <title>Bubble | App</title>
 </head>
 
@@ -16,56 +17,55 @@
         <div id="sidebar">
             <div id="sidebarLogo">
                 <div id="sidebarLogo_inner">
-                    <img id="sidebarLogo_icon" src="/static/images/logo_small_mono_2.svg" alt="">
-                    <img id="sidebarLogo_text" src="/static/images/logo_text.svg" alt="">
+                    <img id="sidebarLogo_icon" src="static/images/logo_small_mono_2.svg" alt="">
+                    <img id="sidebarLogo_text" src="static/images/logo_text.svg" alt="">
                 </div>
             </div>
             <div id="sidebarCategory_searchContainer">
-                <icon id="sidebar_searchIcon">search</icon>
+                <span id="sidebar_searchIcon" class="material-symbols-rounded">search</span>
                 <input type="text" id="sidebar_searchInput" placeholder="Search">
             </div>
             <div id="sidebarCategory_mainLinks">
-                <div class="sidebar_listItem" bb-view-link="chats">
-                    <icon>forum</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="chats">
+                    <icon></icon>
                     <div>Chats</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="groups">
-                    <icon>groups_3</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="groupList">
+                    <icon></icon>
                     <div>Groups</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="groupview">
-                    <icon>tab_group</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="groupView">
+                    <icon></icon>
                     <div>Test group view</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="contacts">
-                    <icon>contacts</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="contacts">
+                    <icon></icon>
                     <div>Contacts</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="tasks">
-                    <icon>task_alt</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="tasks">
+                    <icon></icon>
                     <div>Tasks</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="calendar">
-                    <icon>calendar_month</icon>
+                <div class="sidebar_listItem" bb-uimgr-view="calendar">
+                    <icon></icon>
                     <div>Calendar</div>
                 </div>
-                <div class="sidebar_listItem" bb-view-link="settings">
-                    <icon>settings</icon>
-                    <div>Settings</div>
+                <div class="sidebar_listItem" bb-uimgr-view="logos">
+                    <icon></icon>
+                    <div>Logos</div>
                 </div>
             </div>
             <div>
                 <button onclick="createTestDialogWindow();">open dialog window</button>
-                <button id="useredittest_button">user edit test</button>
             </div>
             <div id="sidebarCategory_favorites">
                 <div class="sidebarCategoryHeader">Favorites</div>
                 <div class="sidebar_listItem">
-                    <div class="favoriteItem_avatar"></div>
+                    <icon></icon>
                     <div>fav person</div>
                 </div>
                 <div class="sidebar_listItem">
-                    <div class="favoriteItem_avatar"></div>
+                    <icon></icon>
                     <div>fav group</div>
                 </div>
             </div>
@@ -73,16 +73,16 @@
                 <div id="sidebarBottom_callBar" class="sidebarBottom_bar">
                     <div id="sidebarBottom_callBar_currentCallInfo"></div>
                     <button>
-                        <icon>close</icon>
+                        <span class="material-symbols-rounded">close</span>
                     </button>
                     <button>
-                        <icon>videocam</icon>
+                        <span class="material-symbols-rounded">videocam</span>
                     </button>
                     <button>
-                        <icon>mic</icon>
+                        <span class="material-symbols-rounded">mic</span>
                     </button>
                     <button>
-                        <icon>headset_mic</icon>
+                        <span class="material-symbols-rounded">headset_mic</span>
                     </button>
                 </div>
                 <div id="sidebarBottom_userBar" class="sidebarBottom_bar">
@@ -96,6 +96,43 @@
             </div>
         </div>
         <div id="rightSide">
+            <div id="innerView_group" class="innerView displaynone">
+                <div class="innerView_header"></div>
+                <div class="innerView_body">
+                    <div class="innerView_body_leftbar"></div>
+                    <div class="innerView_body_center"></div>
+                    <div class="innerView_body_rightbar"></div>
+                </div>
+            </div>
+            <div id="innerView_groupList" class="innerView displaynone">
+                <div class="groupList_header">Your groups</div>
+                <div class="groupList_list">
+                    <div class="groupList_card">
+                        <div class="groupList_avatar"></div>
+                        <div class="groupList_title">Group 1</div>
+                    </div>
+                    <div class="groupList_card">
+                        <div class="groupList_avatar"></div>
+                        <div class="groupList_title">Group 2</div>
+                    </div>
+                </div>
+            </div>
+            <div id="innerView_contacts" class="innerView displaynone">
+                <div class="groupList_header">Contacts</div>
+            </div>
+            <div id="innerView_tasks" class="innerView displaynone">
+                <div class="groupList_header">Tasks</div>
+            </div>
+            <div id="innerView_chats" class="innerView displaynone">
+                <div class="groupList_header">Chats</div>
+            </div>
+            <div id="innerView_calendar" class="innerView displaynone">
+                <div class="groupList_header">Calendar</div>
+            </div>
+            <div id="innerView_logos" class="innerView displaynone">
+                <img src="static/images/mt_logo_big.svg" alt="" style="height:300px">
+                <img src="static/images/mt_logo_small.svg" alt="" style="height:500px">
+            </div>
         </div>
     </div>
     <div class="dialogWindow displaynone">
@@ -105,5 +142,5 @@
         </div>
     </div>
 </body>
-<script type="module" src="/static/app.js"></script>
+<script src="static/app.js" type="module"></script>
 </html>

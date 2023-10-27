@@ -2,7 +2,6 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse, JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from ..dependencies import get_token_header
 from pydantic import BaseModel
 import sqlite3
 import os
@@ -15,8 +14,6 @@ router = APIRouter(
     # dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
-
-router.mount("/static", StaticFiles(directory="app_internal/svc_groups/"), name="static")
 
 def groupInList_factory(cursor, row):
     d = {}

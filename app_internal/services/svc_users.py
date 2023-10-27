@@ -1,7 +1,6 @@
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse, JSONResponse
-from ..dependencies import get_token_header
 from pydantic import BaseModel, Field
 import sqlite3
 import os
@@ -108,14 +107,14 @@ async def getByID(req: dict):
 @router.post("/login", response_class=JSONResponse)
 async def try_login(req: dict):
     print(req)
-    targetUser = bdata.select("Users", {"email": req["email"], "password_hash": req["password_hash"]})
-    print(targetUser)
-    if (targetUser[0] == None):
+    targetUserList = bdata.select("Users", {"email": req["email"], "password_hash": req["password_hash"]})
+    print(targetUserList)
+    if (len(targetUserList) == 0):
         print("FAUL")
         return {"response": "failure"}
     else:
         print("YEAH")
-        return {"response": "success", "user_id": targetUser[0].id} 
+        return {"response": "success", "user_id": targetUserList[0].id} 
 
 @router.post("/signup", response_class=JSONResponse)
 async def get_create(user_info: SignUpUserInfo): #new_user: User
@@ -163,3 +162,12 @@ async def post_edit(req: dict):
     print(req)
     for key,value in req.items():
         print(f" --- {key}: {value}")
+    
+
+# ----------------------------------------------------------------------------
+
+tables = bdata.get_tables()
+print("Tables:")
+print(tables)
+if ("Users" not in tables):
+    bdata.create("Users", User_inDB)

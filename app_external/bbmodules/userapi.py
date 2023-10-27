@@ -67,6 +67,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dic
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    print("WOOOOOOOOOOOOOOOOOOOOO")
     if (token == None):
         print("NO TOKEN")
         raise credentials_exception
@@ -86,25 +87,19 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dic
         raise exceptions.notFoundException
     except exceptions.httpxException:
         raise exceptions.httpxException
-
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(user)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
     if user is None:
         raise credentials_exception
     return user
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    print("77777777777777777777777777777777 CREATING TOKEN")
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    print("6666666666666666666666666666666 ENCODING JWT")
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print("5555555555555555555555555555555555 ENCODED JWT")
     return encoded_jwt
 
 async def authenticate_user(email: str, passwordHash: str):
@@ -112,11 +107,9 @@ async def authenticate_user(email: str, passwordHash: str):
         try:
             objectToSend = {"email": email, "password_hash": passwordHash}
             r = await client.post('http://127.0.0.1:8080/api/users/login', json=objectToSend)
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            backendOutput = await r.json()
+            backendOutput = r.json()
             print(backendOutput)
             if (backendOutput["response"] == "success"):
-                print("!!!!!AAAA!!!!!!!!!!!!!!!!!!!!!")
                 return backendOutput["user_id"]
             else:   
                 raise Exception

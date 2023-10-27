@@ -1,7 +1,6 @@
 
 from fastapi import APIRouter, Depends, Request, HTTPException, status, Response, Cookie
 from fastapi.responses import PlainTextResponse, JSONResponse
-from ..dependencies import get_token_header
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import Annotated
@@ -13,7 +12,6 @@ from ..bbmodules import userapi
 router = APIRouter(
     prefix="/api",
     tags=["api"],
-    # dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 

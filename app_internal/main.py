@@ -11,8 +11,8 @@ from typing import Annotated
 from pydantic import BaseModel
 import httpx
 
-from .svc_users import svc_users
-from .svc_groups import svc_groups
+from .services import svc_users
+from .services import svc_groups
 
 app = FastAPI()
 app.include_router(svc_users.router)

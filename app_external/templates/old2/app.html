@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/fonts/helvetica.css">
+    <link rel="stylesheet" href="/static/standard.css">
+    <link rel="stylesheet" href="/static/app.css">
+    <title>Bubble | App</title>
+</head>
+
+<body>
+    <div id="main">
+        <div id="sidebar">
+            <div id="sidebarLogo">
+                <div id="sidebarLogo_inner">
+                    <img id="sidebarLogo_icon" src="/static/images/logo_small_mono_2.svg" alt="">
+                    <img id="sidebarLogo_text" src="/static/images/logo_text.svg" alt="">
+                </div>
+            </div>
+            <div id="sidebarCategory_searchContainer">
+                <icon id="sidebar_searchIcon">search</icon>
+                <input type="text" id="sidebar_searchInput" placeholder="Search">
+            </div>
+            <div id="sidebarCategory_mainLinks">
+                <div class="sidebar_listItem" bb-view-link="chats">
+                    <icon>forum</icon>
+                    <div>Chats</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="groups">
+                    <icon>groups_3</icon>
+                    <div>Groups</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="groupview">
+                    <icon>tab_group</icon>
+                    <div>Test group view</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="contacts">
+                    <icon>contacts</icon>
+                    <div>Contacts</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="tasks">
+                    <icon>task_alt</icon>
+                    <div>Tasks</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="calendar">
+                    <icon>calendar_month</icon>
+                    <div>Calendar</div>
+                </div>
+                <div class="sidebar_listItem" bb-view-link="settings">
+                    <icon>settings</icon>
+                    <div>Settings</div>
+                </div>
+            </div>
+            <div>
+                <button onclick="createTestDialogWindow();">open dialog window</button>
+                <button id="useredittest_button">user edit test</button>
+            </div>
+            <div id="sidebarCategory_favorites">
+                <div class="sidebarCategoryHeader">Favorites</div>
+                <div class="sidebar_listItem">
+                    <div class="favoriteItem_avatar"></div>
+                    <div>fav person</div>
+                </div>
+                <div class="sidebar_listItem">
+                    <div class="favoriteItem_avatar"></div>
+                    <div>fav group</div>
+                </div>
+            </div>
+            <div id="sidebarBottom">
+                <div id="sidebarBottom_callBar" class="sidebarBottom_bar">
+                    <div id="sidebarBottom_callBar_currentCallInfo"></div>
+                    <button>
+                        <icon>close</icon>
+                    </button>
+                    <button>
+                        <icon>videocam</icon>
+                    </button>
+                    <button>
+                        <icon>mic</icon>
+                    </button>
+                    <button>
+                        <icon>headset_mic</icon>
+                    </button>
+                </div>
+                <div id="sidebarBottom_userBar" class="sidebarBottom_bar">
+                    <div id="sidebarBottom_userBar_avatar"></div>
+                    <div id="sidebarBottom_userBar_info">
+                        <div id="sidebarBottom_userBar_visiblename"></div>
+                        <div id="sidebarBottom_userBar_handle"></div>
+                    </div>
+                    <button onclick="openUserInfoPage()">Get info</button>
+                </div>
+            </div>
+        </div>
+        <div id="rightSide">
+        </div>
+    </div>
+    <div class="dialogWindow displaynone">
+        <div class="dialogWindowContent">
+            This is a test dialog window.
+            <button>test</button>
+        </div>
+    </div>
+</body>
+<script type="module" src="/static/app.js"></script>
+</html>
