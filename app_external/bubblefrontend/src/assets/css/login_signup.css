@@ -1,0 +1,68 @@
+
+	#headerLogo {
+		height: 80px;
+		filter: invert(1) drop-shadow(0 4px 8px #0004);
+	}
+	header {
+		display: flex;
+		justify-content: center;
+		align-items: flex-end;
+		gap: 8px;
+		font-weight: bold;
+		font-size: 1.5em;
+		color: #fff;
+	}
+	#headerTextLogo {
+		height: 36px;
+		filter: invert(1) drop-shadow(0 4px 8px #0004);
+	}
+	#formContainer {
+		width: 400px;
+		background: #fffd;
+		padding: 16px;
+		border-radius: 6px;
+		box-shadow: 0 6px 12px #0004;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	html {
+		background: linear-gradient(#B0D8DA, #528998);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		font-family: HelveticaNeueCyr, "Segoe UI", Arial, sans-serif, system;
+		color: #222;
+	}
+
+	#mainContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	#sendRequestButton {
+		background: aliceblue;
+		color: #92CBCE;
+		margin-top: 20px;
+	}
+
+	button, a {
+		height: 40px;
+	}
+
+	a {
+		font-family: inherit;
+		font-size: 1.1em;
+		color: var(--color-primary);
+		font-weight: 500;
+		text-decoration: none;
+		width: 100%;
+		border: solid 1px var(--color-primary);
+		border-radius: 6px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}

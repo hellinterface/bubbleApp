@@ -1,4 +1,6 @@
 import { createApp } from 'vue'
-import App from './App.vue'
+import LoginPage from './LoginPage.vue'
+import '../assets/css/standard.css';
+import '../assets/css/login_signup.css';
 
-createApp(App).mount('#app')
+createApp(LoginPage).mount('#main')
