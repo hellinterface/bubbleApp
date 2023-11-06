@@ -1,11 +1,13 @@
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 import sqlite3
 import os
 import secrets
 import json
+from datetime import timedelta
 from ..bdata import BData
 
 router = APIRouter(
@@ -114,17 +116,35 @@ async def getByID(req: dict):
     else:
         return {"response": "failure"}
 
+
+def create_token_for_user_id(user_id: str) -> str:
+    print("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(user_id)
+    print("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    access_token_expires = timedelta(days=userapi.ACCESS_TOKEN_EXPIRE_DAYS)
+    access_token = userapi.create_access_token(
+        data={"user_id": user_id}, expires_delta=access_token_expires
+    )
+    return access_token
+
 @router.post("/login", response_class=JSONResponse)
 async def try_login(req: dict):
+    failException = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+    )
     print(req)
     targetUserList = bdata.select("Users", {"email": req["email"], "password_hash": req["password_hash"]})
     print(targetUserList)
     if (len(targetUserList) == 0):
-        print("FAUL")
         return {"response": "failure"}
     else:
-        print("YEAH")
-        return {"response": "success", "user_id": targetUserList[0].id} 
+        return {"response": "success", "user_id": targetUserList[0].id}
+    access_token = create_token_for_user_id(user_id)
+    response.set_cookie(key="access_token", value=access_token)
+    return {"access_token": access_token, "token_type": "bearer"}
+    
 
 @router.post("/signup", response_class=JSONResponse)
 async def get_create(user_info: SignUpUserInfo): #new_user: User

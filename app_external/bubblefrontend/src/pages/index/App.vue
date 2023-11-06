@@ -1,13 +1,14 @@
 
 <template>
-	<div id="appContainer">
+	<div id="appContainer" ref="ROOT">
 		<MqResponsive target="md+" class="no-shrink-flex">
 			<div id="sidebar">
+				<!--<button @click="() => showDialogWindow()">Показать диалоговое окно</button>-->
 				<SidebarMain></SidebarMain>
 			</div>
 		</MqResponsive>
 		<div id="rightSide">
-			<RightMainHeader :currentTitle="mainStore.currentRightHeaderTitle"></RightMainHeader>
+			<RightMainHeader :currentTitle="mainStore.currentRightHeaderTitle" :currentButtonSet="mainStore.currentRightHeaderButtonSet"></RightMainHeader>
 			<div id="rightSide_mainContainer">
 				<router-view></router-view>
 			</div>
@@ -19,7 +20,9 @@
 		</MqResponsive>
 	</div>
 	<ContextMenu ref="contextMenu"></ContextMenu>
-	<DialogWindow></DialogWindow>
+	<DialogWindow style="display: none">
+		<DialogCreateGroup></DialogCreateGroup>
+	</DialogWindow>
 </template>
 
 <script>
@@ -32,6 +35,9 @@
 	import { useMainStore } from '@/stores/mainStore'
 	import ContextMenu from '@/components/contextmenu/ContextMenu.vue'
 	import DialogWindow from '@/components/DialogWindow.vue'
+	import DialogCreateGroup from '@/components/dialogs/DialogCreateGroup.vue'
+
+	const ROOT = ref(null);
 
 	export default {
 		name: 'App',
@@ -41,11 +47,12 @@
 			SidebarMain,
 			BottombarMain,
 			RightMainHeader,
-			DialogWindow
+			DialogWindow, DialogCreateGroup
 		},
 		methods: {
-			onClick (text) {
-				alert(`You clicked ${text}!`);
+			showDialogWindow() {
+				let dialog = new DialogWindow();
+				ROOT.value.appendChild(dialog);
 			}
 		},
 		setup() {
@@ -66,7 +73,8 @@
 			console.log(contextMenu);
 			mainStore.contextMenu = contextMenu;
 			return {
-				contextMenu
+				contextMenu,
+				ROOT
 			}
 		},
 

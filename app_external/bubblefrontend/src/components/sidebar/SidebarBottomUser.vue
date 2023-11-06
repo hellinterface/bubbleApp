@@ -66,4 +66,8 @@ export default {
     height: 32px;
     width: 32px;
 }
+a {
+    color: unset;
+    text-decoration: none;
+}
 </style>

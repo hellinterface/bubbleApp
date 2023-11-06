@@ -1,5 +1,5 @@
 <template>
-	<div class="groupList_card" @click.right.prevent="mainStore.contextMenu.show()">
+	<div class="groupList_card" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
 		<div class="groupList_avatar"></div>
 		<div class="groupList_title">{{ group_title }}</div>
 		<XButton class="groupList_moreMenuButton" icon_name="more_vert" appearance="round small"></XButton>
@@ -24,11 +24,21 @@
 				type: String
 			},
 		},
-		data() {
+        setup() {
 			const mainStore = useMainStore();
 			return {
 				mainStore
 			}
+        },
+		data() {
+            return {
+                contextMenuObject: [
+                    {text: "Call", onclick: () => {console.log("CALL")}},
+                    {text: "Chat", onclick: () => {console.log("CALL")}},
+                    {text: "Edit contact", onclick: () => {console.log("EDIT CONTACT")}},
+                    {text: "Remove contact", onclick: () => {console.log("REMOVE CONTACT")}},
+                ]
+            }
 		}
 	}
 </script>

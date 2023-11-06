@@ -6,6 +6,7 @@
 			</div>
 		</div>
 		<div class="routerView_mainContent">
+			<TaskBoardView></TaskBoardView>
 		</div>
 	</div>
 </template>
@@ -14,6 +15,7 @@
 import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
+import TaskBoardView from '../TaskBoardView.vue';
 const headerTitle = "Задачи";
 var mainStore;
 
@@ -25,7 +27,8 @@ const groupList = ref([
 export default {
 	name: 'RvTasks',
     components: {
-        ChannelLink
+        ChannelLink,
+		TaskBoardView
     },
 	mounted() {
 		mainStore = useMainStore();

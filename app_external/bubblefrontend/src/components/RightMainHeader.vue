@@ -3,19 +3,30 @@
 		<div id="rightMainHeaderContent_title">
 			{{currentTitle}}
 		</div>
+		<div id="rightMainHeaderContent_buttonSetContainer">
+			<hbsGrouplist></hbsGrouplist>
+		</div>
 	</div>
 </template>
 
 <script>
+import hbsGrouplist from '@/components/headerButtonSets/hbsGrouplist.vue';
 
 export default {
 	name: 'RightMainHeader',
 	components: {
+		hbsGrouplist
 	},
 	props: {
+		//currentButtonSet: {default: hbsContacts},
 		currentTitle: {
 			type: String,
 			default: "Nothing."
+		},
+	},
+	data() {
+		return {
+
 		}
 	}
 }
@@ -30,8 +41,9 @@ export default {
 	border: solid 1px #0003;
 	display: flex;
 	align-items: center;
-	padding: 8px;
+	padding: 8px 24px;
 	flex-shrink: 0;
+	justify-content: space-between;
 }
 #rightMainHeaderContent_title {
 	font-weight: bold;

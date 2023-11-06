@@ -1,24 +1,20 @@
 <template>
     <div id="sidebarBottomCall">
         <div id="sidebarBottomCall_currentCallInfo"></div>
-        <button>
-            <icon>close</icon>
-        </button>
-        <button>
-            <icon>videocam</icon>
-        </button>
-        <button>
-            <icon>mic</icon>
-        </button>
-        <button>
-            <icon>headset_mic</icon>
-        </button>
+        <XButton icon_name="close" appearance="small"></XButton>
+        <XButton icon_name="videocam" appearance="small"></XButton>
+        <XButton icon_name="mic" appearance="small"></XButton>
+        <XButton icon_name="headset_mic" appearance="small"></XButton>
     </div>
 </template>
 
 <script>
+import XButton from '../elements/XButton.vue';
 export default {
-	name: 'SidebarBottomCall'
+	name: 'SidebarBottomCall',
+    components: {
+        XButton
+    }
 }
 </script>
 
@@ -32,16 +28,5 @@ export default {
     align-items: center;
     padding: 4px;
     gap: 3px;
-}
-button {
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    background: #0002;
-}
-button icon {
-    font-size: 20px;
-    line-height: 28px;
-    color: var(--color-primary)
 }
 </style>

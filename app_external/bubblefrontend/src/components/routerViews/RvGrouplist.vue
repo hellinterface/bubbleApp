@@ -10,6 +10,7 @@
 import { ref } from 'vue';
 import GroupCard from "../elements/GroupCard.vue"
 import { useMainStore } from '@/stores/mainStore'
+import hbsGroupList from '@/components/headerButtonSets/hbsGrouplist.vue'
 const headerTitle = "Группы";
 var mainStore;
 
@@ -25,6 +26,7 @@ export default {
     },
 	mounted() {
 		mainStore = useMainStore();
+		mainStore.currentRightHeaderButtonSet = hbsGroupList;
 		mainStore.currentRightHeaderTitle = headerTitle;
 		console.log(mainStore.currentRightHeaderTitle);
 	},

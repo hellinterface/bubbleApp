@@ -1,7 +1,7 @@
-<template v-slot="mainSlot">
+<template>
     <button @click="$emit('onclick')" :class="appearance">
         <icon v-if="icon_name != ''">{{ icon_name }}</icon>
-        <div v-if="!!this.$slots.mainSlot" class="button_label">
+        <div v-if="!!($slots.default)" class="button_label">
             <slot></slot>
         </div>
     </button>
