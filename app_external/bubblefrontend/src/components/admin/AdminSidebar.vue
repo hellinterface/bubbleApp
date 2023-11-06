@@ -5,21 +5,21 @@
 		<div id="sidebar_main">
 			<SidebarCategoryLink icon_name="contacts" to="/users">Пользователи</SidebarCategoryLink>
 		</div>
-		<SidebarBottomUser></SidebarBottomUser>
+		
 	</div>
 </template>
 
 <script>
 import SidebarCategoryLink from '../sidebar/SidebarCategoryLink.vue'
 import SidebarSearch from '../sidebar/SidebarSearch.vue'
-import SidebarBottomUser from '../sidebar/SidebarBottomUser.vue'
+//import SidebarBottomUser from '../sidebar/SidebarBottomUser.vue'
 
 export default {
 	name: 'AdminSidebar',
 	components: {
 		SidebarCategoryLink,
 		SidebarSearch,
-		SidebarBottomUser
+		//SidebarBottomUser
 	},
 	props: {
 		msg: String
