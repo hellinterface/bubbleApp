@@ -1,6 +1,7 @@
+
 <template>
 	<div id="appContainer">
-		<MqResponsive target="sm+">
+		<MqResponsive target="md+" class="no-shrink-flex">
 			<div id="sidebar">
 				<SidebarMain></SidebarMain>
 			</div>
@@ -17,42 +18,60 @@
 			</div>
 		</MqResponsive>
 	</div>
+	<ContextMenu ref="contextMenu"></ContextMenu>
+	<DialogWindow></DialogWindow>
 </template>
 
 <script>
-	import { inject } from 'vue'
-	import SidebarMain from '../components/sidebar/Sidebar.vue'
-	import RightMainHeader from '../components/RightMainHeader.vue'
-	import BottombarMain from '../components/bottombar/Bottombar.vue'
+	import { inject, ref } from 'vue'
+	import SidebarMain from '@/components/sidebar/Sidebar.vue'
+	import RightMainHeader from '@/components/RightMainHeader.vue'
+	import BottombarMain from '@/components/bottombar/Bottombar.vue'
 	import { MqResponsive } from 'vue3-mq'
 	import { useRouter, useRoute } from 'vue-router'
 	import { useMainStore } from '@/stores/mainStore'
-
+	import ContextMenu from '@/components/contextmenu/ContextMenu.vue'
+	import DialogWindow from '@/components/DialogWindow.vue'
 
 	export default {
 		name: 'App',
 		components: {
+			ContextMenu,
 			MqResponsive,
 			SidebarMain,
 			BottombarMain,
-			RightMainHeader
+			RightMainHeader,
+			DialogWindow
+		},
+		methods: {
+			onClick (text) {
+				alert(`You clicked ${text}!`);
+			}
 		},
 		setup() {
+			const mainStore = useMainStore();
+
 			const $cookies = inject('$cookies');
 			console.log($cookies.get('access-token'));
-			/*
 			if (!$cookies.get('access-token')) {
-				window.location.href = "/login";
+				//window.location.href = "/login";
+				mainStore.currentUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
 			}
-			*/
 
 			const router = useRouter();
 			const route = useRoute();
 			console.log(router, route);
+
+			const contextMenu = ref(null);
+			console.log(contextMenu);
+			mainStore.contextMenu = contextMenu;
+			return {
+				contextMenu
+			}
 		},
 
 		mounted() {
-			console.log(this.count) // 0
+			console.log("App.vue mounted")
 		},
 		data() {
 			const mainStore = useMainStore();
@@ -105,7 +124,12 @@
 		width: 100%;
 	}
 
-	@media (max-width: 576px) {
+	.no-shrink-flex {
+		flex-shrink: 0;
+		display: flex;
+	}
+
+	@media (max-width: 767px) {
 		#appContainer {
 			flex-direction: column;
 		}

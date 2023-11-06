@@ -15,8 +15,8 @@ import ChatMessage from './elements/ChatMessage.vue'
 import ChatInput from './elements/ChatInput.vue';
 
 const messageList = ref([
-    {id: "123", content: "test123", sender: {name: "owoman"}, time: "12:30pm"},
-    {id: "456", content: "booyeah. booyeah. booyeah. booyeah. booyeah.", sender: {name: "uwuman"}, time: "16:40pm"},
+    {id: "123", content: "test123", sender: {name: "user1"}, time: "12:30"},
+    {id: "456", content: "this is a message content", sender: {name: "user2"}, time: "16:40"},
 ]);
 
 export default {

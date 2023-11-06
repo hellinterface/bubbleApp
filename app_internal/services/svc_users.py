@@ -93,7 +93,17 @@ async def read_items():
     print("Userlist: " + str(len(userlist)))
     for i in userlist:
         print(i)
-    return {"response": "success"}
+    return {"response": "success", "userlist": userlist}
+
+@router.post("/get_query", response_class=JSONResponse)
+async def post_get_query(req: dict):
+    print("AAAAAAAAAAAAAAAAAH")
+    print(req)
+    if not req.get('query'):
+        return {"response": "failure"}
+    resultList = bdata.select_query('Users', req['query'])
+    print(resultList)
+    return resultList
 
 @router.post("/getByID", response_class=JSONResponse)
 async def getByID(req: dict):

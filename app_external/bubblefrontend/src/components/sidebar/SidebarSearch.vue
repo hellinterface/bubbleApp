@@ -1,7 +1,7 @@
 <template>
     <div id="sidebarCategory_searchContainer">
         <icon id="sidebar_searchIcon">search</icon>
-        <input type="text" id="sidebar_searchInput" placeholder="Search">
+        <input type="text" id="sidebar_searchInput" placeholder="Поиск">
     </div>
 </template>
 

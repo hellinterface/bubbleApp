@@ -4,26 +4,27 @@
 */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Vue3Mq } from "vue3-mq";
+import { Vue3Mq } from "vue3-mq"
 import { createRouter, createWebHashHistory } from 'vue-router'
 import VueCookies from 'vue-cookies'
+import VueClickAway from 'vue3-click-away'
 
 /*
 	CSS
 */
-import '../assets/css/standard.css';
+import '@/assets/css/standard.css'
 
 /*
 	Components
 */
 import App from './App.vue'
-import RvGrouplist from '../components/routerViews/RvGrouplist.vue'
-import RvGroupview from '../components/routerViews/RvGroupview.vue'
-import RvTasks from '../components/routerViews/RvTasks.vue'
-import RvContacts from '../components/routerViews/RvContacts.vue'
-import RvSettings from '../components/routerViews/RvSettings.vue'
-import RvChats from '../components/routerViews/RvChats.vue'
-import RvCalendar from '../components/routerViews/RvCalendar.vue'
+import RvGrouplist from '@/components/routerViews/RvGrouplist.vue'
+import RvGroupview from '@/components/routerViews/RvGroupview.vue'
+import RvTasks from '@/components/routerViews/RvTasks.vue'
+import RvContacts from '@/components/routerViews/RvContacts.vue'
+import RvSettings from '@/components/routerViews/RvSettings.vue'
+import RvChats from '@/components/routerViews/RvChats.vue'
+import RvCalendar from '@/components/routerViews/RvCalendar.vue'
 
 
 /*
@@ -56,6 +57,7 @@ const app = createApp(App);
 app.use(router);
 app.use(pinia);
 app.use(VueCookies);
+app.use(VueClickAway);
 // Breakpoints taken from default 'bootstrap5' preset (https://vue3-mq.info/configure/presets.html)
 app.use(Vue3Mq, {
 	breakpoints: {

@@ -3,6 +3,10 @@
 		<div class="groupList_avatar"></div>
 		<div class="groupList_title">{{ group_title }}</div>
 		<XButton class="groupList_moreMenuButton" icon_name="more_vert" appearance="round small"></XButton>
+        <div class="groupList_actions">
+            <XButton icon_name="call" appearance="outlined"></XButton>
+            <XButton icon_name="chat" appearance="outlined"></XButton>
+        </div>
 	</div>
 </template>
 
@@ -10,7 +14,7 @@
     import { useMainStore } from '@/stores/mainStore'
     import XButton from './XButton.vue';
 	export default {
-		name: 'GroupCard',
+		name: 'ContactCard',
         components: {
             XButton
         },
@@ -35,8 +39,8 @@
     border: solid 1px #0243;
     border-radius: 4px;
     box-shadow: 0 4px 4px #0002;
-    flex-basis: 400px;
-    height: 200px;
+    flex-basis: 300px;
+    min-height: 180px;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -45,6 +49,7 @@
     position: relative;
     flex-shrink: 1;
     flex-grow: 1;
+    align-items: center;
 }
 
 .groupList_card:hover {
@@ -66,10 +71,16 @@
     background: slateblue;
     border-radius: 4px;
     box-shadow: 0 2px 2px #0004;
+    flex-shrink: 0;
 }
 
 .groupList_title {
     font-weight: bold;
     font-size: 24px;
+}
+
+.groupList_actions {
+    display: flex;
+    gap: 6px;
 }
 </style>

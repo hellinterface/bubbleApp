@@ -1,6 +1,7 @@
 <template>
     <BBRouterLink v-bind="$props">
         <div class="sidebar_listItem">
+            <div class="sidebar_listItem_activeIndicator"></div>
             <icon>{{icon_name}}</icon>
             <div>
                 <slot></slot>
@@ -25,12 +26,7 @@
 </script>
 
 <style scoped>
-    #sidebarCategory_mainLinks {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        background: #fff;
-    }
+
     
     .sidebar_listItem {
         width: 100%;
@@ -49,6 +45,22 @@
     a {
         text-decoration: none;
         color: unset;
+    }
+
+    .sidebar_listItem_activeIndicator {
+        width: 4px;
+        height: calc(100% - 4px);
+        background: var(--color-primary);
+        border-radius: 3px;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        opacity: 0;
+        transition: 0.2s ease;
+    }
+
+    a.router-link-active .sidebar_listItem_activeIndicator {
+        opacity: 1;
     }
     
     #sidebarCategory_favorites .sidebar_listItem {

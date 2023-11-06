@@ -1,21 +1,20 @@
 <template>
 	<div class="chatInput">
-		<button class="chatInput_attachmentButton">
-			<icon>attachment</icon>
-		</button>
+		<XButton class="chatInput_attachmentButton" icon_name="attachment"></XButton>
 		<div class="chatInput_fieldContainer">
 			<input type="text" class="chatInput_field">
 		</div>
-		<button class="chatInput_sendButton">
-			<icon>send</icon>
-		</button>
+		<XButton class="chatInput_sendButton" icon_name="send"></XButton>
 	</div>
 </template>
 
 <script>
+	import XButton from './XButton.vue';
 	export default {
 		name: 'ChatInput',
-
+		components: {
+			XButton
+		},
 		props: {
 		}
 	}

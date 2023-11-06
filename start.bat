@@ -10,7 +10,7 @@ IF %1 == . GOTO ExternalLocal
 :Internal
     echo "Starting internal..."
     echo %cd%
-    uvicorn app_internal.main:app --reload --port 8080
+    uvicorn app_internal.main:app --reload --port 7070
 
 :External
     echo "Starting external..."

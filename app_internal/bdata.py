@@ -59,6 +59,20 @@ class BData:
         # if not self.__check(): create(conn)
         return conn
 
+    def select_query(self, table_name: str, request: str|None):
+        string = f"SELECT * FROM {table_name}"
+        if (request == None):
+            raise Exception
+        elif request != "*":
+            string += " WHERE "
+            string += request
+        print(string)
+        dbc = self.__connect()
+        res = dbc.execute(string).fetchall()
+        print(res)
+        dbc.close()
+        return res
+
     def select(self, table_name: str, request: list|dict|str|None = None):
         """
             Возвращает из указанной таблицы базы данных все строки, которые соответствуют

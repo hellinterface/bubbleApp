@@ -1,28 +1,27 @@
 <template>
     <div class="router-view-container" id="rvContacts">
         <div class="contacts_list">
-            <GroupCard v-for="group in groupList" :key="group.id" :group_title="group.title"></GroupCard>
-            <GroupCard group_title="geeeee"></GroupCard>
+            <ContactCard v-for="group in groupList" :key="group.id" :group_title="group.title"></ContactCard>
         </div>
     </div>
 </template>
 
 <script>
 import { ref } from 'vue';
-import GroupCard from "../elements/GroupCard.vue"
+import ContactCard from "../elements/ContactCard.vue"
 import { useMainStore } from '@/stores/mainStore'
-const headerTitle = "Ваши группы";
+const headerTitle = "Контакты";
 var mainStore;
 
 const groupList = ref([
-    {id: "123", title: "owo"},
-    {id: "456", title: "booyea"},
+    {id: "123", title: "user1"},
+    {id: "456", title: "user2"},
 ]);
 
 export default {
 	name: 'RvGrouplist',
     components: {
-        GroupCard
+        ContactCard
     },
 	mounted() {
 		mainStore = useMainStore();
@@ -44,7 +43,7 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 16px;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     justify-content: center;
 }
 </style>

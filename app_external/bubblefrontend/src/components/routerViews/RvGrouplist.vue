@@ -2,7 +2,6 @@
     <div class="router-view-container" id="rvGrouplist">
         <div class="groupList_list">
             <GroupCard v-for="group in groupList" :key="group.id" :group_title="group.title"></GroupCard>
-            <GroupCard group_title="geeeee"></GroupCard>
         </div>
     </div>
 </template>
@@ -11,12 +10,12 @@
 import { ref } from 'vue';
 import GroupCard from "../elements/GroupCard.vue"
 import { useMainStore } from '@/stores/mainStore'
-const headerTitle = "Ваши группы";
+const headerTitle = "Группы";
 var mainStore;
 
 const groupList = ref([
-    {id: "123", title: "owo"},
-    {id: "456", title: "booyea"},
+    {id: "123", title: "group1"},
+    {id: "456", title: "group2"},
 ]);
 
 export default {

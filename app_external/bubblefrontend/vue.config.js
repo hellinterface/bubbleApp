@@ -14,7 +14,7 @@ module.exports = {
 	},
 	pages: {
 		index: {
-			entry: 'src/index/main.js',
+			entry: 'src/pages/index/main.js',
 			template: 'public/index.html',
 			filename: 'index.html',
 			title: 'Main App',
@@ -23,16 +23,22 @@ module.exports = {
 			chunks: ['chunk-vendors', 'chunk-common', 'index']
 		},
 		login: {
-			entry: 'src/login/main.js',
+			entry: 'src/pages/login/main.js',
 			template: 'public/login.html',
 			filename: 'login.html',
 			title: 'Log In | Bubble'
 		},
 		signup: {
-			entry: 'src/signup/main.js',
+			entry: 'src/pages/signup/main.js',
 			template: 'public/signup.html',
 			filename: 'signup.html',
 			title: 'Sign Up | Bubble'
 		},
+		admin: {
+			entry: 'src/pages/admin/main.js',
+			template: 'public/admin.html',
+			filename: 'admin.html',
+			title: 'Bubble Admin Panel'
+		}
 	}
 }

@@ -1,25 +1,66 @@
 <template>
-    <div class="router-view-container" id="rvTasks"></div>
-    <div class="groupList_header">
-        <div class="groupList_headerContent">Tasks</div>
-        <div class="groupList_headerBackground"></div>
-    </div>
+	<div class="router-view-container" id="rvTasks">
+		<div class="secondarySidebar">
+			<div class="tasks_boardList">
+				<ChannelLink v-for="channel in groupList" :key="channel.id" :channel_title="channel.title"></ChannelLink>
+			</div>
+		</div>
+		<div class="routerView_mainContent">
+		</div>
+	</div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
+import ChannelLink from '../elements/ChannelLink.vue'
 const headerTitle = "Задачи";
 var mainStore;
 
+const groupList = ref([
+    {id: "123", title: "board1"},
+    {id: "456", title: "board2"},
+]);
+
 export default {
 	name: 'RvTasks',
+    components: {
+        ChannelLink
+    },
 	mounted() {
 		mainStore = useMainStore();
 		mainStore.currentRightHeaderTitle = headerTitle;
 		console.log(mainStore.currentRightHeaderTitle);
 	},
+    data() {
+        return {
+            groupList
+        }
+    }
 }
 </script>
 
 <style scoped>
+	#rvTasks {
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+		gap: 6px;
+	}
+	.secondarySidebar {
+		height: 100%;
+		width: 20%;
+		background-color: #fff;
+		box-shadow: 0 0 6px #0004;
+		border-radius: 6px;
+		padding: 6px;
+	}
+	.groupView_channelList {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.routerView_mainContent {
+		flex-grow: 1;
+	}
 </style>

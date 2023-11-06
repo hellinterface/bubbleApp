@@ -28,6 +28,6 @@
     transition: 0.2s ease;
 }
 .channelLink:hover {
-    background-color: #6984;
+    background-color: #69a4;
 }
 </style>

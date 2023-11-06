@@ -2,10 +2,11 @@
 	<div class="router-view-container" id="rvSettings">
 		<div class="secondarySidebar">
 			<div class="settings_categories">
-				<ChannelLink v-for="channel in channelList" :key="channel.id" :channel_title="channel.title"></ChannelLink>
+				<ChannelLink v-for="category in categoryList" :key="category.id" :channel_title="category.title"></ChannelLink>
 			</div>
 		</div>
 		<div class="routerView_mainContent">
+			<AvatarPicker></AvatarPicker>
 		</div>
 	</div>
 </template>
@@ -14,10 +15,11 @@
 import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
+import AvatarPicker from '../elements/AvatarPicker.vue';
 const headerTitle = "Настройки";
 var mainStore;
 
-const channelList = ref([
+const categoryList = ref([
     {id: "123", title: "Аккаунт"},
     {id: "456", title: "Система"},
 ]);
@@ -25,7 +27,8 @@ const channelList = ref([
 export default {
 	name: 'RvSettings',
 	components: {
-		ChannelLink
+		ChannelLink,
+		AvatarPicker
 	},
 	mounted() {
 		mainStore = useMainStore();
@@ -34,7 +37,7 @@ export default {
 	},
 	data() {
 		return {
-			channelList
+			categoryList
 		}
 	}
 }

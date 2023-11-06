@@ -66,7 +66,8 @@ export default {
 
 <style scoped>
 .calendar_month {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(7, 1fr);
 }
 </style>

@@ -116,3 +116,19 @@ input:focus {
     border-radius: 6px;
     padding: 8px;
 }
+
+.secondarySidebar {
+    height: 100%;
+    width: 20%;
+    background-color: #fff;
+    box-shadow: 0 0 6px #0004;
+    border-radius: 6px;
+    padding: 6px;
+    min-width: 160px;
+}
+
+.stdSurface {
+    background-color: #fff;
+    box-shadow: 0 0 6px #0004;
+    border-radius: 6px;
+}

@@ -15,18 +15,20 @@
 import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
-const headerTitle = "Настройки";
+import ChatView from '../ChatView.vue'
+const headerTitle = "Диалоги";
 var mainStore;
 
 const groupList = ref([
-    {id: "123", title: "owo"},
-    {id: "456", title: "booyea"},
+    {id: "123", title: "user1"},
+    {id: "456", title: "user2"},
 ]);
 
 export default {
 	name: 'RvChats',
     components: {
-        ChannelLink
+        ChannelLink,
+		ChatView
     },
 	mounted() {
 		mainStore = useMainStore();
@@ -47,14 +49,6 @@ export default {
 		display: flex;
 		flex-direction: row;
 		gap: 6px;
-	}
-	.secondarySidebar {
-		height: 100%;
-		width: 20%;
-		background-color: #fff;
-		box-shadow: 0 0 6px #0004;
-		border-radius: 6px;
-		padding: 6px;
 	}
 	.groupView_channelList {
 		display: flex;

@@ -6,7 +6,7 @@
 			</div>
 		</div>
 		<div class="routerView_mainContent">
-			<ChatView></ChatView>
+			<CallView></CallView>
 		</div>
 	</div>
 </template>
@@ -15,20 +15,20 @@
 import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
-import ChatView from '../ChatView.vue';
-const headerTitle = "Группа ничего";
+import CallView from '../CallView.vue';
+const headerTitle = "group1";
 var mainStore;
 
 const channelList = ref([
-    {id: "123", title: "owo"},
-    {id: "456", title: "booyea"},
+    {id: "123", title: "channel1"},
+    {id: "456", title: "channel2"},
 ]);
 
 export default {
 	name: 'RvGroupview',
 	components: {
 		ChannelLink,
-		ChatView
+		CallView
 	},
 	mounted() {
 		mainStore = useMainStore();
