@@ -1,6 +1,9 @@
 import { createApp } from 'vue'
+import VueCookies from 'vue-cookies'
 import SignupPage from './SignupPage.vue'
 import '@/assets/css/standard.css';
 import '@/assets/css/login_signup.css';
 
-createApp(SignupPage).mount('#main')
+const app = createApp(SignupPage);
+app.use(VueCookies);
+app.mount('#main');

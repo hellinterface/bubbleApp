@@ -12,12 +12,13 @@ from typing import Annotated
 from pydantic import BaseModel
 import httpx
 
-from .services import svc_users, svc_groups, svc_files
+from .routers import router_users, router_auth #, router_groups, router_files
 
 app = FastAPI()
-app.include_router(svc_users.router)
-app.include_router(svc_groups.router)
-app.include_router(svc_files.router)
+app.include_router(router_users.router)
+app.include_router(router_auth.router)
+#app.include_router(router_groups.router)
+#app.include_router(router_files.router)
 
 origins = [
     "http://localhost",

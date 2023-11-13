@@ -5,6 +5,7 @@
             <div id="sidebarBottomUser_visiblename">{{currentUser.visible_name}}</div>
             <div id="sidebarBottomUser_handle">@{{currentUser.handle}}</div>
         </div>
+        <button @click="console.log(currentUser)"></button>
         <BBRouterLink to="/settings">
             <XButton id="sidebarBottomUser_settingsButton" icon_name="settings" appearance="small"></XButton>
         </BBRouterLink>
@@ -25,6 +26,11 @@ export default {
 	setup() {
 		const mainStore = useMainStore();
         const currentUser = ref(mainStore.currentUser);
+        mainStore.$subscribe((mutation, state) => {
+            console.warn("STATE");
+            console.log(state);
+            //currentUser.value = state
+        });
 		return {
 			currentUser
 		}

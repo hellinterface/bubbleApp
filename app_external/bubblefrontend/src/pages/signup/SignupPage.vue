@@ -6,25 +6,63 @@
 			<div>| Регистрация</div>
 		</header>
 		<div id="formContainer">
-			<LabeledInput name="email" type="text" placeholder="">Почта</LabeledInput>
-			<LabeledInput name="handle" type="text" placeholder="">Имя пользователя</LabeledInput>
-			<LabeledInput name="visible_name" type="text" placeholder="">Публичное имя</LabeledInput>
-			<LabeledInput name="password" type="password" placeholder="">Пароль</LabeledInput>
-			<button>Создать аккаунт</button>
+			<LabeledInput name="email" type="text" placeholder="" v-model="value_email">Почта</LabeledInput>
+			<LabeledInput name="handle" type="text" placeholder="" v-model="value_handle">Имя пользователя</LabeledInput>
+			<LabeledInput name="visible_name" type="text" placeholder="" v-model="value_visible_name">Публичное имя</LabeledInput>
+			<LabeledInput name="password" type="password" placeholder="" v-model="value_password">Пароль</LabeledInput>
+			<XButton @onclick="makeQuery()">Создать аккаунт</XButton>
 			<a href="/login">Войти в существующий аккаунт</a>
 		</div>
 	</div>
 </template>
 
 <script>
-	import LabeledInput from "@/components/LabeledInput.vue";
+import { inject, ref } from 'vue'
+import axios from 'axios';
+import LabeledInput from "@/components/LabeledInput.vue";
+import XButton from "@/components/elements/XButton.vue";
 
-	export default {
-		name: 'SignupPage',
-		components: {
-			LabeledInput
+export default {
+	name: 'LoginPage',
+	components: {
+		LabeledInput,
+		XButton
+	},
+	setup() {
+		const $cookies = inject('$cookies');
+		const value_email = ref(null);
+		const value_handle = ref(null);
+		const value_visible_name = ref(null);
+		const value_password = ref(null);
+		async function sha256(message) {
+			const msgBuffer = new TextEncoder().encode(message);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+			return hashHex;
+		}
+		function makeQuery() {
+			sha256(value_password.value).then(password_hash => {
+				let requestObject = {email: value_email.value, handle: value_handle.value, visible_name: value_visible_name.value, password_hash: password_hash};
+				axios.post('http://localhost:7070/api/auth/signup', requestObject)
+				.then(function (response) {
+					console.log(response.data);
+					$cookies.set('access_token', response.data.access_token)
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			});
+		}
+		return {
+			makeQuery,
+			value_email,
+			value_handle,
+			value_visible_name,
+			value_password,
 		}
 	}
+}
 </script>
 
 <style>

@@ -4,7 +4,7 @@
 		<MqResponsive target="md+" class="no-shrink-flex">
 			<div id="sidebar">
 				<!--<button @click="() => showDialogWindow()">Показать диалоговое окно</button>-->
-				<SidebarMain></SidebarMain>
+				<SidebarMain :key="sidebarKey"></SidebarMain>
 			</div>
 		</MqResponsive>
 		<div id="rightSide">
@@ -27,6 +27,7 @@
 
 <script>
 	import { inject, ref } from 'vue'
+	import axios from 'axios';
 	import SidebarMain from '@/components/sidebar/Sidebar.vue'
 	import RightMainHeader from '@/components/RightMainHeader.vue'
 	import BottombarMain from '@/components/bottombar/Bottombar.vue'
@@ -56,28 +57,46 @@
 			}
 		},
 		setup() {
+			const defaultUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
 			const mainStore = useMainStore();
 
 			const $cookies = inject('$cookies');
-			console.log($cookies.get('access-token'));
-			if (!$cookies.get('access-token')) {
+			let token = $cookies.get('access_token');
+			console.log(token);
+			mainStore.currentUser = defaultUser;
+			if (!token) {
 				//window.location.href = "/login";
-				mainStore.currentUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
+				mainStore.currentUser = defaultUser;
+			}
+			else {
+				console.warn("GETTING ME");
+				axios.get("http://127.0.0.1:7070/api/users/me", {headers: {"X-Access-Token": token}}).then(res => {
+					console.log(mainStore.currentUser);
+					mainStore.currentUser = res.data;
+					console.log(res);
+					console.log(mainStore.currentUser);
+					sidebarKey.value += 1;
+				})
+				.catch(err => {
+					console.error(err);
+					mainStore.currentUser = defaultUser;
+				})
 			}
 
 			const router = useRouter();
 			const route = useRoute();
 			console.log(router, route);
 
+			const sidebarKey = ref(0);
 			const contextMenu = ref(null);
 			console.log(contextMenu);
 			mainStore.contextMenu = contextMenu;
 			return {
 				contextMenu,
-				ROOT
+				ROOT,
+				sidebarKey
 			}
 		},
-
 		mounted() {
 			console.log("App.vue mounted")
 		},
