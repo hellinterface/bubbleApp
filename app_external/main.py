@@ -20,7 +20,6 @@ app = FastAPI()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app_external/static"), name="static")
-app.mount("/components", StaticFiles(directory="app_external/components"), name="components")
 app.include_router(internal_router.router)
 
 templates = Jinja2Templates(directory="app_external/templates")
@@ -61,10 +60,9 @@ def getDBConnection():
     return conn
 
 @app.get("/rtc", response_class=HTMLResponse)
-async def read_root():
+async def read_root(request: Request):
     """Тестовая страница WebRTC."""
-    f = open("app_external/index.html", "r", encoding="utf-8")
-    return f.read()
+    return templates.TemplateResponse("index.html", {"request": request})
 
 class Connection:
     def __init__(self):
@@ -154,7 +152,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 print("CANDIDATE")
                 targetPeer = manager.getConnectionWithUsername(obj[1]['targetPeer'])
                 if targetPeer != -1:
-                    await targetPeer.socket.send_text(data)
+                    obj[1]['targetPeer'] = conn.user_id
+                    await targetPeer.socket.send_text(json.dumps(obj))
             if obj[0] == "chat_message":
                 await manager.broadcast(obj[1])
         except WebSocketDisconnect:

@@ -10,14 +10,8 @@
     </head>
     <body>
         <div style="padding: 8px 16px;">
-            <button onclick="mediaTest_video()">Video Test</button>
-            <button onclick="testWebSocket()">WebSocket Connect</button>
-            <button onclick="sendMessage()">WebSocket Send</button>
-            Connect to
-            <button onclick="start('USER_1')">User 1</button>
-            <button onclick="start('USER_2')">User 2</button>
-            <button onclick="start('USER_3')">User 3</button>
-            <button onclick="start('USER_4')">User 4</button>
+            <b>WebRTC Test</b>
+            <button onclick="toggleWebSocket()" id="button_toggleWebSocket">Подключение WebSocket</button>
         </div>
         <div id="videoElements" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
             <div>Peers</div>
@@ -29,7 +23,7 @@
                 <div id="chatHistory"></div>
                 <input id="chatInput" type="text" placeholder="Chat message..."/>
             </div>
-            <div id="userList">Connect to</div>
+            <div id="userList"></div>
         </div>
     </body>
     <script src="static/script.js"></script>

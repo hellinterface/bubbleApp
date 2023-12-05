@@ -20,13 +20,11 @@
 		</MqResponsive>
 	</div>
 	<ContextMenu ref="contextMenu"></ContextMenu>
-	<DialogWindow style="display: none">
-		<DialogCreateGroup></DialogCreateGroup>
-	</DialogWindow>
+	<div class="dialogWrapper" ref="dialogWrapper"></div>
 </template>
 
 <script>
-	import { inject, ref } from 'vue'
+	import { inject, ref, createApp } from 'vue'
 	import axios from 'axios';
 	import SidebarMain from '@/components/sidebar/Sidebar.vue'
 	import RightMainHeader from '@/components/RightMainHeader.vue'
@@ -36,9 +34,9 @@
 	import { useMainStore } from '@/stores/mainStore'
 	import ContextMenu from '@/components/contextmenu/ContextMenu.vue'
 	import DialogWindow from '@/components/DialogWindow.vue'
-	import DialogCreateGroup from '@/components/dialogs/DialogCreateGroup.vue'
 
 	const ROOT = ref(null);
+	const dialogWrapper = ref(null);
 
 	export default {
 		name: 'App',
@@ -48,14 +46,8 @@
 			SidebarMain,
 			BottombarMain,
 			RightMainHeader,
-			DialogWindow, DialogCreateGroup
 		},
-		methods: {
-			showDialogWindow() {
-				let dialog = new DialogWindow();
-				ROOT.value.appendChild(dialog);
-			}
-		},
+		methods: {},
 		setup() {
 			const defaultUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
 			const mainStore = useMainStore();
@@ -63,22 +55,35 @@
 			const $cookies = inject('$cookies');
 			let token = $cookies.get('access_token');
 			console.log(token);
+			mainStore.root = {
+				showDialogWindow(dialogFragment, propsObject = {}) {
+					console.log("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOO DIALOG");
+					console.log(dialogFragment);
+					propsObject.fragment = dialogFragment;
+					let dialog = createApp(DialogWindow, propsObject);
+					//dialog.setFragment(dialogFragment);
+					console.log(dialog);
+					dialog.mount(dialogWrapper.value);
+				}
+			};
+			console.log('+++++++++++++++++++++++++++');
+			console.log(mainStore.root);
+			console.log('+++++++++++++++++++++++++++');
 			mainStore.currentUser = defaultUser;
 			if (!token) {
 				//window.location.href = "/login";
 				mainStore.currentUser = defaultUser;
 			}
 			else {
+				mainStore.accessToken = token;
 				console.warn("GETTING ME");
 				axios.get("http://127.0.0.1:7070/api/users/me", {headers: {"X-Access-Token": token}}).then(res => {
-					console.log(mainStore.currentUser);
 					mainStore.currentUser = res.data;
-					console.log(res);
-					console.log(mainStore.currentUser);
+					console.warn("ME", res);
 					sidebarKey.value += 1;
 				})
 				.catch(err => {
-					console.error(err);
+					console.error("ME", err);
 					mainStore.currentUser = defaultUser;
 				})
 			}
@@ -94,7 +99,8 @@
 			return {
 				contextMenu,
 				ROOT,
-				sidebarKey
+				sidebarKey,
+				dialogWrapper
 			}
 		},
 		mounted() {

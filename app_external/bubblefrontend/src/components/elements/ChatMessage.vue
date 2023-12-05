@@ -2,11 +2,11 @@
 	<div class="chatMessage">
 		<div class="chatMessage_meta">
 			<div class="chatMessage_avatar"></div>
-			<div class="chatMessage_name">{{ message_object.sender.name }}</div>
-			<div class="chatMessage_timeSent">{{ message_object.time }}</div>
+			<div class="chatMessage_name">{{ message_object.sender.visible_name }}</div>
+			<div class="chatMessage_timeSent">{{ convertTime(message_object.time) }}</div>
 		</div>
 		<div class="chatMessage_content">
-			{{ message_object.content }}
+			{{ message_object.text }}
 		</div>
 	</div>
 </template>
@@ -19,6 +19,16 @@
 			message_object: {
 				type: Object
 			},
+		},
+		methods: {
+			convertTime(unixTimestamp) {
+				var time = new Date(unixTimestamp);
+				var h = time.getHours();
+				var m = time.getMinutes();
+				if (h < 10) h = '0' + h;
+				if (m < 10) m = '0' + m;
+				return h + ":" + m;
+			}
 		}
 	}
 </script>

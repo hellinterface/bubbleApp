@@ -1,41 +1,44 @@
 
-from fastapi import APIRouter, Depends, Request, status, Response
+from fastapi import APIRouter, Depends, Request, status, Response, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from datetime import timedelta
 from ..modules import mod_users as MainModule
 from pydantic import BaseModel
+from typing import Annotated
 import datetime
 
-async def get_token_header(req: Request):
-    print("GET TOKEN HEADER ----------------------------------------")
-    token = req.headers.get("X-Access-Token")
-    print(token)
-    if token == None:
-        print("TOKEN NONE")
-        return False
-    try:
-        user = MainModule.get_user_from_token(token)
-        print(user)
-        req.state.current_user = user
-        return user
-    except:
-        print("GET TOKEN HEADER ERROR ###")
+class Message(BaseModel):
+    message: str
 
 router = APIRouter(
     prefix="/api/users",
-    tags=["users"],
-    dependencies=[Depends(get_token_header)],
+    tags=["Users"],
+    dependencies=[Depends(MainModule.get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/list", response_class=JSONResponse)
+@router.get("/list", response_class=JSONResponse,
+    response_model=list[MainModule.User],
+    responses={
+        200: {
+            "description": "Item requested by ID",
+            "content": {
+                "application/json": {
+                    "example": [{"id": 128, "handle": "somehandle", "other": "stuff..."}, "..."]
+                }
+            },
+        },
+    }
+)
 async def get_list():
+    """Получение списка всех пользователей."""
     userlist = MainModule.list_users()
-    return {"response": "success", "userlist": userlist}
+    return userlist
 
 @router.post("/get_query", response_class=JSONResponse)
-async def post_get_query(req: dict):
+async def post_get_query(req: Annotated[dict, Body(examples=[{"query": "is_admin=1 OR handle='somehandle'"}])]):
+    """Возвращает всех пользователей, которые удовлетворяют SQL-запросу в поле query."""
     print("AAAAAAAAAAAAAAAAAH")
     print(req)
     if not req.get('query'):
@@ -44,8 +47,20 @@ async def post_get_query(req: dict):
     print(resultList)
     return resultList
 
-@router.post("/getByID", response_class=JSONResponse)
-async def getByID(req: dict):
+@router.post("/getByID", response_class=JSONResponse,
+    responses={
+        404: {"model": Message, "description": "The item was not found"},
+        200: {
+            "description": "Item requested by ID",
+            "content": {
+                "application/json": {
+                    "example": {"id": 128, "handle": "somehandle", "other": "stuff..."}
+                }
+            },
+        },
+    })
+async def get_by_id(req: Annotated[dict, Body(examples=[{"id": 128}])]):
+    """Получение пользователя, которому соответствует ID, указанный в поле id."""
     targetUser = MainModule.select_users(MainModule.User.id == req["id"])
     print(targetUser)
     if targetUser != None:
@@ -55,8 +70,12 @@ async def getByID(req: dict):
 
 @router.get("/me")
 async def get_current_user(req: Request):
+    """Получение объекта текущего пользователя (на основе токена из cookie)."""
     print(req.state)
-    return req.state.current_user
+    try:
+        return req.state.current_user
+    except:
+        return JSONResponse(status_code=401, content={"message":"Unauthorized"})
     dt = datetime.datetime.now()
     return dt.strftime("%Y%m%d")
 

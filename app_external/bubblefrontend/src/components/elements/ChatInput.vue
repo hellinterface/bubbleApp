@@ -2,20 +2,53 @@
 	<div class="chatInput">
 		<XButton class="chatInput_attachmentButton" icon_name="attachment"></XButton>
 		<div class="chatInput_fieldContainer">
-			<input type="text" class="chatInput_field">
+			<input type="text" class="chatInput_field" ref="chatInputField">
 		</div>
-		<XButton class="chatInput_sendButton" icon_name="send"></XButton>
+		<XButton class="chatInput_sendButton" icon_name="send" @click="sendMessage()"></XButton>
 	</div>
 </template>
 
 <script>
 	import XButton from './XButton.vue';
+	import { ref } from 'vue';
+	import axios from 'axios';
+import { useMainStore } from '@/stores/mainStore';
+
+	const chatInputField = ref(null);
+
 	export default {
 		name: 'ChatInput',
 		components: {
 			XButton
 		},
 		props: {
+			chat_id: {
+				type: Number
+			},
+			chat_type: {
+				type: String
+			}
+		},
+		methods: {
+			sendMessage() {
+				var mainStore = useMainStore();
+				// recipient_id: this.recipient_id,
+				var objectToSend = {conversation_id: this.chat_id, conversation_type: this.chat_type,  text: chatInputField.value.value, media_ids: []};
+				console.log(objectToSend);
+				console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				axios.post("http://127.0.0.1:7070/api/messaging/send_message",
+					objectToSend,
+					{headers: {"X-Access-Token": mainStore.accessToken}})
+				.then(res => {
+					console.log(res);
+				})
+				.catch(err => console.log(err));
+			}
+		},
+		setup() {
+			return {
+				chatInputField
+			}
 		}
 	}
 </script>

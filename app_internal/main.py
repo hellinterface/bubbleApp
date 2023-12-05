@@ -12,12 +12,13 @@ from typing import Annotated
 from pydantic import BaseModel
 import httpx
 
-from .routers import router_users, router_auth #, router_groups, router_files
+from .routers import router_users, router_auth, router_groups, router_messaging #  router_files
 
 app = FastAPI()
 app.include_router(router_users.router)
 app.include_router(router_auth.router)
-#app.include_router(router_groups.router)
+app.include_router(router_groups.router)
+app.include_router(router_messaging.router)
 #app.include_router(router_files.router)
 
 origins = [
@@ -26,6 +27,8 @@ origins = [
     "http://localhost:8000",
     "http://localhost:7000",
     "http://localhost:7070",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8080",
 ]
 
 app.add_middleware(

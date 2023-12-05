@@ -13,14 +13,14 @@ module.exports = {
 			})
 	},
 	pages: {
-		index: {
+		app: {
 			entry: 'src/pages/index/main.js',
 			template: 'public/index.html',
-			filename: 'index.html',
+			filename: 'app.html',
 			title: 'Main App',
 			// chunks to include on this page, by default includes
 			// extracted common chunks and vendor chunks.
-			chunks: ['chunk-vendors', 'chunk-common', 'index']
+			//chunks: ['chunk-vendors', 'chunk-common', 'index']
 		},
 		login: {
 			entry: 'src/pages/login/main.js',

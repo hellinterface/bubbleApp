@@ -9,6 +9,7 @@ from sqlmodel import Field, SQLModel, create_engine, JSON, Column, Session, sele
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from fastapi import Request
 
 
 SECRET_KEY = "aa171942c2c26d0f39775b861f187a81f43865c0bf917ff58c1acca419d95b5f"
@@ -48,6 +49,10 @@ class User(SQLModel, table=True):
     class Config:
         arbitrary_types_allowed = True
 
+class User_Public(BaseModel):
+    id: int
+    handle: str
+    visible_name: str
 
 class TokenData(BaseModel):
     user_id: str | None = None
@@ -61,8 +66,8 @@ sqlite_url = f"sqlite:///{DB_USERS_PATH}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
-def checkDatabase():
-    return
+def convertUserToPublic(user: User) -> User_Public:
+    return User_Public(id=user.id, handle=user.handle, visible_name=user.visible_name)
 
 def create_user(signup_data: SignupData) -> User:
     default_profile = {
@@ -92,6 +97,7 @@ def create_user(signup_data: SignupData) -> User:
     with Session(engine) as session:
         session.add(user_object)
         session.commit()
+        session.refresh(user_object)
         return user_object
 
     raise Exception
@@ -171,6 +177,21 @@ def get_user_from_token(token: str) -> User:
     if len(user) == 0:
         raise Exception
     return user[0]
+
+async def get_token_header(req: Request):
+    print("GET TOKEN HEADER ----------------------------------------")
+    token = req.headers.get("X-Access-Token")
+    print(token)
+    if token == None:
+        print("TOKEN NONE")
+        return False
+    try:
+        user = get_user_from_token(token)
+        print(user)
+        req.state.current_user = user
+        return user
+    except:
+        print("GET TOKEN HEADER ERROR ###")
 
 print("!!! CREATING")
 #create_user( SignupData(handle="owoman", visible_name="IAmOWOman", email="owo@dvfu.ru", password_hash="fake_password_hash", join_date=20231107) )

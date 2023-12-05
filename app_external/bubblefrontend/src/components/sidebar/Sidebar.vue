@@ -17,6 +17,7 @@ import SidebarCategories from './SidebarCategories.vue'
 import SidebarSearch from './SidebarSearch.vue'
 import SidebarBottomCall from './SidebarBottomCall.vue'
 import SidebarBottomUser from './SidebarBottomUser.vue'
+import SidebarFavorites from './SidebarFavorites.vue'
 
 export default {
 	name: 'SidebarMain',
@@ -25,7 +26,8 @@ export default {
 		SidebarCategories,
 		SidebarSearch,
 		SidebarBottomCall,
-		SidebarBottomUser
+		SidebarBottomUser,
+		SidebarFavorites
 	},
 	props: {
 		msg: String
@@ -45,6 +47,7 @@ export default {
 #sidebar_main {
 	display: flex;
 	flex-grow: 1;
+	flex-direction: column;
 }
 #sidebarContent > div {
     box-shadow: 0 0 6px #0004;

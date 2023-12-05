@@ -1,21 +1,55 @@
 <template>
-	<div class="dialogWindow">
+	<div class="dialogWindow" ref="ROOT">
         <div class="dialogWindowHeader">
-            <XButton class="dialogWindowCloseButton" icon_name="close" appearance="outlined"></XButton>
+            <XButton class="dialogWindowCloseButton" icon_name="close" appearance="outlined" @click="close()"></XButton>
         </div>
-        <div class="dialogWindowContent">
+        <div class="dialogWindowContent" ref="contentContainer">
             <slot></slot>
         </div>
 	</div>
 </template>
 
 <script>
+import { ref, createApp, toRefs } from 'vue';
 import XButton from './elements/XButton.vue';
+const contentContainer = ref(null);
+var fragment;
+var fragmentInstance;
+const ROOT = ref(null);
 export default {
 	name: 'DialogWindow',
 	components: {
         XButton
 	},
+    props: {
+		fragment: {
+			type: Object
+		}
+    },
+    methods: {
+        close() {
+            console.log("CLOSING DIALOG WINDOW");
+            ROOT.value.remove();
+        }
+    },
+    setup(props) {
+        fragment = toRefs(props).fragment;
+        console.log("SETTING FRAGMENT");
+        console.log(fragment.value);
+        fragmentInstance = createApp(fragment.value);
+        return {
+            contentContainer,
+            ROOT
+        }
+    },
+    mounted() {
+        let fragmentWrapper = document.createElement('div');
+        fragmentWrapper.classList.add('fragmentWrapper');
+        contentContainer.value.appendChild(fragmentWrapper);
+        fragmentInstance.mount(fragmentWrapper);
+    },
+    created() {
+    }
 }
 </script>
 
@@ -47,5 +81,9 @@ export default {
 
 .dialogWindowContent {
     flex-grow: 1;
+}
+
+.fragmentWrapper {
+    height: 100%;
 }
 </style>

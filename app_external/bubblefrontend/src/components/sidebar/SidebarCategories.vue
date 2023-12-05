@@ -1,11 +1,10 @@
 <template>            
 <div id="sidebarCategory_mainLinks">
-    <SidebarCategoryLink icon_name="contacts" to="/contacts">Контакты</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="group" to="/groupview">Group view</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="groups_3" to="/grouplist">Группы</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="task_alt" to="/tasks">Задачи</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="calendar_month" to="/calendar">Календарь</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="forum" to="/chats">Диалоги</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="contacts" to="/app/contacts">Контакты</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="groups_3" to="/app/grouplist">Группы</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="task_alt" to="/app/tasks">Задачи</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="calendar_month" to="/app/calendar">Календарь</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="forum" to="/app/chats">Диалоги</SidebarCategoryLink>
 </div>
 </template>
 

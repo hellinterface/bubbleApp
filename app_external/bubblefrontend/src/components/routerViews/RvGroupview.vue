@@ -2,43 +2,92 @@
 	<div class="rvGroupview">
 		<div class="secondarySidebar">
 			<div class="groupView_channelList">
-				<ChannelLink v-for="channel in channelList" :key="channel.id" :channel_title="channel.title"></ChannelLink>
+				<ChannelLink v-for="channel in groupObject.channels" :key="channel.id" :channel_title="channel.title" @click="openChannel(channel.id)"></ChannelLink>
 			</div>
+			<XButton>Создать канал</XButton>
+			<div class="groupView_userList">
+				<GroupUserEntry v-for="user in groupObject.users" :key="user.user_id" :user_object="user"></GroupUserEntry>
+			</div>
+			<XButton @click="">Добавить пользователя</XButton>
 		</div>
 		<div class="routerView_mainContent">
-			<CallView></CallView>
+			<ChatView :chat_id="currentChatId" chat_type="channel"></ChatView>
 		</div>
 	</div>
 </template>
 
 <script>
+import axios from 'axios';
 import { ref } from 'vue'
+import { useRoute } from 'vue-router';
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
-import CallView from '../CallView.vue';
-const headerTitle = "group1";
+import ChatView from '../ChatView.vue';
+import GroupUserEntry from '../elements/GroupUserEntry.vue'
+import XButton from '../elements/XButton.vue';
+import DialogAddGroupUser from '../dialogs/DialogAddGroupUser.vue';
+//import CallView from '../CallView.vue';
 var mainStore;
+const currentChannelId = ref(0);
+const currentChatId = ref(0);
 
-const channelList = ref([
-    {id: "123", title: "channel1"},
-    {id: "456", title: "channel2"},
-]);
+var groupObject = ref({
+	channels: [],
+	title: "...",
+	users: []
+});
 
 export default {
 	name: 'RvGroupview',
 	components: {
 		ChannelLink,
-		CallView
+		//CallView,
+		ChatView,
+		GroupUserEntry,
+		XButton
+	},
+	methods: {
+		openChannel(channel_id) {
+			console.warn("OPENING CHANNEL")
+			currentChannelId.value = channel_id;
+			axios.post("http://127.0.0.1:7070/api/messaging/get_conversation_channel",
+				{channel_id: currentChannelId.value},
+				{headers: {"X-Access-Token": mainStore.accessToken}})
+			.then(res => {
+				console.log(res);
+				currentChatId.value = res.data.id;
+			})
+			.catch(err => console.log(err));
+		},
+		showDialog_addUserToGroup() {
+			console.log(mainStore.root);
+			mainStore.root.showDialogWindow(DialogAddGroupUser, {group_id: groupObject.id})
+		}
 	},
 	mounted() {
 		mainStore = useMainStore();
-		mainStore.currentRightHeaderTitle = headerTitle;
-		console.log(mainStore.currentRightHeaderTitle);
+		const route = useRoute();
+		var group_id = route.params.group_id;
+		console.warn("PARAM ID", group_id);
+		axios.post("http://127.0.0.1:7070/api/groups/get_by_id",
+			{id: group_id},
+			{headers: {"X-Access-Token": mainStore.accessToken}})
+		.then(res => {
+			console.log(res);
+			groupObject.value = res.data;
+			mainStore.currentRightHeaderTitle = groupObject.value.title;
+			this.openChannel(1);
+		})
+		.catch(err => console.log(err));
+	},
+	setup() {
+		return {
+			groupObject,
+			currentChatId,
+			currentChannelId
+		}
 	},
 	data() {
-		return {
-			channelList
-		}
 	}
 }
 </script>

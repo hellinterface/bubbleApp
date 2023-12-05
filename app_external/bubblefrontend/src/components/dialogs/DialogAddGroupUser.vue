@@ -1,8 +1,7 @@
 <template>
     <div class="gialogCreateSetup_container">
-        <LabeledInput type="text" name="title" v-model="input_title_value">Название</LabeledInput>
-        <LabeledInput type="text" name="handle" v-model="input_handle_value">Ссылка</LabeledInput>
-        <XButton icon_name="done" @click="createGroup()">Создать</XButton>
+        <LabeledInput type="text" name="title" v-model="input_handle_value">Имя пользователя</LabeledInput>
+        <XButton icon_name="done" @click="addUserToGroup()">Добавить</XButton>
     </div>
 </template>
 
@@ -14,20 +13,24 @@ import axios from 'axios';
 import { useMainStore } from '@/stores/mainStore';
 
 var mainStore;
-const input_title_value = ref("");
 const input_handle_value = ref("");
 
 export default {
-	name: 'DialogCreateView',
+	name: 'DialogAddGroupUser',
 	components: {
         XButton,
         LabeledInput
 	},
+    props: {
+        group_id: {
+            type: Number
+        }
+    },
     methods: {
-        createGroup() {
+        addUserToGroup() {
             console.log(input_title_value);
-            axios.post("http://127.0.0.1:7070/api/groups/create_group",
-            {title: input_title_value.value, handle: input_handle_value.value},
+            axios.post("http://127.0.0.1:7070/api/groups/add_user_to_group",
+            {user_handle: input_handle_value.value, group_id: this.group_id},
             {headers: {"X-Access-Token": mainStore.accessToken}})
             .then(res => console.log(res))
             .catch(err => console.log(err));

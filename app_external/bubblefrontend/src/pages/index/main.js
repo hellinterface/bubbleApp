@@ -31,13 +31,13 @@ import RvCalendar from '@/components/routerViews/RvCalendar.vue'
 	Vue Router
 */
 const routes = [
-	{ path: '/grouplist', component: RvGrouplist },
-	{ path: '/groupview', component: RvGroupview },
-	{ path: '/tasks', component: RvTasks },
-	{ path: '/contacts', component: RvContacts },
-	{ path: '/settings', component: RvSettings },
-	{ path: '/chats', component: RvChats },
-	{ path: '/calendar', component: RvCalendar },
+	{ path: '/app/grouplist', component: RvGrouplist },
+	{ path: '/app/groupview/:group_id', component: RvGroupview },
+	{ path: '/app/tasks', component: RvTasks },
+	{ path: '/app/contacts', component: RvContacts },
+	{ path: '/app/settings', component: RvSettings },
+	{ path: '/app/chats', component: RvChats },
+	{ path: '/app/calendar', component: RvCalendar },
 ];
 
 const router = createRouter({
