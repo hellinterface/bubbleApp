@@ -28,9 +28,6 @@ export default {
 		SidebarBottomCall,
 		SidebarBottomUser,
 		SidebarFavorites
-	},
-	props: {
-		msg: String
 	}
 }
 </script>

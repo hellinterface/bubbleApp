@@ -4,11 +4,11 @@
 			<div class="groupView_channelList">
 				<ChannelLink v-for="channel in groupObject.channels" :key="channel.id" :channel_title="channel.title" @click="openChannel(channel.id)"></ChannelLink>
 			</div>
-			<XButton>Создать канал</XButton>
+			<XButton @click="showDialog_createChannel()">Создать канал</XButton>
 			<div class="groupView_userList">
 				<GroupUserEntry v-for="user in groupObject.users" :key="user.user_id" :user_object="user"></GroupUserEntry>
 			</div>
-			<XButton @click="">Добавить пользователя</XButton>
+			<XButton @click="showDialog_addUserToGroup()">Добавить пользователя</XButton>
 		</div>
 		<div class="routerView_mainContent">
 			<ChatView :chat_id="currentChatId" chat_type="channel"></ChatView>
@@ -26,6 +26,7 @@ import ChatView from '../ChatView.vue';
 import GroupUserEntry from '../elements/GroupUserEntry.vue'
 import XButton from '../elements/XButton.vue';
 import DialogAddGroupUser from '../dialogs/DialogAddGroupUser.vue';
+import DialogCreateChannel from '../dialogs/DialogCreateChannel.vue';
 //import CallView from '../CallView.vue';
 var mainStore;
 const currentChannelId = ref(0);
@@ -61,7 +62,11 @@ export default {
 		},
 		showDialog_addUserToGroup() {
 			console.log(mainStore.root);
-			mainStore.root.showDialogWindow(DialogAddGroupUser, {group_id: groupObject.id})
+			mainStore.root.showDialogWindow(DialogAddGroupUser, {group_id: groupObject.value.id})
+		},
+		showDialog_createChannel() {
+			console.log(mainStore.root);
+			mainStore.root.showDialogWindow(DialogCreateChannel, {group_id: groupObject.value.id})
 		}
 	},
 	mounted() {
@@ -69,6 +74,7 @@ export default {
 		const route = useRoute();
 		var group_id = route.params.group_id;
 		console.warn("PARAM ID", group_id);
+		groupObject.value = {};
 		axios.post("http://127.0.0.1:7070/api/groups/get_by_id",
 			{id: group_id},
 			{headers: {"X-Access-Token": mainStore.accessToken}})
@@ -76,11 +82,13 @@ export default {
 			console.log(res);
 			groupObject.value = res.data;
 			mainStore.currentRightHeaderTitle = groupObject.value.title;
-			this.openChannel(1);
+			let primaryChannel = groupObject.value.channels.find(entry => entry.is_primary == true);
+			this.openChannel(primaryChannel.id);
 		})
 		.catch(err => console.log(err));
 	},
 	setup() {
+		groupObject.value = {};
 		return {
 			groupObject,
 			currentChatId,
@@ -114,5 +122,9 @@ export default {
 	}
 	.routerView_mainContent {
 		flex-grow: 1;
+		flex-shrink: 1;
+		display: flex;
+		flex-direction: column;
+		max-height: 100%;
 	}
 </style>

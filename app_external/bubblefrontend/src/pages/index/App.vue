@@ -49,6 +49,8 @@
 		},
 		methods: {},
 		setup() {
+			axios.defaults.withCredentials = true;
+			console.log("===", axios.defaults.withCredentials);
 			const defaultUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
 			const mainStore = useMainStore();
 
@@ -56,10 +58,14 @@
 			let token = $cookies.get('access_token');
 			console.log(token);
 			mainStore.root = {
-				showDialogWindow(dialogFragment, propsObject = {}) {
+				showDialogWindow(dialogFragment, _props = {}) {
 					console.log("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOO DIALOG");
 					console.log(dialogFragment);
-					propsObject.fragment = dialogFragment;
+					let propsObject = {
+						fragment: dialogFragment,
+						fragmentProps: _props
+					}
+					console.log(propsObject);
 					let dialog = createApp(DialogWindow, propsObject);
 					//dialog.setFragment(dialogFragment);
 					console.log(dialog);
@@ -77,7 +83,7 @@
 			else {
 				mainStore.accessToken = token;
 				console.warn("GETTING ME");
-				axios.get("http://127.0.0.1:7070/api/users/me", {headers: {"X-Access-Token": token}}).then(res => {
+				axios.get("http://127.0.0.1:7070/api/users/me").then(res => {
 					mainStore.currentUser = res.data;
 					console.warn("ME", res);
 					sidebarKey.value += 1;
@@ -146,6 +152,7 @@
 		display: flex;
 		gap: 6px;
 		flex-direction: column;
+		max-height: 100%;
 	}
 
 	#rightSide_mainContainer {

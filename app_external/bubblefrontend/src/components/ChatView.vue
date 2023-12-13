@@ -29,6 +29,46 @@ const messageList = ref([
 */
 const messageList = ref([]);
 
+var ws;
+
+function webSocket_turnOn(chat_id) {
+	//ws = new WebSocket("ws://192.168.0.3/ws");
+	ws = new WebSocket("ws://localhost:7070/api/messaging/ws/"+chat_id);
+	ws.onmessage = (event) => {
+		console.log("WEBSOCKET MESSAGE:", event.data);
+		refresh(chat_id);
+	};
+	ws.onopen = () => {
+	};
+	ws.onclose = () => {
+	};
+}
+/*
+function webSocket_turnOff() {
+	ws.close();
+}
+*/
+
+var CHATID;
+
+function refresh(chat_id) {
+	if (chat_id) CHATID = chat_id;
+	console.log('--------------------------')
+	console.log('       CHAT REFRESH       ', CHATID)
+	console.log('--------------------------')
+	var mainStore = useMainStore();
+	axios.post("http://127.0.0.1:7070/api/messaging/get_messages",
+		{conversation_id: CHATID},
+		{headers: {"X-Access-Token": mainStore.accessToken}})
+	.then(res => {
+		console.log(res);
+		messageList.value = res.data;
+		webSocket_turnOn(chat_id);
+	})
+	.catch(err => console.log(err));
+	
+}
+
 export default {
 	name: 'ChatView',
 	components: {
@@ -45,22 +85,17 @@ export default {
 			type: String
 		}
 	},
+	methods: {
+	},
 	watch: {
 		chat_id: function(newValue, oldValue) {
 			console.log(newValue, oldValue);
 			console.log('-------------------', newValue)
-			var mainStore = useMainStore();
-			axios.post("http://127.0.0.1:7070/api/messaging/get_messages",
-				{conversation_id: newValue},
-				{headers: {"X-Access-Token": mainStore.accessToken}})
-			.then(res => {
-				console.log(res);
-				messageList.value = res.data;
-			})
-			.catch(err => console.log(err));
+			refresh(this.$props.chat_id);
 		}
 	},
-	setup() {
+	setup(props) {
+		refresh(props.chat_id);
 	},
 	mounted() {
 	},
@@ -78,6 +113,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
+	flex-shrink: 1;
 }
 .chatView_messageList {
 	display: flex;
@@ -85,5 +121,7 @@ export default {
 	gap: 6px;
 	flex-grow: 1;
 	justify-content: flex-end;
+	overflow-y: auto;
+	flex-shrink: 1;
 }
 </style>

@@ -12,7 +12,7 @@
 	import XButton from './XButton.vue';
 	import { ref } from 'vue';
 	import axios from 'axios';
-import { useMainStore } from '@/stores/mainStore';
+	//import { useMainStore } from '@/stores/mainStore';
 
 	const chatInputField = ref(null);
 
@@ -31,14 +31,15 @@ import { useMainStore } from '@/stores/mainStore';
 		},
 		methods: {
 			sendMessage() {
-				var mainStore = useMainStore();
+				//var mainStore = useMainStore();
 				// recipient_id: this.recipient_id,
 				var objectToSend = {conversation_id: this.chat_id, conversation_type: this.chat_type,  text: chatInputField.value.value, media_ids: []};
 				console.log(objectToSend);
-				console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+				console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				chatInputField.value.value = "";
 				axios.post("http://127.0.0.1:7070/api/messaging/send_message",
 					objectToSend,
-					{headers: {"X-Access-Token": mainStore.accessToken}})
+					{withCredentials: true})
 				.then(res => {
 					console.log(res);
 				})

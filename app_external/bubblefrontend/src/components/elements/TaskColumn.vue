@@ -2,7 +2,7 @@
     <div class="taskColumn">
 		<div class="taskColumnTitle">{{ column_object.title }}</div>
 		<div class="taskColumnCardList">
-			<TaskCard v-for="card in column_object.cards" :key="card.id" :card_object="card" @mousedown="(event) => cardClick(this, event)"></TaskCard>
+			<TaskCard v-for="card in column_object.cards" :key="card.id" :card_object="card" @mousedown="(event) => cardClick(event)"></TaskCard>
 		</div>
     </div>
 </template>
@@ -22,8 +22,12 @@ import TaskCard from './TaskCard.vue';
 		},
 		setup(props, {emit}) {
 			function cardClick(event) {
-				console.warn("SHIT");
-				emit('cardClick', event.target, event)
+				console.warn("card click");
+				let element = event.target;
+				while (!element.classList.contains('taskCard') && element) {
+					element = element.parentElement;
+				}
+				emit('cardClick', element, event)
 			}
 			return {
 				cardClick

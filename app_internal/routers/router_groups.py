@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Request, Body, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel, Field
-from typing import Annotated
+from typing import Annotated, Optional
 from ..modules import mod_users as UsersModule
 from ..modules import mod_groups as GroupsModule
 
@@ -14,61 +14,66 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+class RouterRequest_CreateGroup(BaseModel):
+    title: str
+    handle: str
+
+class RouterRequest_CreateChannel(BaseModel):
+    title: str
+    handle: Optional[str]
+
+class RouterRequest_AddUserToGroup(BaseModel):
+    user_id: int
+    group_id: int
+
 class IDQuery(BaseModel):
     id: int = Field()
 
 @router.post("/create_group", response_class=JSONResponse)
-async def post_create_group(creationRequest: GroupsModule.Group_CreateRequest, request: Request):
-    print("==============================")
-    print(creationRequest)
-    print("==============================")
-    newGroup = GroupsModule.create_group(creationRequest, request.state.current_user)
-    try:
-        return {"response": "success", "group_id": newGroup.id} 
+async def post_create_group(req: RouterRequest_CreateGroup, request: Request):
+    if (not req.state.current_user):
+        raise HTTPException(status_code=401, detail="Not logged in")
+    try:    
+        newGroup = GroupsModule.Create.group(
+            GroupsModule.Group_CreateRequest(**req.__dict__, owner_id=request.state.current_user)
+        )
+        return GroupsModule.Convert.group(newGroup)
     except:
-        return {"response": "failure"}
+        raise HTTPException(detail="Couldn't create group.")
         
+
+@router.post("/create_channel", response_class=JSONResponse)
+async def post_create_channel(req: RouterRequest_CreateChannel, request: Request):
+    if (not req.state.current_user):
+        raise HTTPException(status_code=401, detail="Not logged in")
+    try:    
+        newChannel = GroupsModule.Create.channel(
+            GroupsModule.Chanel_CreateRequest(**req.__dict__, owner_id=request.state.current_user)
+        )
+        return GroupsModule.Convert.channel(newChannel)
+    except:
+        raise HTTPException(detail="Couldn't create channel.")
     
 @router.get("/list_groups", response_class=JSONResponse)
 async def get_list_groups():
-    res = GroupsModule.list_groups()
-    print("Group list: " + str(len(res)))
-    for i in res:
-        print(i)
-    return res
+    return GroupsModule.List.groups()
 
 @router.get("/list_channels", response_class=JSONResponse)
 async def get_list_channels():
-    res = GroupsModule.list_channels()
-    print("Channel list: " + str(len(res)))
-    for i in res:
-        print(i)
-    return res
+    return GroupsModule.List.channel()
 
 @router.get("/list_mine", response_class=JSONResponse)
 async def get_list_mine(req: Request):
-    res = GroupsModule.list_mine(req.state.current_user)
-    print("Group list: " + str(len(res)))
-    print(res)
-    return res
+    if (not req.state.current_user):
+        raise HTTPException(status_code=401, detail="Not logged in")
+    return GroupsModule.Select.groupsOfUser(req.state.current_user.id)
 
 @router.post("/get_by_id", response_class=JSONResponse)
 async def post_get_by_id(req: Annotated[IDQuery, Body(examples=[{"id": 128}])]):
-    res = GroupsModule.select_groups(GroupsModule.Group.id == req.id)
-    print(res)
-    if len(res) > 0:
-        return res[0]
-    else:
-        return {"response": "failure"}
-
-class Request_AddUserToGroup(BaseModel):
-    user_handle: str
-    group_id: int
+    return GroupsModule.Select.oneGroup(GroupsModule.Group.id == req.id)
 
 @router.post("/add_user_to_group", response_class=JSONResponse)
-async def post_add_user_to_group(req: Request_AddUserToGroup):
-    user = UsersModule.select_users(UsersModule.User.handle == req.user_handle)
-    group = GroupsModule.select_groups(GroupsModule.Group.id == req.group_id)
-    if (len(user) <= 0) or (len(group) <= 0):
-        return HTTPException(status_code=400, detail="Invalid request")
-    return GroupsModule.add_user_to_group(user=user[0], group=group[0])
+async def post_add_user_to_group(req: RouterRequest_AddUserToGroup):
+    return GroupsModule.Create.groupUser(
+        GroupsModule.GroupUser_CreateRequest(**req.__dict__)
+        )

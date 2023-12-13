@@ -34,6 +34,7 @@ export default {
 	},
     methods: {
         dragElement: (drag, event) => {
+            console.log("DRAG", drag, event);
             let originalParent;
             let innerX = 0, innerY = 0;
             dragMouseDown(event);

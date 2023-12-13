@@ -75,7 +75,7 @@ async def get_current_user(req: Request):
     try:
         return req.state.current_user
     except:
-        return JSONResponse(status_code=401, content={"message":"Unauthorized"})
+        raise HTTPException(status_code=401, detail="Couldn't find user")
     dt = datetime.datetime.now()
     return dt.strftime("%Y%m%d")
 

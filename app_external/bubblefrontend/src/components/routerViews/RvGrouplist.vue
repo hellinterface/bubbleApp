@@ -37,7 +37,10 @@ export default {
             console.log(res);
             groupList.value = res.data;
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            groupList.value = [];
+            console.error(err);
+        });
 	},
     setup() {
     },

@@ -14,6 +14,7 @@ import { ref, createApp, toRefs } from 'vue';
 import XButton from './elements/XButton.vue';
 const contentContainer = ref(null);
 var fragment;
+var fragmentProps;
 var fragmentInstance;
 const ROOT = ref(null);
 export default {
@@ -24,7 +25,11 @@ export default {
     props: {
 		fragment: {
 			type: Object
-		}
+		},
+        fragmentProps: {
+            type: Object,
+            default: () => {}
+        }
     },
     methods: {
         close() {
@@ -34,9 +39,10 @@ export default {
     },
     setup(props) {
         fragment = toRefs(props).fragment;
+        fragmentProps = toRefs(props).fragmentProps;
         console.log("SETTING FRAGMENT");
         console.log(fragment.value);
-        fragmentInstance = createApp(fragment.value);
+        fragmentInstance = createApp(fragment.value, fragmentProps.value);
         return {
             contentContainer,
             ROOT

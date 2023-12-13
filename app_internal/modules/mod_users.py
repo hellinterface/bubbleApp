@@ -16,26 +16,11 @@ SECRET_KEY = "aa171942c2c26d0f39775b861f187a81f43865c0bf917ff58c1acca419d95b5f"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 3
 
-# position 0 = default profile
-class UserProfile(BaseModel):
-    position: int
-    title: str
-    visible_name: str
-    avatar_fileid: str | None = None
-    bio: str
-    contacts: list[str]
-    groups: list[str]
-    notifications: list[str]
-    events: list[str]
-
-class SignupData(BaseModel):
-    #id: Optional[int]
+class User_CreateRequest(BaseModel):
     handle: str
     visible_name: str
     email: str
     password_hash: str
-    class Config:
-        arbitrary_types_allowed = True
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -44,94 +29,114 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True)
     password_hash: str
     join_date: int
-    profiles: list[dict] = Field(sa_column=Column(JSON))
-    folder_id: str
+    avatar_fileid: Optional[int] = Field(default=None)
+    bio: str = Field(default="")
+    contacts: list[int] = Field(default=[], sa_column=Column(JSON))
+    notifications: list[dict] = Field(default=[], sa_column=Column(JSON))
+    events: list[int] = Field(default=[], sa_column=Column(JSON))
+    fav_users: list[int] = Field(default=[], sa_column=Column(JSON))
+    fav_groups: list[int] = Field(default=[], sa_column=Column(JSON))
+    folder_id: int
+    is_admin: bool = Field(default=False)
     class Config:
         arbitrary_types_allowed = True
 
-class User_Public(BaseModel):
-    id: int
-    handle: str
+class Output_User(BaseModel):
+    id: Optional[int]
+    handle: str = Field
     visible_name: str
+    email: str = Field
+    avatar_fileid: Optional[int]
+    bio: str
+    contacts: list[int]
+    notifications: list[dict]
+    events: list[int]
+    folder_id: int
+    fav_users: list[int]
+    fav_groups: list[int]
+
+class PublicOutput_User(BaseModel):
+    id: Optional[int]
+    handle: str = Field
+    visible_name: str
+    email: str = Field
+    avatar_fileid: Optional[int]
+    bio: str
 
 class TokenData(BaseModel):
-    user_id: str | None = None
+    user_id: int | None = None
+
+### SQL stuff
 
 DIRNAME = os.path.dirname(os.path.dirname(__file__))
 DB_USERS_PATH = DIRNAME + '\\data\\db_users.db'
-print(DB_USERS_PATH)
-#bdata = BData(DB_USERS_PATH, user_factory)
-sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{DB_USERS_PATH}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
-def convertUserToPublic(user: User) -> User_Public:
-    return User_Public(id=user.id, handle=user.handle, visible_name=user.visible_name)
+### Conversion
 
-def create_user(signup_data: SignupData) -> User:
-    default_profile = {
-        "position": 0,
-        "title": "Default",
-        "visible_name": signup_data.visible_name,
-        "bio": "",
-        "contacts": list(),
-        "groups": list(),
-        "notifications": list(),
-        "events": list()
-    }
-    new_profile = UserProfile(**default_profile)
+class Convert:
+    @staticmethod
+    def user(user:User) -> Output_User:
+        return Output_User(**user.__dict__)
+    @staticmethod
+    def userToPublic(user:User) -> PublicOutput_User:
+        return PublicOutput_User(**user.__dict__)
 
-    user_object = User(**signup_data.__dict__)
+### Create
 
-    user_object.profiles = list()
-    user_object.profiles.append(new_profile.__dict__)
-    user_object.folder_id = secrets.token_urlsafe(8)
-    user_object.join_date = datetime.now().strftime("%Y%m%d")
+class Create:
+    @staticmethod
+    def user(request: User_CreateRequest) -> User:
+        user_object = User(**request.__dict__)
+        user_object.folder_id = secrets.token_urlsafe(8)
+        user_object.join_date = datetime.now().strftime("%Y%m%d")
 
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    #print(profiles_str)
-    print(user_object)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(user_object)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-    with Session(engine) as session:
-        session.add(user_object)
-        session.commit()
-        session.refresh(user_object)
-        return user_object
+        with Session(engine) as session:
+            session.add(user_object)
+            session.commit()
+            session.refresh(user_object)
+            return user_object
 
-    raise Exception
+### Select
 
-def list_users() -> list[User]:
-    with Session(engine) as session:
-        statement = select(User)
-        results = session.exec(statement)
-        userlist = results.all()
-        print("Userlist:")
-        print(userlist)
-        return userlist
+class Select:
+    ### Select # Raw
+    @staticmethod
+    def __select(targetType, *expressions) -> list:
+        with Session(engine) as session:
+            statement = select(targetType)
+            if len(expressions) != 0:
+                statement = statement.where(*expressions)
+            results = session.exec(statement)
+            result_list = results.all()
+            print("Select:")
+            print(result_list)
+            return result_list
+    @staticmethod
+    def __select_one(targetType, *expressions):
+        with Session(engine) as session:
+            statement = select(targetType)
+            if len(expressions) != 0:
+                statement = statement.where(*expressions)
+            results = session.exec(statement)
+            return results.one()
+    @staticmethod
+    def users(*expressions) -> list[User]:
+        return Select.__select(User, *expressions)
+    @staticmethod
+    def oneUser(*expressions) -> User:
+        return Select.__select_one(User, *expressions)
 
-def select_users(*expressions) -> list[User]:
-    with Session(engine) as session:
-        statement = select(User).where(*expressions)
-        results = session.exec(statement)
-        userlist = results.all()
-        print("Select users:")
-        print(userlist)
-        return userlist
-
-class LoginData(BaseModel):
-    email: str
-    password_hash: str
-
-def login(req: LoginData) -> User:
-    targetUser = select_users(User.email == req.email, User.password_hash == req.password_hash)
-    print("MOD LOGIN")
-    print(targetUser)
-    if len(targetUser) != 0:
-        return targetUser[0]
-    else:
-        return None
+class List:
+    @staticmethod
+    def users() -> list[User]:
+        return Select.users()
 
 def create_token_for_user_id(user_id: str) -> str:
     print("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
@@ -154,36 +159,33 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 def get_user_from_token(token: str) -> User:
-    print("WOOOOOOOOOOOOOOOOOOOOO")
     if (token == None):
         print("NO TOKEN")
         raise Exception
     try:
-        print("JWT")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("user_id")
-        print(user_id)
+        print("USER ID:", user_id)
         if user_id is None:
             raise Exception
-        print("USER ID:", user_id)
-        token_data = TokenData(user_id=user_id)
     except JWTError:
         raise Exception
     try:
-        user = select_users(User.id == user_id)
+        user = Select.oneUser(User.id == user_id)
     except:
         raise Exception
         
-    if len(user) == 0:
+    if user == None:
         raise Exception
-    return user[0]
+    return user
 
 async def get_token_header(req: Request):
-    print("GET TOKEN HEADER ----------------------------------------")
-    token = req.headers.get("X-Access-Token")
-    print(token)
+    print(req.cookies)
+    token = req.cookies.get('access_token')
     if token == None:
-        print("TOKEN NONE")
+        token = req.headers.get("X-Access-Token")
+    print("TOKEN COOKIE:", token)
+    if token == None:
         return False
     try:
         user = get_user_from_token(token)
@@ -191,9 +193,4 @@ async def get_token_header(req: Request):
         req.state.current_user = user
         return user
     except:
-        print("GET TOKEN HEADER ERROR ###")
-
-print("!!! CREATING")
-#create_user( SignupData(handle="owoman", visible_name="IAmOWOman", email="owo@dvfu.ru", password_hash="fake_password_hash", join_date=20231107) )
-print("!!! LISTING")
-list_users()
+        print("GET TOKEN HEADER ERROR")
