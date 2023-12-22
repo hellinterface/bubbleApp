@@ -5,11 +5,32 @@ from fastapi.exceptions import HTTPException
 from datetime import timedelta
 from ..modules import mod_users as MainModule
 from pydantic import BaseModel
-from typing import Annotated
+from typing import Annotated, Optional
 import datetime
 
 class Message(BaseModel):
     message: str
+
+class RouterRequest_UpdateUser(BaseModel):
+    handle: Optional[str]
+    visible_name: Optional[str]
+    email: Optional[str]
+    password_hash: Optional[str]
+    avatar_fileid: Optional[int]
+    bio: Optional[str]
+    contacts: Optional[list[int]]
+    notifications: Optional[list[dict]]
+    events: Optional[list[int]]
+    fav_users: Optional[list[int]]
+    fav_groups: Optional[list[int]]
+
+    
+class AdminRequest_UpdateUser(BaseModel):
+    # it could use the UsersModule request object directly i think
+    directly: bool = True
+
+class AdminRequest_DeleteUser(BaseModel):
+    id: int
 
 router = APIRouter(
     prefix="/api/users",
@@ -47,7 +68,7 @@ async def post_get_query(req: Annotated[dict, Body(examples=[{"query": "is_admin
     print(resultList)
     return resultList
 
-@router.post("/getByID", response_class=JSONResponse,
+@router.get("/getByID/{user_id}", response_class=JSONResponse,
     responses={
         404: {"model": Message, "description": "The item was not found"},
         200: {
@@ -59,14 +80,14 @@ async def post_get_query(req: Annotated[dict, Body(examples=[{"query": "is_admin
             },
         },
     })
-async def get_by_id(req: Annotated[dict, Body(examples=[{"id": 128}])]):
+async def get_by_id(user_id: int):
     """Получение пользователя, которому соответствует ID, указанный в поле id."""
-    targetUser = MainModule.select_users(MainModule.User.id == req["id"])
+    targetUser = MainModule.Select.oneUser(MainModule.User.id == user_id)
     print(targetUser)
     if targetUser != None:
-        return targetUser[0]
+        return MainModule.Convert.userToPublic(targetUser)
     else:
-        return {"response": "failure"}
+        raise HTTPException(status_code=404, detail="Couldn't find user")
 
 @router.get("/me")
 async def get_current_user(req: Request):
@@ -75,9 +96,16 @@ async def get_current_user(req: Request):
     try:
         return req.state.current_user
     except:
-        raise HTTPException(status_code=401, detail="Couldn't find user")
-    dt = datetime.datetime.now()
-    return dt.strftime("%Y%m%d")
+        raise HTTPException(status_code=404, detail="Couldn't find user")
+
+@router.post("/update")
+async def post_update(updateRequest: RouterRequest_UpdateUser, req: Request):
+    try:
+        return MainModule.Update.user(
+            MainModule.User_UpdateRequest(**updateRequest.__dict__, id=req.state.current_user.id)
+        )
+    except:
+        return
 
 """
 failException = HTTPException(

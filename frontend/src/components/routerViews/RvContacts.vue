@@ -10,6 +10,7 @@
 import { ref } from 'vue';
 import ContactCard from "../elements/ContactCard.vue"
 import { useMainStore } from '@/stores/mainStore'
+import HbsContacts from '../headerButtonSets/HbsContacts.vue';
 const headerTitle = "Контакты";
 var mainStore;
 
@@ -25,8 +26,10 @@ export default {
     },
 	mounted() {
 		mainStore = useMainStore();
-		mainStore.currentRightHeaderTitle = headerTitle;
-		console.log(mainStore.currentRightHeaderTitle);
+		mainStore.header.title = headerTitle;
+        mainStore.header.buttonSet = HbsContacts;
+		console.log(mainStore.header.title);
+		console.log(mainStore.header.buttonSet);
 	},
     data() {
         return {

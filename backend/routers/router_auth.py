@@ -34,8 +34,9 @@ async def post_login(login_data: Annotated[
         UsersModule.User.password_hash == login_data.password_hash)
     if targetUser != None:
         access_token = UsersModule.create_token_for_user_id(targetUser.id)
-        # response.set_cookie(key="access_token", value=access_token)
-        return {"access_token": access_token, "token_type": "bearer"}
+        response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+        # response.set_cookie("access_token", access_token, samesite="none", secure=True)
+        return response
     else:
         raise HTTPException(status_code=401, detail="Couldn't find user with specified credentials")
 

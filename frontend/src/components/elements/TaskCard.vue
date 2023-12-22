@@ -1,36 +1,61 @@
 <template>
-    <div class="taskCard" ref="ROOT">
+    <div class="taskCard" ref="ROOT" @mousedown="(event) => cardClickDirect(event)" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
 		<div class="taskCardInsert"></div>
 		<div class="taskCardContainer" ref="CONTAINER">
-			<div class="taskCardTitle">{{ card_object.title }}</div>
-			<div class="taskCardDescription" v-if="card_object.description">{{ card_object.description }}</div>
+			<div class="taskCardTitle">{{ cardObject.title }}</div>
+			<div class="taskCardDescription" v-if="cardObject.description">{{ cardObject.description }}</div>
 		</div>
     </div>
 </template>
 
 <script>
+	import { useMainStore } from '@/stores/mainStore';
 	import { ref, toRefs, onMounted } from 'vue';
+	var mainStore;
+	var card_object;
+	
 	export default {
 		name: 'TaskCard',
 		props: {
-			card_object: {
+			cardObject: {
 				type: Object
 			},
 		},
-		setup(props) {
+		emits: ['cardClickDirect'],
+		methods: {
+			fuck() {
+
+			}
+		},
+		setup(props, {emit}) {
+			mainStore = useMainStore();
 			const ROOT = ref(null);
 			const CONTAINER = ref(null);
-			const { card_object } = toRefs(props);
+			card_object = toRefs(props).cardObject;
 			onMounted(() => {
 				console.log(ROOT.value);
 				if (card_object.value?.color) {
 					CONTAINER.value.style.background = card_object.value.color;
 				}
 			});
+			function cardClickDirect(event) {
+				emit('cardClickDirect', event, this)
+			}
 			return {
 				ROOT,
-				CONTAINER
+				CONTAINER,
+				mainStore,
+				cardClickDirect,
+				card_object
 			}
+		},
+		data() {
+            return {
+                contextMenuObject: [
+                    {text: "Details", onclick: () => {console.log("DETAILS CARD")}},
+                    {text: "Delete", onclick: () => {console.log("DELETE CARD")}}
+                ]
+            }
 		}
 	}
 </script>
@@ -46,7 +71,7 @@
 .taskCardContainer {
 	display: block;
 	padding: 8px;
-	border-radius: 4px;
+	border-radius: 6px;
 	text-align: left;
 	font-size: 13px;
 	width: 100%;
@@ -69,7 +94,7 @@
 	box-sizing: border-box;
 	width: 100%;
 	height: 6px;
-	transition: 0.15s ease-in-out;
+	transition: 0.1s ease-in-out;
 	opacity: 0;
 }
 
@@ -84,7 +109,7 @@
 	left: 0;
 	background: #67f4;
 	border: dotted 2px #45f6;
-	border-radius: 3px;
+	border-radius: 6px;
 	transform: 0.15s ease-out;
 }
 .card-dragging {
@@ -101,4 +126,13 @@
 	width: 240px !important;
 	box-shadow: 0 8px 24px #0006;
 }
+</style>
+
+<style>
+
+body.dragging .taskCard:hover .taskCardInsert {
+	height: 64px;
+	opacity: 1 !important
+}
+
 </style>

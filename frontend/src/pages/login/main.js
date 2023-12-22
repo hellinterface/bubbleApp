@@ -3,6 +3,7 @@ import VueCookies from 'vue-cookies'
 import LoginPage from './LoginPage.vue'
 import '@/assets/css/standard.css';
 import '@/assets/css/login_signup.css';
+import '@/assets/fonts/helvetica.css'
 
 const app = createApp(LoginPage);
 app.use(VueCookies);

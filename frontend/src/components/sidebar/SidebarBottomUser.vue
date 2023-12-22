@@ -5,7 +5,7 @@
             <div id="sidebarBottomUser_visiblename">{{currentUser.visible_name}}</div>
             <div id="sidebarBottomUser_handle">@{{currentUser.handle}}</div>
         </div>
-        <button @click="console.log(currentUser)"></button>
+        <!--<button @click="console.log(currentUser)"></button>-->
         <BBRouterLink to="/app/settings">
             <XButton id="sidebarBottomUser_settingsButton" icon_name="settings" appearance="small"></XButton>
         </BBRouterLink>
@@ -13,10 +13,10 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import { useMainStore } from '@/stores/mainStore';
 import XButton from '../elements/XButton.vue';
 import BBRouterLink from '../BBRouterLink.vue';
+import { storeToRefs } from 'pinia';
 export default {
 	name: 'SidebarBottomUser',
     components: {
@@ -25,12 +25,9 @@ export default {
     },
 	setup() {
 		const mainStore = useMainStore();
-        const currentUser = ref(mainStore.currentUser);
-        mainStore.$subscribe((mutation, state) => {
-            console.warn("STATE");
-            console.log(state);
-            //currentUser.value = state
-        });
+        const currentUser = storeToRefs(mainStore).currentUser;
+        console.warn("ZZZZZZZZZZZZZZZZZZZZZZZZ");
+        console.warn(currentUser.value);
 		return {
 			currentUser
 		}
@@ -38,7 +35,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #sidebarBottomUser {
     background-color: #fff;

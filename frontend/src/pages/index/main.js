@@ -13,6 +13,7 @@ import VueClickAway from 'vue3-click-away'
 	CSS
 */
 import '@/assets/css/standard.css'
+import '@/assets/fonts/helvetica.css'
 
 /*
 	Components
@@ -25,6 +26,7 @@ import RvContacts from '@/components/routerViews/RvContacts.vue'
 import RvSettings from '@/components/routerViews/RvSettings.vue'
 import RvChats from '@/components/routerViews/RvChats.vue'
 import RvCalendar from '@/components/routerViews/RvCalendar.vue'
+import RvCall from '@/components/routerViews/RvCall.vue'
 
 
 /*
@@ -38,6 +40,7 @@ const routes = [
 	{ path: '/app/settings', component: RvSettings },
 	{ path: '/app/chats', component: RvChats },
 	{ path: '/app/calendar', component: RvCalendar },
+	{ path: '/app/call', component: RvCall },
 ];
 
 const router = createRouter({

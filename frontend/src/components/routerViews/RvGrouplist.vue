@@ -11,7 +11,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import GroupCard from "../elements/GroupCard.vue"
 import { useMainStore } from '@/stores/mainStore'
-import hbsGroupList from '@/components/headerButtonSets/hbsGrouplist.vue'
+import HbsGrouplist from '@/components/headerButtonSets/HbsGrouplist.vue'
 const headerTitle = "Группы";
 var mainStore;
 
@@ -25,14 +25,16 @@ export default {
     components: {
         GroupCard
     },
-	mounted() {
+    setup() {
 		mainStore = useMainStore();
-		mainStore.currentRightHeaderButtonSet = hbsGroupList;
-		mainStore.currentRightHeaderTitle = headerTitle;
-		console.log(mainStore.currentRightHeaderTitle);
+        mainStore.header.buttonSet = HbsGrouplist;
+		mainStore.header.title = headerTitle;
+		console.log(mainStore.header.title);
+		console.log(mainStore.header.buttonSet);
+    },
+	mounted() {
 		console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-        axios.get("http://127.0.0.1:7070/api/groups/list_mine",
-        {headers: {"X-Access-Token": mainStore.accessToken}})
+        axios.get("http://127.0.0.1:7070/api/groups/list_mine", {withCredentials: true})
         .then(res => {
             console.log(res);
             groupList.value = res.data;
@@ -42,8 +44,6 @@ export default {
             console.error(err);
         });
 	},
-    setup() {
-    },
     data() {
         return {
             groupList

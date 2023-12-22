@@ -64,7 +64,7 @@ async def post_send_message(sendRequest: SendMessageRequest, req: Request):
             try:
                 print("SENDING!!!")
                 message = MessagingModule.Create.message(
-                    MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=user_to_object.id)
+                    MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
                 )
                 await websocket_broadcast_update(sendRequest.conversation_id)
                 return message
@@ -72,19 +72,20 @@ async def post_send_message(sendRequest: SendMessageRequest, req: Request):
                 raise HTTPException(detail="Couldn't find conversation for specified user", status_code=400)
         else:
             raise HTTPException(detail="Couldn't find user", status_code=400)
-    elif (sendRequest.conversation_type == "channel"):
+    elif (conversation.type == "channel"):
         channel = GroupsModule.Select.oneChannel(GroupsModule.Channel.id == conversation.allowed_from1)
         if channel != None:
             permissions = GroupsModule.get_channel_permissions_of_user(user_id=req.state.current_user.id, channel_id=conversation.allowed_from1)
             if (not permissions.get('send_messages')):
                 raise HTTPException(detail="No permission for sending messages in specified channel", status_code=403)
+            print("SENDING!!!")
+            message = MessagingModule.Create.message(
+                MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
+            )
+            await websocket_broadcast_update(sendRequest.conversation_id)
+            return message
             try:
-                print("SENDING!!!")
-                message = MessagingModule.Create.message(
-                    MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=user_to_object.id)
-                )
-                await websocket_broadcast_update(sendRequest.conversation_id)
-                return message
+                pass
             except:
                 raise HTTPException(detail="Couldn't find conversation for specified channel", status_code=400)
         else:

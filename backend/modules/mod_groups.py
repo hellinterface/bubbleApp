@@ -101,9 +101,9 @@ class ChannelUser_CreateRequest(BaseModel):
     permission_level: str
 
 DIRNAME = os.path.dirname(os.path.dirname(__file__))
-DB_USERS_PATH = DIRNAME + '\\data\\db_groups.db'
-print(DB_USERS_PATH)
-sqlite_url = f"sqlite:///{DB_USERS_PATH}"
+DB_GROUPS_PATH = DIRNAME + '\\data\\db_groups.db'
+print(DB_GROUPS_PATH)
+sqlite_url = f"sqlite:///{DB_GROUPS_PATH}"
 engine = create_engine(sqlite_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
@@ -147,25 +147,29 @@ defaultChannelPermissionsObject = {
 class Convert:
     @staticmethod
     def group(group: Group) -> Output_Group:
-        result = Output_Group(**group.__dict__)
-        result.users = Select.groupUsers(GroupUser.group_id == group.id)
-        result.channels = Select.channels(Channel.group_id == group.id)
-        return result
+        return Output_Group(
+            **group.__dict__,
+            users = Select.groupUsers(GroupUser.group_id == group.id),
+            channels = Select.channels(Channel.group_id == group.id)
+            )
     @staticmethod
     def channel(channel: Channel) -> Output_Channel:
-        result = Output_Channel(**channel.__dict__)
-        result.users = Select.channelUsers(ChannelUser.channel_id == channel.id)
-        return result
+        return Output_Channel(
+            **channel.__dict__,
+            users = Select.channelUsers(ChannelUser.channel_id == channel.id)
+            )
     @staticmethod
     def groupUser(userEntry: GroupUser) -> Output_UserEntry:
-        result = Output_UserEntry(**userEntry.__dict__)
-        result.user_information = UsersModule.select.user(UsersModule.User.id == userEntry.user_id)
-        return result
+        return Output_UserEntry(
+            **userEntry.__dict__, 
+            user_information = UsersModule.Select.oneUser(UsersModule.User.id == userEntry.user_id)
+            )
     @staticmethod
     def channelUser(userEntry: ChannelUser) -> Output_UserEntry:
-        result = Output_UserEntry(**userEntry.__dict__)
-        result.user_information = UsersModule.select.user(UsersModule.User.id == userEntry.user_id)
-        return result
+        return Output_UserEntry(
+            **userEntry.__dict__,
+            user_information = UsersModule.Select.oneUser(UsersModule.User.id == userEntry.user_id)
+            )
 
 class Create:
     @staticmethod
@@ -192,20 +196,29 @@ class Create:
 
             groupUser = Create.groupUser(GroupUser_CreateRequest(user_id=request.owner_id, group_id=groupToCreate.id, permission_level="owner"))
             channelToCreate = Create.channel(Channel_CreateRequest(group_id=groupToCreate.id, title="Primary channel", private=False, owner_id=request.owner_id, is_primary=True, permissions=generate_channel_permissions_from_group(groupToCreate)))
-            channelUser = Create.channelUser(ChannelUser_CreateRequest(user_id=request.owner_id, channel_id=channelToCreate.id, permission_level="owner"))
-
+            
             return groupToCreate
     def channel(request: Channel_CreateRequest) -> Channel:
         permissions = get_group_permissions_of_user(group_id=request.group_id, user_id=request.owner_id)
         if (not permissions.get("manage_channels")):
             raise Exception()
         with Session(engine) as session:
-            channelToCreate = Channel(**request.__dict__, permissions=generate_channel_permissions_from_group, taskboard_ids=[], planned_events=[])
+            channelToCreate = Channel(
+                **request.__dict__,
+                permissions=generate_channel_permissions_from_group(Select.select_one(Group, Group.id == request.group_id)),
+                taskboard_ids=[], planned_events=[])
             print(channelToCreate)
             session.add(channelToCreate)
             session.commit()
             session.refresh(channelToCreate)
             newConversation = MessagingModule.Create.conversation(MessagingModule.Conversation_createRequest(type="channel", allowed_from1=channelToCreate.id))
+            for i in Select.groupUsers(GroupUser.group_id == request.group_id):
+                permission_level = "user"
+                if (i.permission_level == "owner" or i.user_information.id == request.owner_id):
+                    permission_level = "owner"
+                Create.channelUser(
+                    ChannelUser_CreateRequest(user_id=i.user_information.id, channel_id=channelToCreate.id, permission_level=permission_level)
+                    )
             return channelToCreate
     def channelUser(request: ChannelUser_CreateRequest)-> ChannelUser:    
         with Session(engine) as session:
@@ -225,7 +238,7 @@ class Create:
 class Select:
     ### Select # Raw
     @staticmethod
-    def __select(targetType, *expressions) -> list:
+    def select(targetType, *expressions) -> list:
         with Session(engine) as session:
             statement = select(targetType)
             if len(expressions) != 0:
@@ -236,7 +249,7 @@ class Select:
             print(result_list)
             return result_list
     @staticmethod
-    def __select_one(targetType, *expressions):
+    def select_one(targetType, *expressions):
         with Session(engine) as session:
             statement = select(targetType)
             if len(expressions) != 0:
@@ -247,19 +260,19 @@ class Select:
     ### Select # Output_*
     @staticmethod
     def groups(*expressions) -> list[Output_Group]:
-        return list(map(Convert.group, Select.__select(Group, *expressions)))
+        return list(map(Convert.group, Select.select(Group, *expressions)))
     @staticmethod
     def channels(*expressions) -> list[Output_Channel]:
-        return list(map(Convert.channel, Select.__select(Channel, *expressions)))
+        return list(map(Convert.channel, Select.select(Channel, *expressions)))
     @staticmethod
     def groupUsers(*expressions) -> list[Output_UserEntry]:
-        return list(map(Convert.groupUser, Select.__select(GroupUser, *expressions)))
+        return list(map(Convert.groupUser, Select.select(GroupUser, *expressions)))
     @staticmethod
     def channelUsers(*expressions) -> list[Output_UserEntry]:
-        return list(map(Convert.channelUser, Select.__select(ChannelUser, *expressions)))
+        return list(map(Convert.channelUser, Select.select(ChannelUser, *expressions)))
     @staticmethod
     def groupsOfUser(user_id: int) -> list[Output_UserEntry]:
-        group_user_list = Select.__select(GroupUser, GroupUser.user_id == user.id)
+        group_user_list = Select.select(GroupUser, GroupUser.user_id == user_id)
         result_list = []
         for i in group_user_list:
             try:
@@ -269,6 +282,18 @@ class Select:
                 continue
             result_list.append(group)
         return result_list
+    @staticmethod
+    def oneGroup(*expressions) -> Output_Group:
+        return Convert.group(Select.select_one(Group, *expressions))
+    @staticmethod
+    def oneChannel(*expressions) -> Output_Channel:
+        return Convert.channel(Select.select_one(Channel, *expressions))
+    @staticmethod
+    def oneGroupUser(*expressions) -> Output_UserEntry:
+        return Convert.groupUser(Select.select_one(GroupUser, *expressions))
+    @staticmethod
+    def oneChannelUser(*expressions) -> Output_UserEntry:
+        return Convert.channelUser(Select.select_one(ChannelUser, *expressions))
 
 """
 class Channel_CreateRequest(BaseModel):
@@ -303,7 +328,13 @@ def generate_channel_permissions_from_group(group: Group):
 
 
 def get_group_permissions_of_user(user_id: int, group_id: int):
-    return
+    group = Select.oneGroup(Group.id == group_id)
+    groupUser = Select.oneGroupUser(GroupUser.group_id == group_id, GroupUser.user_id == user_id)
+    print(group.permissions)
+    return group.permissions.get(groupUser.permission_level)
 
 def get_channel_permissions_of_user(user_id: int, channel_id: int):
-    return
+    channel = Select.oneChannel(Channel.id == channel_id)
+    channelUser = Select.oneChannelUser(ChannelUser.channel_id == channel_id, ChannelUser.user_id == user_id)
+    print(channel.permissions)
+    return channel.permissions.get(channelUser.permission_level)

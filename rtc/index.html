@@ -4,14 +4,14 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="static/standard.css">
-        <link rel="stylesheet" href="static/style.css">
+        <link rel="stylesheet" href="style.css">
         <title>WebRTC</title>
     </head>
     <body>
         <div style="padding: 8px 16px;">
             <b>WebRTC Test</b>
             <button onclick="toggleWebSocket()" id="button_toggleWebSocket">Подключение WebSocket</button>
+            <input type="number" value="1" id="input_userId">
         </div>
         <div id="videoElements" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
             <div>Peers</div>
@@ -26,5 +26,5 @@
             <div id="userList"></div>
         </div>
     </body>
-    <script src="static/script.js"></script>
+    <script src="script.js"></script>
 </html>

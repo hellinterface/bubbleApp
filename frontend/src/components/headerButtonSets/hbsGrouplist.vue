@@ -13,7 +13,7 @@ import DialogCreateGroup from '../dialogs/DialogCreateGroup.vue';
 var mainStore;
 
 export default {
-	name: 'hbsGrouplist',
+	name: 'HbsGrouplist',
 	components: {
 		XButton
 	},

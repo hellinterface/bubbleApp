@@ -22,6 +22,23 @@ class User_CreateRequest(BaseModel):
     email: str
     password_hash: str
 
+class User_UpdateRequest(BaseModel):
+    id: int
+    handle: Optional[str]
+    visible_name: Optional[str]
+    email: Optional[str]
+    password_hash: Optional[str]
+    join_date: Optional[int]
+    avatar_fileid: Optional[int]
+    bio: Optional[str]
+    contacts: Optional[list[int]]
+    notifications: Optional[list[dict]]
+    events: Optional[list[int]]
+    fav_users: Optional[list[int]]
+    fav_groups: Optional[list[int]]
+    folder_id: Optional[int]
+    is_admin: Optional[bool]
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     handle: str = Field(unique=True)
@@ -90,12 +107,11 @@ class Create:
     @staticmethod
     def user(request: User_CreateRequest) -> User:
         user_object = User(**request.__dict__)
-        user_object.folder_id = secrets.token_urlsafe(8)
+        user_object.folder_id = 1
         user_object.join_date = datetime.now().strftime("%Y%m%d")
 
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Created user:")
         print(user_object)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         with Session(engine) as session:
             session.add(user_object)
@@ -138,10 +154,27 @@ class List:
     def users() -> list[User]:
         return Select.users()
 
+class Update:
+    @staticmethod
+    def user(request: User_UpdateRequest) -> User:
+        print(" ################## UPDATING USER ##################")
+        print(request)
+        user = Select.oneUser(User.id == request.id)
+        for (key, value) in iter(request):
+            if (value != None):
+                print(key, value)
+                setattr(user, key, value)
+        print(user)
+        with Session(engine) as session:
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+            return user
+        
+            
+
 def create_token_for_user_id(user_id: str) -> str:
-    print("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     print(user_id)
-    print("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     access_token_expires = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
         data={"user_id": user_id}, expires_delta=access_token_expires

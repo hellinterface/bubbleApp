@@ -13,6 +13,7 @@ import VueClickAway from 'vue3-click-away'
 	CSS
 */
 import '@/assets/css/standard.css'
+import '@/assets/fonts/helvetica.css'
 
 /*
 	Components

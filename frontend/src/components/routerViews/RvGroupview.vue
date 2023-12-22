@@ -11,6 +11,7 @@
 			<XButton @click="showDialog_addUserToGroup()">Добавить пользователя</XButton>
 		</div>
 		<div class="routerView_mainContent">
+			<CallView></CallView>
 			<ChatView :chat_id="currentChatId" chat_type="channel"></ChatView>
 		</div>
 	</div>
@@ -27,7 +28,8 @@ import GroupUserEntry from '../elements/GroupUserEntry.vue'
 import XButton from '../elements/XButton.vue';
 import DialogAddGroupUser from '../dialogs/DialogAddGroupUser.vue';
 import DialogCreateChannel from '../dialogs/DialogCreateChannel.vue';
-//import CallView from '../CallView.vue';
+import HbsGroupview from '../headerButtonSets/HbsGroupview.vue';
+import CallView from '../CallView.vue';
 var mainStore;
 const currentChannelId = ref(0);
 const currentChatId = ref(0);
@@ -42,7 +44,7 @@ export default {
 	name: 'RvGroupview',
 	components: {
 		ChannelLink,
-		//CallView,
+		CallView,
 		ChatView,
 		GroupUserEntry,
 		XButton
@@ -50,15 +52,28 @@ export default {
 	methods: {
 		openChannel(channel_id) {
 			console.warn("OPENING CHANNEL")
+			mainStore.currentChannelId = channel_id;
 			currentChannelId.value = channel_id;
 			axios.post("http://127.0.0.1:7070/api/messaging/get_conversation_channel",
 				{channel_id: currentChannelId.value},
-				{headers: {"X-Access-Token": mainStore.accessToken}})
+				{withCredentials: true})
 			.then(res => {
 				console.log(res);
 				currentChatId.value = res.data.id;
 			})
 			.catch(err => console.log(err));
+			axios.get("http://127.0.0.1:7070/api/meetings/get_room_by_id/"+currentChannelId.value,
+				{withCredentials: true})
+			.then(res => {
+				console.log(res.data);
+				// ACTIVE MEETING, SHOW THE JOIN BUTTON
+				mainStore.header.buttonSet.activeMeeting = res.data;
+			})
+			.catch(err => {
+				console.log(err);
+				// NO MEETING, SHOW THE START MEETING BUTTON
+				mainStore.header.buttonSet.activeMeeting = null;
+			});
 		},
 		showDialog_addUserToGroup() {
 			console.log(mainStore.root);
@@ -70,7 +85,6 @@ export default {
 		}
 	},
 	mounted() {
-		mainStore = useMainStore();
 		const route = useRoute();
 		var group_id = route.params.group_id;
 		console.warn("PARAM ID", group_id);
@@ -81,13 +95,16 @@ export default {
 		.then(res => {
 			console.log(res);
 			groupObject.value = res.data;
-			mainStore.currentRightHeaderTitle = groupObject.value.title;
+			mainStore.header.title = groupObject.value.title;
+			mainStore.header.buttonSet = HbsGroupview;
 			let primaryChannel = groupObject.value.channels.find(entry => entry.is_primary == true);
 			this.openChannel(primaryChannel.id);
 		})
 		.catch(err => console.log(err));
 	},
 	setup() {
+		mainStore = useMainStore();
+		mainStore.currentRouterView = this;
 		groupObject.value = {};
 		return {
 			groupObject,

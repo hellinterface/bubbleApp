@@ -1,6 +1,7 @@
 <template>
     <div class="callPeer">
         <div class="callPeer_avatar"></div>
+		<video class="callPeer_video" ref="element_video"></video>
         <div class="callPeer_bottom">
             <div class="callPeer_name"></div>
         </div>
@@ -8,13 +9,26 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
+const element_video = ref(null)
+
 	export default {
 		name: 'CallPeer',
 		props: {
-			day_number: {
-				default: 0,
-				type: Number
+			peerObject: {
+				type: Object
+			}
+		},
+		methods: {
+			setVideoSourceObject(srcObject) {
+				element_video.value.srcObject = srcObject;
 			},
+		},
+		setup() {
+			return {
+				element_video
+			}
 		}
 	}
 </script>

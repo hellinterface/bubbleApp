@@ -3,8 +3,8 @@
 		<img src="@/assets/images/logo_small_mono_2.svg" alt="Bubble" id="headerLogo">
 		<header>
 			<img src="@/assets/images/logo_text.svg" alt="Bubble" id="headerTextLogo">
-			<div>| Регистрация</div>
 		</header>
+		<div class="errorMessage" v-if="isErrored"><icon>warning</icon>Возникла ошибка.</div>
 		<div id="formContainer">
 			<LabeledInput name="email" type="text" placeholder="" v-model="value_email">Почта</LabeledInput>
 			<LabeledInput name="handle" type="text" placeholder="" v-model="value_handle">Имя пользователя</LabeledInput>
@@ -21,6 +21,8 @@ import { inject, ref } from 'vue'
 import axios from 'axios';
 import LabeledInput from "@/components/LabeledInput.vue";
 import XButton from "@/components/elements/XButton.vue";
+
+const isErrored = ref(false);
 
 export default {
 	name: 'LoginPage',
@@ -51,6 +53,7 @@ export default {
 				})
 				.catch(function (error) {
 					console.log(error);
+						isErrored.value = true;
 				});
 			});
 		}
@@ -60,6 +63,7 @@ export default {
 			value_handle,
 			value_visible_name,
 			value_password,
+			isErrored
 		}
 	}
 }

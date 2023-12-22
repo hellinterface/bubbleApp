@@ -32,8 +32,8 @@ export default {
     },
 	mounted() {
 		mainStore = useMainStore();
-		mainStore.currentRightHeaderTitle = headerTitle;
-		console.log(mainStore.currentRightHeaderTitle);
+		mainStore.header.title = headerTitle;
+		console.log(mainStore.header.title);
 	},
     data() {
         return {

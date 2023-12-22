@@ -4,11 +4,11 @@
 		<MqResponsive target="md+" class="no-shrink-flex">
 			<div id="sidebar">
 				<!--<button @click="() => showDialogWindow()">Показать диалоговое окно</button>-->
-				<SidebarMain :key="sidebarKey"></SidebarMain>
+				<SidebarMain></SidebarMain>
 			</div>
 		</MqResponsive>
 		<div id="rightSide">
-			<RightMainHeader :currentTitle="mainStore.currentRightHeaderTitle" :currentButtonSet="mainStore.currentRightHeaderButtonSet"></RightMainHeader>
+			<RightMainHeader ref="rightMainHeader" :currentTitle="mainStore.header.title" :buttonSet="mainStore.header.buttonSet"></RightMainHeader>
 			<div id="rightSide_mainContainer">
 				<router-view></router-view>
 			</div>
@@ -37,6 +37,7 @@
 
 	const ROOT = ref(null);
 	const dialogWrapper = ref(null);
+	const rightMainHeader = ref(null);
 
 	export default {
 		name: 'App',
@@ -72,10 +73,16 @@
 					dialog.mount(dialogWrapper.value);
 				}
 			};
+			console.log(rightMainHeader);
+			mainStore.header = {
+				title: "",
+				buttonSet: null
+			};
+			mainStore.currentUser = defaultUser;
 			console.log('+++++++++++++++++++++++++++');
 			console.log(mainStore.root);
+			console.log(mainStore.currentUser);
 			console.log('+++++++++++++++++++++++++++');
-			mainStore.currentUser = defaultUser;
 			if (!token) {
 				//window.location.href = "/login";
 				mainStore.currentUser = defaultUser;
@@ -83,10 +90,9 @@
 			else {
 				mainStore.accessToken = token;
 				console.warn("GETTING ME");
-				axios.get("http://127.0.0.1:7070/api/users/me").then(res => {
+				axios.get("http://127.0.0.1:7070/api/users/me", {withCredentials: true}).then(res => {
 					mainStore.currentUser = res.data;
 					console.warn("ME", res);
-					sidebarKey.value += 1;
 				})
 				.catch(err => {
 					console.error("ME", err);
@@ -98,14 +104,12 @@
 			const route = useRoute();
 			console.log(router, route);
 
-			const sidebarKey = ref(0);
 			const contextMenu = ref(null);
 			console.log(contextMenu);
 			mainStore.contextMenu = contextMenu;
 			return {
 				contextMenu,
 				ROOT,
-				sidebarKey,
 				dialogWrapper
 			}
 		},

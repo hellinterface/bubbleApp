@@ -1,7 +1,8 @@
 <template>
     <div>
       <label :for="name"><slot></slot></label>
-      <input :type="type" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" ref="mainInputElement"/>
+      <textarea v-if="type == 'textarea'" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" ref="mainInputElement"></textarea>
+      <input v-else :type="type" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" ref="mainInputElement"/>
     </div>
 </template>
 

@@ -3,19 +3,21 @@
 		<div id="rightMainHeaderContent_title">
 			{{currentTitle}}
 		</div>
-		<div id="rightMainHeaderContent_buttonSetContainer">
-			<hbsGrouplist></hbsGrouplist>
+		<div>{{buttonSet?.name}}</div>
+		<div id="rightMainHeaderContent_buttonSetContainer" ref="buttonSetContainer">
 		</div>
 	</div>
 </template>
 
 <script>
-import hbsGrouplist from '@/components/headerButtonSets/hbsGrouplist.vue';
+import { ref, createApp } from 'vue';
+const buttonSetContainer = ref(null);
+var fragmentInstance;
 
 export default {
 	name: 'RightMainHeader',
 	components: {
-		hbsGrouplist
+		//hbsGrouplist
 	},
 	props: {
 		//currentButtonSet: {default: hbsContacts},
@@ -23,6 +25,37 @@ export default {
 			type: String,
 			default: "Nothing."
 		},
+		buttonSet: {
+			type: Object
+		}
+	},
+	watch: {
+		buttonSet: function (newVal, oldVal) {
+			console.warn("--- WATCH UPDATED ---");
+			console.log(newVal, oldVal);
+            if (fragmentInstance) fragmentInstance.unmount();
+			this.setButtonSet(newVal);
+		}
+	},
+	methods: {
+		setButtonSet(buttonSetFragment)	{
+			console.warn("--- SETTING BUTTON SET ---");
+			console.warn(buttonSetFragment);
+			let _props = {};
+			let propsObject = {
+				fragmentProps: _props
+			}
+			console.log(propsObject);
+			fragmentInstance = createApp(buttonSetFragment, propsObject);
+			console.log(fragmentInstance);
+			console.log(buttonSetContainer.value);
+			fragmentInstance.mount(buttonSetContainer.value);
+		}
+	},
+	setup() {
+		return {
+			buttonSetContainer
+		}
 	},
 	data() {
 		return {

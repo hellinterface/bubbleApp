@@ -34,6 +34,7 @@ export default {
     methods: {
         close() {
             console.log("CLOSING DIALOG WINDOW");
+            fragmentInstance.unmount();
             ROOT.value.remove();
         }
     },

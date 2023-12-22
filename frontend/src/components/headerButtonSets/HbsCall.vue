@@ -1,6 +1,6 @@
 <template>
 	<div class="headerButtonSet">
-		<XButton icon_name="add" appearance="outlined">Добавить контакт</XButton>
+		<XButton icon_name="call_end" appearance="outlined">Выйти из собрания</XButton>
 	</div>
 </template>
 
@@ -9,7 +9,7 @@
 import XButton from '@/components/elements/XButton.vue';
 
 export default {
-	name: 'HbsContacts',
+	name: 'HbsCall',
 	components: {
 		XButton
 	},

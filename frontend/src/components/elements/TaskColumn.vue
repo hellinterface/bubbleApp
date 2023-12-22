@@ -2,7 +2,7 @@
     <div class="taskColumn">
 		<div class="taskColumnTitle">{{ column_object.title }}</div>
 		<div class="taskColumnCardList">
-			<TaskCard v-for="card in column_object.cards" :key="card.id" :card_object="card" @mousedown="(event) => cardClick(event)"></TaskCard>
+			<TaskCard v-for="card in column_object.cards" :key="card.id" :cardObject="card" @cardClickDirect="(event, component) => cardClick(event, component)"></TaskCard>
 		</div>
     </div>
 </template>
@@ -21,13 +21,15 @@ import TaskCard from './TaskCard.vue';
 			},
 		},
 		setup(props, {emit}) {
-			function cardClick(event) {
+			function cardClick(event, component) {
 				console.warn("card click");
+				console.log(component);
+				console.log(component.card_object);
 				let element = event.target;
 				while (!element.classList.contains('taskCard') && element) {
 					element = element.parentElement;
 				}
-				emit('cardClick', element, event)
+				emit('cardClick', element, event, component)
 			}
 			return {
 				cardClick
@@ -38,10 +40,17 @@ import TaskCard from './TaskCard.vue';
 
 <style scoped>
 .taskColumn {
-	border: solid 1px #0004;
-	border-radius: 4px;
+	border: solid 1px #0003;
+	background: white;
+	border-radius: 6px;
     height: 100%;
 	min-width: 220px;
+	box-shadow: 0 2px 6px #0004;
+	transition: 0.2s ease;
+}
+.taskColumn:hover {
+	border: solid 1px #0006;
+	box-shadow: 0 6px 12px #0005;
 }
 
 .taskColumnTitle {
@@ -50,14 +59,20 @@ import TaskCard from './TaskCard.vue';
 	height: 48px;
 	display: flex;
 	align-items: center;
-	border-bottom: solid 1px #0004;
+	border-bottom: solid 1px #0003;
 	padding: 6px 12px;
 }
 
 .taskColumnCardList {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
+	gap: 0px;
 	padding: 6px;
+}
+</style>
+
+<style>
+.taskColumn:hover .taskCardInsert {
+	height: 12px;
 }
 </style>

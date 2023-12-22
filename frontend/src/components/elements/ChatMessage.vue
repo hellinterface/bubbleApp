@@ -2,7 +2,7 @@
 	<div class="chatMessage">
 		<div class="chatMessage_meta">
 			<div class="chatMessage_avatar"></div>
-			<div class="chatMessage_name">{{ message_object.sender.visible_name }}</div>
+			<div class="chatMessage_name">{{ message_object?.sender?.visible_name ? message_object?.sender?.visible_name : "NO NAME" }}</div>
 			<div class="chatMessage_timeSent">{{ convertTime(message_object.time) }}</div>
 		</div>
 		<div class="chatMessage_content">
@@ -12,6 +12,7 @@
 </template>
 
 <script>
+//
 	export default {
 		name: 'ChatMessage',
 
@@ -19,6 +20,11 @@
 			message_object: {
 				type: Object
 			},
+		},
+		watch: {
+			message_object: function(newVal, oldVal) {
+				console.log("PROP CHANGED = ", newVal, "FROM", oldVal);
+			}
 		},
 		methods: {
 			convertTime(unixTimestamp) {

@@ -28,6 +28,7 @@ const messageList = ref([
 ]);
 */
 const messageList = ref([]);
+const userList = ref([]);
 
 var ws;
 
@@ -52,6 +53,7 @@ function webSocket_turnOff() {
 var CHATID;
 
 function refresh(chat_id) {
+	if (ws) ws.close(); 
 	if (chat_id) CHATID = chat_id;
 	console.log('--------------------------')
 	console.log('       CHAT REFRESH       ', CHATID)
@@ -61,8 +63,26 @@ function refresh(chat_id) {
 		{conversation_id: CHATID},
 		{headers: {"X-Access-Token": mainStore.accessToken}})
 	.then(res => {
-		console.log(res);
+		console.log(res.data);
 		messageList.value = res.data;
+		messageList.value.forEach(msg => {
+			let tryFind = Object.keys(userList.value).find(i => i == msg.sender_id);
+			if (tryFind) {
+				msg["sender"] = userList.value[tryFind]
+			}
+			else {
+				axios.get("http://127.0.0.1:7070/api/users/getByID/"+msg["sender_id"], {withCredentials: true})
+					.then(res2 => {
+						console.log(res2.data);
+						userList.value[msg["sender_id"]] = res2.data;
+						msg["sender"] = userList.value[msg["sender_id"]];
+					})
+					.catch(err => {
+						console.error(err);
+						msg["sender"] = {visible_name: "Couldn't find this user."}
+					})
+			}
+		})
 		webSocket_turnOn(chat_id);
 	})
 	.catch(err => console.log(err));

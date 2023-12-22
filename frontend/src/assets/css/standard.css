@@ -1,8 +1,8 @@
 
 * {
-    --color-primary: #008296;
-    --color-primary-lighter: #048a9f;
-    --color-primary-darker: #057182;
+    --color-primary: #269ce0;
+    --color-primary-lighter: #2ea8ef;
+    --color-primary-darker: #1e8ac8;
     --color-primary-text: #03262b;
     --color-pale1: #d7f3f7;
     --color-pale2: #c4e8ee;
@@ -15,7 +15,7 @@
     --mq-size-xl: 1200px;
     --mq-size-xxl: 1400px;
 }
-
+  
 @font-face {
     font-family: 'Material Symbols Rounded';
     font-style: normal;
@@ -71,7 +71,7 @@ button:active {
     display: none !important;
 }
 
-input {
+input, textarea {
     font-family: HelveticaNeueCyr, "Segoe UI";
     color: #222;
     border: solid 1px #0004;
@@ -81,14 +81,15 @@ input {
     font-size: 14px;
     outline: none;
     transition: 0.1s ease;
+    resize: none;
 }
 
-input:hover {
+input:hover, textarea:hover {
     background: #fdfdfd;
     border: solid 1px #0005;
 }
 
-input:focus {
+input:focus, textarea:focus {
     background: #fff;
     border: solid 1px var(--color-primary-darker);
 }

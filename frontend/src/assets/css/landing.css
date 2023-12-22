@@ -1,10 +1,13 @@
-body{
 
+* {
+    box-sizing: border-box;
+    outline: none;
+}
+
+body{
     padding: 0;
     margin: 0;
-    background-image: url(/bubbleApp/app_external/landing/img/background.png);
-    background-size: cover;
-    
+    background: linear-gradient(185deg, #b3daff, #7ebaf5 10%, #3694f5 25%, #005ec1 45%, #041c45);
 }
 button{
     padding: 0;
@@ -75,11 +78,11 @@ h5{
 
 }
 .div-logo{
-    background: url(img/logo-back.svg) no-repeat;
-    background-size:100% auto;
-    width: 25vw;
-    height:25vh;
-    
+    background: url(../images/landing/logo-back.svg) no-repeat;
+    background-size: 100% 100%;
+    background-position: top left;
+    width: 25%;
+    height: 100%;
 }
 .logo{
     
@@ -121,20 +124,20 @@ h5{
     
     height: auto;
     width: 50%;
-    background: url(img/icon-b.svg) no-repeat;
+    background: url(../images/landing/icon-b.svg) no-repeat;
     background-size:100% 100%;
 }
 .subtract-2{
     width: 50%;
     height: auto;
-    background: url(img/icon-a.svg) no-repeat;
+    background: url(../images/landing/icon-a.svg) no-repeat;
     background-size: 100% 100%;
 }
 header{
     display: flex;
     justify-content: space-between;
     width: 100%;
-    height:auto;
+    height: 10%;
     padding: 0;
     margin: 0;
 }
@@ -167,7 +170,7 @@ section-1{
 }
 .rut-p{
     width: 30vw;
-
+    filter: drop-shadow(16px 32px 64px #0488);
 }
 .text{
     
@@ -200,8 +203,8 @@ section-2{
     justify-content: space-between;
     overflow: hidden;
     background-color: #779de7bd;
-    border-radius: 157px;
-    box-shadow: 0px -24px 4px #00509d;
+    border-radius: 10%;
+    box-shadow: 0px -24px 32px #00509d, 0px 24px 64px #1d2d9688;
 }
 .bubbles{
     height: 97%;
@@ -255,14 +258,12 @@ section-3{
     height: auto;
     padding: 2vh 0vw;
     margin: auto;
-    padding: auto;
     justify-content: center;
-
-    
+    box-shadow: 0 16px 32px #0488;
 }
 .card{
-    width: 590px;
-    height: 240px;
+    flex-basis: 500px;
+    flex-grow: 1;
     margin: 1vh 1vw;
     background-color: #c2d9f0;
     border-radius: 15px;
@@ -271,14 +272,14 @@ section-3{
     display: flex;
     justify-content: space-between;
     height: 80%;
-    width: 95%;
+    width: 100%;
+    padding: 3%;
+    gap: 3%;
 
 }
 .img-card{
     width: auto;
-    margin: 1vh 1vw;
-    height: 88%;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 15px ;
     
 }
@@ -288,11 +289,11 @@ section-3{
 }
 .text-card{
     text-align: left;
-    margin: 1vh 1vw;
+    padding: 1.5vh 1.5vw;
+    margin: 0;
 }
 section-4{
     width: 100%;
-    height: 48vh;
     display: flex;
     justify-content: center;
 }
@@ -308,28 +309,23 @@ section-4{
 }
 .view{
     width: 530px;
-    height: 455px;
+    height: auto;
     background-color: #c2d9f0;
     border-radius: 30px;
     display: flex;
     justify-content: center;
-    
-}
-.div{
-    width: 98%;
-    text-align:left;
+    padding: 2%;
 }
 .r-group{
-    margin: 1.5vw 1vh;
     background-color:rgba(119, 157, 231, 0.74);
     border-radius: 30px;
-    width: 91%;
-    height:92%;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     flex-direction: column;
     margin-top:auto;
-    padding: 0;
+    padding: 2%; 
 }
 .rectangle{
     margin:auto;
@@ -337,40 +333,36 @@ section-4{
 .rectangle input{
     width: 100%;
     font-family: 'Russo One', Helvetica;
-    font-size: 30px;
-    font-style: 300;
+    font-size: 24px;
+    font-weight: 300;
     color:#002C73;
     background-color: rgba(195, 218, 240, 1);
-    border-radius: 15px;
-    padding: 4px 8px;
+    border-radius: 100px;
+    padding: 6px 16px;
     border: none;
     
 
 }
-.over-button{
-    display: flex;
-    padding-top: 5vh;
-    justify-content: center;
-    width: 100%;
-    
-}
-.text-wrapper-2{
-    padding: 0.1em 1em; /* Поля по вертикали и горизонтали */
-    background-color: rgba(195, 218, 240, 1); /* Прозрачный цвет фона */
-    border-radius: 0.4em;
+.login-button {
+    background: #002C73;
+    border-radius: 100px;
+    padding: 6px 16px;
     font-size: 30px;
-    font-family:'Russo One', Helvetica;
-    color: #002C73;
-    letter-spacing: 0;
-    line-height: normal;
-   
+    margin: auto;
+    margin-top: 10%;
+    min-width: 240px;
+    display: block;
+}
+.text-r-a {
+    text-align: center;
+    padding: 3%;
 }
 footer{
     width: 100%;
     height: 52vh;
     display: flex;
     background-size: 100% 100%;
-    background-image: url(img/footer.svg);
+    background-image: url(../images/landing/footer.svg);
 }
 .image-rut{
     height: 90%;
@@ -390,7 +382,7 @@ footer{
     width: 28vw;
     margin-top: 5vh;
     margin-left: 2vw;
-    background: url( img/TV.svg) no-repeat;
+    background: url(../images/landing/TV.svg) no-repeat;
     background-size: 100% 100%;
     z-index: 2;
     
@@ -398,7 +390,7 @@ footer{
 
 @media screen and (max-width:1270px) {
     .div-logo{
-        background: url(img/logo-back2.svg) no-repeat;
+        background: url(../images/landing/logo-back2.svg) no-repeat;
         background-size:100%;
         width: 17vh;
         height:17vh;
@@ -527,7 +519,7 @@ footer{
         height: auto;
         margin: 1vh 1vw;
         height: 85%;
-        object-fit: cover;
+        object-fit: contain;
         border-radius: 15px ;
     }
 }
@@ -588,8 +580,7 @@ footer{
     }
 
     .view{
-        width: 79vw;
-        border-radius: 30px;  
+        width: 80vw;
     }
     
     .r-group{
@@ -616,20 +607,8 @@ footer{
     }
 }
 @media screen and (max-width:500px){
-    .view{
-        height:  310px;
-        
-    }
     footer{
         
         height: 15vh;
     }
 }
-@font-face {
-    font-family: 'Russo One';
-    src: local('Russo One'), local('RussoOne'), url('fonts/russoone.woff2') format('woff2'), url('fonts/russoone.woff') format('woff'), url('fonts/russoone.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-}
-
-

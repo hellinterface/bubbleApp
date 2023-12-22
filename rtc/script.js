@@ -40,14 +40,14 @@ console.log("Current location:", location.host);
 
 function webSocket_turnOn() {
 	//ws = new WebSocket("ws://192.168.0.3/ws");
-	ws = new WebSocket("ws://"+location.host+"/ws");
+	let userId = input_userId.value;
+	console.log("ws://"+location.host+"/api/meetings/ws/"+userId);
+	ws = new WebSocket("ws://"+location.hostname+":7070/api/meetings/ws/"+userId);
 	button_toggleWebSocket.innerText = "Подключение...";
 	ws.onmessage = (event) => {
 		console.log("WEBSOCKET MESSAGE:", event.data);
 		let pdata = JSON.parse(event.data);
-		if (pdata[0] == "connected") {
-			
-		}
+		if (false) {} //pdata[0] == "connected"
 		else if (pdata[0] == "userlist_update") {
 			userList.innerHTML = "";
 			pdata[1] = JSON.parse(pdata[1]);
@@ -104,6 +104,10 @@ function webSocket_turnOn() {
 				console.error("ADD ICE CANDIDATE");
 				found.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
 			}
+		}
+		else if (pdata[0] == "RTC_PEER_DISCONNECT") {
+			let videoelement = document.querySelector(`#videoElements video[userid="${currentTargetPeer}"]`);
+			if (videoelement) videoelement.remove();
 		}
 		console.log("WEBSOCKET MESSAGE:", pdata);
 	};

@@ -17,10 +17,16 @@ module.exports = {
 			entry: 'src/pages/index/main.js',
 			template: 'public/index.html',
 			filename: 'app.html',
-			title: 'Main App',
+			title: 'Bubble',
 			// chunks to include on this page, by default includes
 			// extracted common chunks and vendor chunks.
 			//chunks: ['chunk-vendors', 'chunk-common', 'index']
+		},
+		landing: {
+			entry: 'src/pages/landing/landing.js',
+			template: 'public/landing/landing.html',
+			filename: 'index.html',
+			title: 'Bubble'
 		},
 		login: {
 			entry: 'src/pages/login/main.js',
