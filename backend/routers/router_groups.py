@@ -73,9 +73,9 @@ async def get_list_mine(req: Request):
         raise HTTPException(status_code=401, detail="Not logged in")
     return GroupsModule.Select.groupsOfUser(req.state.current_user.id)
 
-@router.post("/get_by_id", response_class=JSONResponse)
-async def post_get_by_id(req: Annotated[IDQuery, Body(examples=[{"id": 128}])]):
-    return GroupsModule.Select.oneGroup(GroupsModule.Group.id == req.id)
+@router.get("/getGroupById/{id}", response_class=JSONResponse)
+async def get_group_by_id(id: int):
+    return GroupsModule.Select.oneGroup(GroupsModule.Group.id == id)
 
 @router.post("/add_user_to_group", response_class=JSONResponse)
 async def post_add_user_to_group(req: RouterRequest_AddUserToGroup):

@@ -10,6 +10,7 @@ app.include_router(router_groups.router)
 app.include_router(router_messaging.router)
 app.include_router(router_messaging.router_ws)
 app.include_router(router_meetings.router)
+app.include_router(router_meetings.router_ws)
 #app.include_router(router_files.router)
 
 origins = [

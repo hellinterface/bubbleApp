@@ -27,20 +27,22 @@ import RvSettings from '@/components/routerViews/RvSettings.vue'
 import RvChats from '@/components/routerViews/RvChats.vue'
 import RvCalendar from '@/components/routerViews/RvCalendar.vue'
 import RvCall from '@/components/routerViews/RvCall.vue'
+import RvFiles from '@/components/routerViews/RvFiles.vue'
 
 
 /*
 	Vue Router
 */
 const routes = [
-	{ path: '/app/grouplist', component: RvGrouplist },
-	{ path: '/app/groupview/:group_id', component: RvGroupview },
-	{ path: '/app/tasks', component: RvTasks },
-	{ path: '/app/contacts', component: RvContacts },
-	{ path: '/app/settings', component: RvSettings },
-	{ path: '/app/chats', component: RvChats },
-	{ path: '/app/calendar', component: RvCalendar },
-	{ path: '/app/call', component: RvCall },
+	{ path: '/grouplist', component: RvGrouplist },
+	{ path: '/groupview/:group_id', component: RvGroupview },
+	{ path: '/tasks', component: RvTasks },
+	{ path: '/contacts', component: RvContacts },
+	{ path: '/settings', component: RvSettings },
+	{ path: '/chats', component: RvChats },
+	{ path: '/calendar', component: RvCalendar },
+	{ path: '/call', component: RvCall },
+	{ path: '/files', component: RvFiles },
 ];
 
 const router = createRouter({

@@ -43,7 +43,7 @@ import LabeledInput from '../LabeledInput.vue';
 			}
 		},
 		watch: {
-			cardObject(newVal, oldVal) {
+			cardObject: function(newVal, oldVal) {
 				console.log(newVal, oldVal);
 				if (newVal.color) {
 					ROOT.value.style.background = `linear-gradient(${newVal.color}, ${hexColorAdd(newVal.color, -60)})`

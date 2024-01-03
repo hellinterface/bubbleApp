@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request, status, Response, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from datetime import timedelta
-from ..modules import mod_users as MainModule
+from ..modules import mod_users as UsersModule
 from pydantic import BaseModel
 from typing import Annotated, Optional
 import datetime
@@ -35,12 +35,12 @@ class AdminRequest_DeleteUser(BaseModel):
 router = APIRouter(
     prefix="/api/users",
     tags=["Users"],
-    dependencies=[Depends(MainModule.get_token_header)],
+    dependencies=[Depends(UsersModule.get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 
 @router.get("/list", response_class=JSONResponse,
-    response_model=list[MainModule.User],
+    response_model=list[UsersModule.Output_User],
     responses={
         200: {
             "description": "Item requested by ID",
@@ -54,21 +54,10 @@ router = APIRouter(
 )
 async def get_list():
     """Получение списка всех пользователей."""
-    userlist = MainModule.list_users()
+    userlist = UsersModule.List.users()
     return userlist
 
-@router.post("/get_query", response_class=JSONResponse)
-async def post_get_query(req: Annotated[dict, Body(examples=[{"query": "is_admin=1 OR handle='somehandle'"}])]):
-    """Возвращает всех пользователей, которые удовлетворяют SQL-запросу в поле query."""
-    print("AAAAAAAAAAAAAAAAAH")
-    print(req)
-    if not req.get('query'):
-        return {"response": "failure"}
-    resultList = [] # bdata.select_query('Users', req['query'])
-    print(resultList)
-    return resultList
-
-@router.get("/getByID/{user_id}", response_class=JSONResponse,
+@router.get("/getById/{user_id}", response_class=JSONResponse,
     responses={
         404: {"model": Message, "description": "The item was not found"},
         200: {
@@ -82,10 +71,32 @@ async def post_get_query(req: Annotated[dict, Body(examples=[{"query": "is_admin
     })
 async def get_by_id(user_id: int):
     """Получение пользователя, которому соответствует ID, указанный в поле id."""
-    targetUser = MainModule.Select.oneUser(MainModule.User.id == user_id)
+    targetUser = UsersModule.Select.oneUser(UsersModule.User.id == user_id)
     print(targetUser)
     if targetUser != None:
-        return MainModule.Convert.userToPublic(targetUser)
+        return UsersModule.Convert.userToPublic(targetUser)
+    else:
+        raise HTTPException(status_code=404, detail="Couldn't find user")
+
+        
+@router.get("/getByHandle/{handle}", response_class=JSONResponse,
+    responses={
+        404: {"model": Message, "description": "The item was not found"},
+        200: {
+            "description": "Item requested by ID",
+            "content": {
+                "application/json": {
+                    "example": {"id": 128, "handle": "somehandle", "other": "stuff..."}
+                }
+            },
+        },
+    })
+async def get_by_handle(handle: str):
+    """Получение пользователя, которому соответствует ID, указанный в поле id."""
+    targetUser = UsersModule.Select.oneUser(UsersModule.User.handle == handle)
+    print(targetUser)
+    if targetUser != None:
+        return UsersModule.Convert.userToPublic(targetUser)
     else:
         raise HTTPException(status_code=404, detail="Couldn't find user")
 
@@ -101,8 +112,8 @@ async def get_current_user(req: Request):
 @router.post("/update")
 async def post_update(updateRequest: RouterRequest_UpdateUser, req: Request):
     try:
-        return MainModule.Update.user(
-            MainModule.User_UpdateRequest(**updateRequest.__dict__, id=req.state.current_user.id)
+        return UsersModule.Update.user(
+            UsersModule.User_UpdateRequest(**updateRequest.__dict__, id=req.state.current_user.id)
         )
     except:
         return

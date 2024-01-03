@@ -13,6 +13,7 @@
 			<LabeledInput type="text" :required="false" name="password" v-model="inputValue_password">Пароль</LabeledInput>
 			<LabeledInput type="text" :required="false" name="bio" v-model="inputValue_bio">О себе</LabeledInput>
 			<XButton @click="saveChanges()">Сохранить</XButton>
+			<XButton appearance="outlined" @click="logout()">Выйти из аккаунта</XButton>
 		</div>
 	</div>
 </template>
@@ -79,15 +80,23 @@ export default {
 				})
 				.catch(err => console.log(err));
 			});
+		},
+		logout() {
+			this.$cookies.remove('access_token');
+			console.log("Removed access_token cookie. Redirecting to /logout...");
+			window.location.href = "/login";
+		},
+		updateValues() {
+			inputValue_handle.value = currentUser.value.handle;
+			inputValue_visibleName.value = currentUser.value.visible_name;
+			inputValue_email.value = currentUser.value.email;
+			inputValue_bio.value = currentUser.value.bio;
 		}
 	},
 	watch: {
 		currentUser(newVal, oldVal) {
 			console.log(newVal, oldVal);
-			inputValue_handle.value = currentUser.value.handle;
-			inputValue_visibleName.value = currentUser.value.visible_name;
-			inputValue_email.value = currentUser.value.email;
-			inputValue_bio.value = currentUser.value.bio;
+			this.updateValues();
 		}
 	},
 	setup() {
@@ -101,18 +110,19 @@ export default {
         console.warn(currentUser.value);
 		return {
 			currentUser,
+		}
+	},
+	mounted() {
+		this.updateValues();
+	},
+	data() {
+		return {
+			categoryList,
 			inputValue_handle,
 			inputValue_visibleName,
 			inputValue_email,
 			inputValue_password,
 			inputValue_bio,
-		}
-	},
-	mounted() {
-	},
-	data() {
-		return {
-			categoryList
 		}
 	}
 }

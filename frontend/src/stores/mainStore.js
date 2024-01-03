@@ -5,7 +5,12 @@ export const useMainStore = defineStore("MainStore", {
         return {
             header: {},
             contextMenu: {},
-            currentUser: {}
+            currentUser: {},
+            root: {
+            },
+            rtc: {
+                peerList: []
+            },
         }
     }
 })

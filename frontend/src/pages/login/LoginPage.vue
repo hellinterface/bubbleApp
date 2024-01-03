@@ -46,6 +46,7 @@
 				console.log(value_email.value);
 				console.log(value_password.value);
 				sha256(value_password.value).then(password_hash => {
+					console.log(password_hash);
 					axios.post('http://localhost:7070/api/auth/login', {email: value_email.value, password_hash: password_hash})
 					.then(function (response) {
 						console.log(response.data);

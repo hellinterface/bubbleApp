@@ -71,7 +71,7 @@ function refresh(chat_id) {
 				msg["sender"] = userList.value[tryFind]
 			}
 			else {
-				axios.get("http://127.0.0.1:7070/api/users/getByID/"+msg["sender_id"], {withCredentials: true})
+				axios.get("http://127.0.0.1:7070/api/users/getById/"+msg["sender_id"], {withCredentials: true})
 					.then(res2 => {
 						console.log(res2.data);
 						userList.value[msg["sender_id"]] = res2.data;

@@ -1,7 +1,7 @@
 <template>
 	<div class="taskBoardView" ref="ROOT">
         <div class="taskBoard_columnList">
-            <TaskColumn v-for="column in columnList" :key="column.id" :column_object="column" @cardClick="(element, event, component) => dragElement(element, event, component)"></TaskColumn>
+            <TaskColumn v-for="column in columnList" :key="column.id" :columnObject="column" @cardClick="(element, event, component) => dragElement(element, event, component)"></TaskColumn>
         </div>
         <div class="taskBoard_cardEditorContainer">
             <CardEditor :cardObject="selectedCardObject"></CardEditor>
@@ -18,18 +18,21 @@ const selectedCardObject = ref(null);
 
 const columnList = ref([
     {id: "123", position_x: 0, title: "first column", cards: [
-        {id: "123", position_y: 0, title: "cardtitle", description: "desc 123", color: "#89a"},
-        {id: "234", position_y: 1, title: "card desc", description: "desc 123"},
-        {id: "345", position_y: 2, title: "card color", color: "#aa7"},
+        {id: "234", position_y: 0, title: "card  title", description: "desc 123", color: "#89a", attachedFiles: [{
+            id: 987, title: "some file.txt", size: 2800
+            }]
+        },
+        {id: "345", position_y: 1, title: "card desc", description: "desc 123"},
+        {id: "456", position_y: 2, title: "card color", color: "#aa7"},
     ]},
-    {id: "234", position_x: 1, title: "second column", cards: [
+    {id: "567", position_x: 1, title: "second column", cards: [
     ]},
-    {id: "345", position_x: 2, title: "third column", cards: [
-        {id: "123", position_y: 0, title: "cardtitle", description: "desc 123", color: "#89a"},
-        {id: "234", position_y: 1, title: "card desc", description: "desc 123"},
+    {id: "678", position_x: 2, title: "third column", cards: [
+        {id: "789", position_y: 0, title: "card  title", description: "desc 123", color: "#89a"},
+        {id: "890", position_y: 1, title: "card desc", description: "desc 123"},
     ]},
-    {id: "456", position_x: 3, title: "fourth column", cards: [
-        {id: "123", position_y: 0, title: "cardtitle", description: "desc 123", color: "#89a"},
+    {id: "90", position_x: 3, title: "fourth column", cards: [
+        {id: "0", position_y: 0, title: "card __title", description: "desc 123", color: "#89a"},
     ]},
 ]);
 

@@ -13,8 +13,14 @@ import secrets
 router = APIRouter(
     prefix="/api/meetings",
     tags=["meetings"],
-    # dependencies=[Depends(UsersModule.get_token_header)],
+    dependencies=[Depends(UsersModule.get_token_header)],
     responses={404: {"description": "Not found"}},
+)
+
+router_ws = APIRouter(
+    prefix="/api/meetings",
+    tags=["meetings"],
+    responses={404: {"description": "Not found"}}
 )
 
 class Connection:
@@ -26,7 +32,7 @@ class Connection:
 class MeetingRoom:
     def __init__(self, id):
         self.active_connections: list[Connection] = []
-        self.room_id = id
+        self.id = id
     def getMaxSocketID(self):
         maxid = 0
         for i in self.active_connections:
@@ -74,9 +80,10 @@ class MeetingRoomManager:
     def createNewRoom(self, channel_id):
         room = MeetingRoom(channel_id)
         self.rooms.append(room)
+        return room
     def getRoomById(self, room_id):
-        for i in self.active_connections:
-            if i.user.id == room_id:
+        for i in self.rooms:
+            if i.id == room_id:
                 return i
         return -1
 
@@ -92,7 +99,7 @@ ws_userlist = list()
 async def get_list_rooms():
     resultList = []
     for i in roomManager.rooms:
-        resultList.append({"id": i.room_id, "connections": len(i.active_connections)})
+        resultList.append({"id": i.id, "connections": len(i.active_connections)})
     return resultList
 
 class RouterRequest_GetRoomById(BaseModel):
@@ -122,16 +129,17 @@ async def get_room_by_id(request: RouterRequest_CreateRoom):
     room = None
     for i in roomManager.rooms:
         if (i.id == request.id):
-            raise HTTPException(status_code=400, detail="Room with specified ID already active")
+            raise HTTPException(status_code=400, detail="Room with specified ID is already active")
     room = roomManager.createNewRoom(request.id)
     userlist = []
-    for k in i.active_connections:
+    for k in room.active_connections:
         userlist.append(k.user.id)
-    return Room(id=i.id, userlist=userlist)
+    return Room(id=room.id, userlist=userlist)
     
 
-@router.websocket("/ws/{channel_id}/{user_id}")
+@router_ws.websocket("/ws/{channel_id}/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, channel_id: int, user_id: int):
+    print("WEBSOCKETING", channel_id, user_id)
     user = UsersModule.Select.oneUser(UsersModule.User.id == user_id)
     room = roomManager.getRoomById(channel_id)
     if (user == None):
@@ -140,33 +148,28 @@ async def websocket_endpoint(websocket: WebSocket, channel_id: int, user_id: int
         room = roomManager.createNewRoom(channel_id)
     newconn = await room.connect(websocket, user)
     ws_userlist.append(user_id)
-    await room.broadcast(JSONWS("userlist_update", json.dumps(ws_userlist).replace('"', '\\"')))
+    print("Room:", room)
+    await room.broadcast(JSONWS("addPeer", user_id))
     while True:
         try:
             data = await websocket.receive_text()
+            print("NEW DATA:", data)
             conn = newconn
             #conn = manager.getConnectionWithSocket(websocket)
             # await manager.send_personal_message(JSONWS("message", f"You wrote something."), conn)
             obj = json.loads(data)
-            if obj[0] == "RTC_Offer":
+            if obj[0] == "relaySessionDescription":
                 print(obj[1])
-                targetPeer = room.getConnectionWithUserId(obj[1]['targetPeer'])
+                targetPeer = room.getConnectionWithUserId(obj[1]['peer_id'])
                 if targetPeer != -1:
-                    obj[1]['targetPeer'] = conn.user.id
+                    obj[1]['peer_id'] = conn.user.id
                     await targetPeer.socket.send_text(json.dumps(obj))
-                else:
-                    await targetPeer.socket.send_text(json.dumps({"failure": "ohno"}))
-            if obj[0] == "RTC_Answer":
-                targetPeer = room.getConnectionWithUserId(obj[1]['targetPeer'])
-                if targetPeer != -1:
-                    obj[1]['targetPeer'] = conn.user.id
-                    await targetPeer.socket.send_text(json.dumps(obj))
-            if obj[0] == "RTC_Candidate":
+            if obj[0] == "relayICECandidate":
                 print("CANDIDATE")
                 print(obj[1])
-                targetPeer = room.getConnectionWithUserId(obj[1]['targetPeer'])
+                targetPeer = room.getConnectionWithUserId(obj[1]['peer_id'])
                 if targetPeer != -1:
-                    obj[1]['targetPeer'] = conn.user.id
+                    obj[1]['peer_id'] = conn.user.id
                     await targetPeer.socket.send_text(json.dumps(obj))
             if obj[0] == "chat_message":
                 await room.broadcast(obj[1])
@@ -175,7 +178,6 @@ async def websocket_endpoint(websocket: WebSocket, channel_id: int, user_id: int
             conn = newconn
             ws_userlist.remove(conn.user.id)
             room.disconnect(conn)
-            await room.broadcast(JSONWS("RTC_PEER_DISCONNECT", conn.user.id))
-            await room.broadcast(JSONWS("userlist_update", json.dumps(ws_userlist).replace('"', '\\"')))
+            await room.broadcast(JSONWS("removePeer", conn.user.id))
             if len(room.active_connections) == 0:
                 roomManager.removeById(room.room_id)

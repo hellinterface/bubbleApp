@@ -1,17 +1,20 @@
 <template>
 	<div class="rvGroupview">
 		<div class="secondarySidebar">
-			<div class="groupView_channelList">
-				<ChannelLink v-for="channel in groupObject.channels" :key="channel.id" :channel_title="channel.title" @click="openChannel(channel.id)"></ChannelLink>
+			<div class="secondarySidebar_top">
+				<div class="groupView_channelList">
+					<ChannelLink v-for="channel in groupObject.channels" :key="channel.id" :channel_title="channel.title" @click="openChannel(channel.id)"></ChannelLink>
+				</div>
+				<div class="groupView_userList">
+					<GroupUserEntry v-for="user in groupObject.users" :key="user.user_id" :user_object="user"></GroupUserEntry>
+				</div>
 			</div>
-			<XButton @click="showDialog_createChannel()">Создать канал</XButton>
-			<div class="groupView_userList">
-				<GroupUserEntry v-for="user in groupObject.users" :key="user.user_id" :user_object="user"></GroupUserEntry>
+			<div class="secondarySidebar_bottom">
+				<XButton appearance="outlined" icon_name="add" @click="showDialog_createChannel()">Создать канал</XButton>
+				<XButton appearance="outlined" icon_name="add" @click="showDialog_addUserToGroup()">Добавить пользователя</XButton>
 			</div>
-			<XButton @click="showDialog_addUserToGroup()">Добавить пользователя</XButton>
 		</div>
 		<div class="routerView_mainContent">
-			<CallView></CallView>
 			<ChatView :chat_id="currentChatId" chat_type="channel"></ChatView>
 		</div>
 	</div>
@@ -29,7 +32,6 @@ import XButton from '../elements/XButton.vue';
 import DialogAddGroupUser from '../dialogs/DialogAddGroupUser.vue';
 import DialogCreateChannel from '../dialogs/DialogCreateChannel.vue';
 import HbsGroupview from '../headerButtonSets/HbsGroupview.vue';
-import CallView from '../CallView.vue';
 var mainStore;
 const currentChannelId = ref(0);
 const currentChatId = ref(0);
@@ -44,7 +46,6 @@ export default {
 	name: 'RvGroupview',
 	components: {
 		ChannelLink,
-		CallView,
 		ChatView,
 		GroupUserEntry,
 		XButton
@@ -65,14 +66,16 @@ export default {
 			axios.get("http://127.0.0.1:7070/api/meetings/get_room_by_id/"+currentChannelId.value,
 				{withCredentials: true})
 			.then(res => {
-				console.log(res.data);
+				console.log("Meeting room:", res.data);
+				console.log("HBS:", mainStore.header.buttonSet);
 				// ACTIVE MEETING, SHOW THE JOIN BUTTON
-				mainStore.header.buttonSet.activeMeeting = res.data;
+				console.log("Current ActiveMeeting data:", mainStore.header.buttonSet.activeMeeting);
+				mainStore.header.buttonSet.methods.setActiveMeeting(res.data);
 			})
 			.catch(err => {
-				console.log(err);
+				console.log("Meeting room:", err);
 				// NO MEETING, SHOW THE START MEETING BUTTON
-				mainStore.header.buttonSet.activeMeeting = null;
+				mainStore.header.buttonSet.methods.setActiveMeeting(null);
 			});
 		},
 		showDialog_addUserToGroup() {
@@ -89,8 +92,7 @@ export default {
 		var group_id = route.params.group_id;
 		console.warn("PARAM ID", group_id);
 		groupObject.value = {};
-		axios.post("http://127.0.0.1:7070/api/groups/get_by_id",
-			{id: group_id},
+		axios.get("http://127.0.0.1:7070/api/groups/getGroupById/"+group_id,
 			{headers: {"X-Access-Token": mainStore.accessToken}})
 		.then(res => {
 			console.log(res);
@@ -131,6 +133,19 @@ export default {
 		box-shadow: 0 0 6px #0004;
 		border-radius: 6px;
 		padding: 6px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.secondarySidebar_bottom {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.secondarySidebar .secondarySidebar_bottom > * {
+		font-size: 14px;
+		padding: 4px;
+		width: 100%;
 	}
 	.groupView_channelList {
 		display: flex;

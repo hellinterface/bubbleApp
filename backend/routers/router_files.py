@@ -1,94 +1,52 @@
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException, File, UploadFile, Form
 from fastapi.responses import PlainTextResponse, JSONResponse, FileResponse
 from pydantic import BaseModel, Field
-import sqlite3
-import os
-import secrets
-import json
-from ..bdata import BData
+from typing import Optional, Annotated
+from ..modules import mod_users as UsersModule
+from ..modules import mod_files as FilesModule
 
 router = APIRouter(
     prefix="/api/files",
     tags=["files"],
-    # dependencies=[Depends(get_token_header)],
+    dependencies=[Depends(UsersModule.get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 
-class File(BaseModel):
-    id: str = Field(allow_mutation=False, bdata_unique=True)
-    filename: str = Field()
-    date_added: int = Field()
-    date_modified: int = Field()
-    owner_id: str = Field()
-    lastmodify_id: str = Field()
-    users_can_read: list[str] = Field(bdata_type=str)
-    users_can_edit: list[str] = Field(bdata_type=str)
-    share_link: str = Field()
-    
-class Folder(BaseModel):
-    id: str = Field(allow_mutation=False, bdata_unique=True)
-    title: str = Field()
-    contents: list[str] = Field(bdata_type=str)
-    owner_id: str = Field()
-    lastmodify_id: str = Field()
-    users_can_read: list[str] = Field(bdata_type=str)
-    users_can_edit: list[str] = Field(bdata_type=str)
-    max_size: int = Field()
+fileStoragePath = FilesModule.getFileStoragePath()
 
-
-def file_factory(cursor, row):
-    # print(u"current directory: %s" % os.getcwd())
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    print(d)
-    d['users_can_read'] = ['*'] #json.loads(d['users_can_read'])
-    d['users_can_edit'] = []    #json.loads(d['users_can_edit'])
-    fileObject = File(**d)
-    return fileObject
-
-DIRNAME = os.path.dirname(os.path.dirname(__file__))
-
-DB_FILES_PATH = DIRNAME + '\\data\\files_db.db'
-print(DB_FILES_PATH)
-bdata = BData(DB_FILES_PATH, file_factory)
-
-filestorage_path = DIRNAME + "\\data\\file_storage\\"
-
-@router.get("/list", response_class=JSONResponse)
-async def read_items():
-    filelist = bdata.select('Files', '*')
-    print("filelist: " + str(len(filelist)))
-    for i in filelist:
-        print(i)
-    return {"response": "success", "userlist": filelist}
-
-@router.get("/get/{req_id}", response_class=FileResponse)
-async def get_by_id(req_id: str):
-    print(req_id)
-    resultList = bdata.select('Files', {'id': req_id})
-    print(resultList)
-    if len(resultList) == 0:
-        return {"response": "failure"}
-    filepath = filestorage_path + resultList[0].filename
+@router.get("/download/{id}", response_class=FileResponse)
+async def get_by_id(id: str):
+    print(id)
+    result = FilesModule.Select.oneFile(FilesModule.File.id == id)
+    if result == None:
+        raise HTTPException(status_code=404)
+    filepath = fileStoragePath + id
     return filepath
 
+@router.get("/getFileById/{id}", response_class=JSONResponse)
+async def get_file_by_id(id: int):
+    return FilesModule.Select.oneFile(FilesModule.File.id == id)
 
-# ----------------------------------------------------------------------------
+@router.get("/getFolderById/{id}", response_class=JSONResponse)
+async def get_folder_by_id(id: int):
+    return FilesModule.Select.oneFolder(FilesModule.Folder.id == id)
 
-permanent_files = [
-    File(id="permanent_avatar1", filename="permanent_avatar1.png", date_added=0, date_modified=0, owner_id="NULL", lastmodify_id="NULL", users_can_read=['*'], users_can_edit=[], share_link=""),
-    File(id="permanent_avatar2", filename="permanent_avatar2.png", date_added=0, date_modified=0, owner_id="NULL", lastmodify_id="NULL", users_can_read=['*'], users_can_edit=[], share_link=""),
-    File(id="permanent_avatar3", filename="permanent_avatar3.png", date_added=0, date_modified=0, owner_id="NULL", lastmodify_id="NULL", users_can_read=['*'], users_can_edit=[], share_link=""),
-]
+class RouterRequest_UploadOptions(BaseModel):
+    parent_folder_id: int
+    users_can_view: list[int]
+    users_can_edit: list[int]
+    groups_can_view: list[int]
+    groups_can_edit: list[int]
+    unrestricted_view_access: bool
+    unrestricted_edit_access: bool
 
-tables = bdata.get_tables()
-print("Tables:")
-print(tables)
-if ("Files" not in tables):
-    bdata.create("Files", File)
-    for file in permanent_files:
-        bdata.insert("Files", file)
-if ("Folders" not in tables):
-    bdata.create("Folders", Folder)
+@router.post("/upload", response_class=JSONResponse)
+async def post_upload(upload_options: Annotated[RouterRequest_UploadOptions, Form()], files: list[UploadFile]):
+    return_value = []
+    for i in files:
+        res = FilesModule.Create.file(
+            FilesModule.File_CreateRequest(**upload_options.__dict__, file=i)
+        )
+        return_value.append(FilesModule.Convert.file(res))
+    return return_value

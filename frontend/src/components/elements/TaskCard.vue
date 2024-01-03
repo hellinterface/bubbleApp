@@ -1,43 +1,42 @@
 <template>
     <div class="taskCard" ref="ROOT" @mousedown="(event) => cardClickDirect(event)" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
 		<div class="taskCardInsert"></div>
-		<div class="taskCardContainer" ref="CONTAINER">
+		<div class="taskCardContainer" :style="{'background': cardObject?.color}" ref="CONTAINER">
 			<div class="taskCardTitle">{{ cardObject.title }}</div>
 			<div class="taskCardDescription" v-if="cardObject.description">{{ cardObject.description }}</div>
+			<div class="taskCardAttachedFilesContainer">
+				<AttachedFile v-for="file in cardObject.attachedFiles" :key="file.id" :fileObject="file"></AttachedFile>
+			</div>
 		</div>
     </div>
 </template>
 
 <script>
 	import { useMainStore } from '@/stores/mainStore';
-	import { ref, toRefs, onMounted } from 'vue';
+	import { ref, toRefs } from 'vue';
+	import AttachedFile from './AttachedFile.vue';
+	
 	var mainStore;
 	var card_object;
+	const ROOT = ref(null);
+	const CONTAINER = ref(null);
 	
 	export default {
 		name: 'TaskCard',
+		components: {
+			AttachedFile
+		},
 		props: {
 			cardObject: {
 				type: Object
 			},
 		},
 		emits: ['cardClickDirect'],
-		methods: {
-			fuck() {
-
-			}
-		},
 		setup(props, {emit}) {
 			mainStore = useMainStore();
-			const ROOT = ref(null);
-			const CONTAINER = ref(null);
 			card_object = toRefs(props).cardObject;
-			onMounted(() => {
-				console.log(ROOT.value);
-				if (card_object.value?.color) {
-					CONTAINER.value.style.background = card_object.value.color;
-				}
-			});
+			console.log("==============================");
+			console.log(card_object.value);
 			function cardClickDirect(event) {
 				emit('cardClickDirect', event, this)
 			}

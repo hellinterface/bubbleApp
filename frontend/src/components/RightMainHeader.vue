@@ -3,7 +3,6 @@
 		<div id="rightMainHeaderContent_title">
 			{{currentTitle}}
 		</div>
-		<div>{{buttonSet?.name}}</div>
 		<div id="rightMainHeaderContent_buttonSetContainer" ref="buttonSetContainer">
 		</div>
 	</div>

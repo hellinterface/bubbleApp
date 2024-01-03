@@ -1,8 +1,8 @@
 <template>
     <div class="taskColumn">
-		<div class="taskColumnTitle">{{ column_object.title }}</div>
+		<div class="taskColumnTitle">{{ columnObject.title }}</div>
 		<div class="taskColumnCardList">
-			<TaskCard v-for="card in column_object.cards" :key="card.id" :cardObject="card" @cardClickDirect="(event, component) => cardClick(event, component)"></TaskCard>
+			<TaskCard v-for="card in columnObject.cards" :key="card.id" :cardObject="card" @cardClickDirect="(event, component) => cardClick(event, component)"></TaskCard>
 		</div>
     </div>
 </template>
@@ -16,7 +16,7 @@ import TaskCard from './TaskCard.vue';
 		},
 		emits: ['cardClick'],
 		props: {
-			column_object: {
+			columnObject: {
 				type: Object
 			},
 		},
@@ -24,7 +24,7 @@ import TaskCard from './TaskCard.vue';
 			function cardClick(event, component) {
 				console.warn("card click");
 				console.log(component);
-				console.log(component.card_object);
+				console.log(props.columnObject);
 				let element = event.target;
 				while (!element.classList.contains('taskCard') && element) {
 					element = element.parentElement;

@@ -1,11 +1,11 @@
 <template>
 	<div id="bottombarContent">
-		<BottombarCategoryLink icon_name="contacts" to="/app/contacts">Контакты</BottombarCategoryLink>
-		<BottombarCategoryLink icon_name="group" to="/app/groupview">Group view</BottombarCategoryLink>
-		<BottombarCategoryLink icon_name="groups_3" to="/app/grouplist">Группы</BottombarCategoryLink>
-		<BottombarCategoryLink icon_name="task_alt" to="/app/tasks">Задачи</BottombarCategoryLink>
-		<BottombarCategoryLink icon_name="calendar_month" to="/app/calendar">Календарь</BottombarCategoryLink>
-		<BottombarCategoryLink icon_name="forum" to="/app/chats">Диалоги</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="contacts" to="/contacts">Контакты</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="groups_3" to="/grouplist">Группы</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="task_alt" to="/tasks">Задачи</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="calendar_month" to="/calendar">Календарь</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="forum" to="/chats">Диалоги</BottombarCategoryLink>
+		<BottombarCategoryLink icon_name="folder" to="/files">Файлы</BottombarCategoryLink>
 	</div>
 </template>
 

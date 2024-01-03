@@ -1,6 +1,10 @@
 <template>
     <div id="sidebarBottomCall">
-        <div id="sidebarBottomCall_currentCallInfo"></div>
+        <div id="sidebarBottomCall_currentCallInfo">
+            <BBRouterLink to="/call">
+                Текущее собрание
+            </BBRouterLink>
+        </div>
         <XButton icon_name="close" appearance="small"></XButton>
         <XButton icon_name="videocam" appearance="small"></XButton>
         <XButton icon_name="mic" appearance="small"></XButton>
@@ -9,16 +13,18 @@
 </template>
 
 <script>
+import BBRouterLink from '../BBRouterLink.vue';
 import XButton from '../elements/XButton.vue';
+
 export default {
 	name: 'SidebarBottomCall',
     components: {
-        XButton
+        XButton,
+        BBRouterLink
     }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #sidebarBottomCall {
     background-color: #fff;

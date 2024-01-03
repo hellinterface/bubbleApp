@@ -6,7 +6,7 @@
             <div id="sidebarBottomUser_handle">@{{currentUser.handle}}</div>
         </div>
         <!--<button @click="console.log(currentUser)"></button>-->
-        <BBRouterLink to="/app/settings">
+        <BBRouterLink to="/settings">
             <XButton id="sidebarBottomUser_settingsButton" icon_name="settings" appearance="small"></XButton>
         </BBRouterLink>
     </div>
