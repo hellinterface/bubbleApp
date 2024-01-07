@@ -28,7 +28,7 @@ export default {
 			mainStore.rtc.startRTC(activeMeeting.value.id)
 		},
 		startMeeting() {
-			axios.post("http://127.0.0.1:7070/api/meetings/create_room",
+			axios.post(location.protocol+"//"+location.hostname+":7070/api/meetings/createRoom",
 				{id: mainStore.currentChannelId},
 				{withCredentials: true})
 			.then(res => {

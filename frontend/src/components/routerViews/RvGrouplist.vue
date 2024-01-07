@@ -1,7 +1,7 @@
 <template>
     <div class="router-view-container" id="rvGrouplist">
         <div class="groupList_list">
-            <GroupCard v-for="group in groupList" :key="group.id" :group_title="group.title" @click="openGroupView(group.id)"></GroupCard>
+            <GroupCard v-for="group in groupList" :key="group.id" :group_object="group" @click="openGroupView(group.id)"></GroupCard>
         </div>
     </div>
 </template>
@@ -15,10 +15,7 @@ import HbsGrouplist from '@/components/headerButtonSets/HbsGrouplist.vue'
 const headerTitle = "Группы";
 var mainStore;
 
-const groupList = ref([
-    {id: "123", title: "group1"},
-    {id: "456", title: "group2"},
-]);
+const groupList = ref([]);
 
 export default {
 	name: 'RvGrouplist',
@@ -34,7 +31,7 @@ export default {
     },
 	mounted() {
 		console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-        axios.get("http://127.0.0.1:7070/api/groups/list_mine", {withCredentials: true})
+        axios.get(location.protocol+"//"+location.hostname+":7070/api/groups/listMine", {withCredentials: true})
         .then(res => {
             console.log(res);
             groupList.value = res.data;
@@ -52,7 +49,7 @@ export default {
 	methods: {
 		openGroupView(id) {
 			console.warn("OPEN GROUP VIEW", id);
-            this.$router.push("groupview/"+id);
+            this.$router.push("/groupview/"+id);
 		}
 	}
 }

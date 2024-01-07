@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, Request, Body, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Annotated, Optional
-from ..modules import mod_users as UsersModule
-from ..modules import mod_groups as GroupsModule
+from ..cores import core_users as UsersModule
+from ..cores import core_groups as GroupsModule
 
 router = APIRouter(
     prefix="/api/groups",
@@ -20,8 +20,6 @@ class RouterRequest_CreateGroup(BaseModel):
 
 class RouterRequest_CreateChannel(BaseModel):
     title: str
-    handle: Optional[str]
-    private: bool
     group_id: int
 
 class RouterRequest_AddUserToGroup(BaseModel):
@@ -31,7 +29,7 @@ class RouterRequest_AddUserToGroup(BaseModel):
 class IDQuery(BaseModel):
     id: int = Field()
 
-@router.post("/create_group", response_class=JSONResponse)
+@router.post("/createGroup", response_class=JSONResponse)
 async def post_create_group(createRequest: RouterRequest_CreateGroup, req: Request):
     if (not req.state.current_user):
         raise HTTPException(status_code=401, detail="Not logged in")
@@ -46,7 +44,7 @@ async def post_create_group(createRequest: RouterRequest_CreateGroup, req: Reque
         raise HTTPException(status_code=500, detail="Couldn't create group.")
         
 
-@router.post("/create_channel", response_class=JSONResponse)
+@router.post("/createChannel", response_class=JSONResponse)
 async def post_create_channel(createRequest: RouterRequest_CreateChannel, req: Request):
     if (not req.state.current_user):
         raise HTTPException(status_code=401, detail="Not logged in")
@@ -59,15 +57,15 @@ async def post_create_channel(createRequest: RouterRequest_CreateChannel, req: R
     except:
         raise HTTPException(status_code=500, detail="Couldn't create channel.")
     
-@router.get("/list_groups", response_class=JSONResponse)
+@router.get("/listGroups", response_class=JSONResponse)
 async def get_list_groups():
     return GroupsModule.List.groups()
 
-@router.get("/list_channels", response_class=JSONResponse)
+@router.get("/listChannels", response_class=JSONResponse)
 async def get_list_channels():
     return GroupsModule.List.channel()
 
-@router.get("/list_mine", response_class=JSONResponse)
+@router.get("/listMine", response_class=JSONResponse)
 async def get_list_mine(req: Request):
     if (not req.state.current_user):
         raise HTTPException(status_code=401, detail="Not logged in")
@@ -77,16 +75,16 @@ async def get_list_mine(req: Request):
 async def get_group_by_id(id: int):
     return GroupsModule.Select.oneGroup(GroupsModule.Group.id == id)
 
-@router.post("/add_user_to_group", response_class=JSONResponse)
+@router.post("/addUserToGroup", response_class=JSONResponse)
 async def post_add_user_to_group(req: RouterRequest_AddUserToGroup):
     group = GroupsModule.Select.oneGroup(GroupsModule.Group.id == req.group_id)
     user = UsersModule.Select.oneUser(UsersModule.User.handle == req.user_handle)
     groupUser = GroupsModule.Create.groupUser(
-        GroupsModule.GroupUser_CreateRequest(user_id=user.id, group_id=req.group_id, permission_level="user")
+        GroupsModule.GroupUser_CreateRequest(user_id=user.id, group_id=req.group_id)
         )
     #channel = GroupsModule.Select.oneChannel(GroupsModule.Channel.is_primary == True, GroupsModule.Channel.group_id == req.group_id)
     for channel in group.channels:
         channelUser = GroupsModule.Create.channelUser(
-            GroupsModule.ChannelUser_CreateRequest(user_id=user.id, channel_id=channel.id, permission_level="user")
+            GroupsModule.ChannelUser_CreateRequest(user_id=user.id, channel_id=channel.id)
             )
     return groupUser

@@ -1,4 +1,5 @@
-const { defineConfig } = require('@vue/cli-service')
+const { defineConfig } = require('@vue/cli-service');
+const { readFileSync } = require('fs');
 module.exports = {
 	chainWebpack: config => {
 		config.module
@@ -11,7 +12,15 @@ module.exports = {
 				}
 				return options
 			})
-	},
+	},/*
+	devServer: {
+		port: 8080,
+		https: {
+			key: readFileSync("../localhost.key"),
+			cert: readFileSync("../localhost.crt"),
+			ca: readFileSync("../localhost_ca.pem"),
+		},
+	},*/
 	pages: {
 		app: {
 			entry: 'src/pages/index/main.js',
@@ -39,12 +48,6 @@ module.exports = {
 			template: 'public/signup.html',
 			filename: 'signup.html',
 			title: 'Sign Up | Bubble'
-		},
-		admin: {
-			entry: 'src/pages/admin/main.js',
-			template: 'public/admin.html',
-			filename: 'admin.html',
-			title: 'Bubble Admin Panel'
 		}
 	}
 }

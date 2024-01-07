@@ -3,10 +3,11 @@ from fastapi import APIRouter, Depends, Request, status, Response, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from datetime import timedelta
-from ..modules import mod_users as UsersModule
 from pydantic import BaseModel
 from typing import Annotated, Optional
 import datetime
+from ..cores import core_users as UsersModule
+from ..models import Output_User, PublicOutput_User
 
 class Message(BaseModel):
     message: str
@@ -20,7 +21,7 @@ class RouterRequest_UpdateUser(BaseModel):
     bio: Optional[str]
     contacts: Optional[list[int]]
     notifications: Optional[list[dict]]
-    events: Optional[list[int]]
+    events: Optional[list[dict]]
     fav_users: Optional[list[int]]
     fav_groups: Optional[list[int]]
 
@@ -57,20 +58,9 @@ async def get_list():
     userlist = UsersModule.List.users()
     return userlist
 
-@router.get("/getById/{user_id}", response_class=JSONResponse,
-    responses={
-        404: {"model": Message, "description": "The item was not found"},
-        200: {
-            "description": "Item requested by ID",
-            "content": {
-                "application/json": {
-                    "example": {"id": 128, "handle": "somehandle", "other": "stuff..."}
-                }
-            },
-        },
-    })
+@router.get("/getById/{user_id}", response_class=JSONResponse, response_model=PublicOutput_User)
 async def get_by_id(user_id: int):
-    """Получение пользователя, которому соответствует ID, указанный в поле id."""
+    """Получение пользователя, которому соответствует указанный ID."""
     targetUser = UsersModule.Select.oneUser(UsersModule.User.id == user_id)
     print(targetUser)
     if targetUser != None:
@@ -79,26 +69,26 @@ async def get_by_id(user_id: int):
         raise HTTPException(status_code=404, detail="Couldn't find user")
 
         
-@router.get("/getByHandle/{handle}", response_class=JSONResponse,
-    responses={
-        404: {"model": Message, "description": "The item was not found"},
-        200: {
-            "description": "Item requested by ID",
-            "content": {
-                "application/json": {
-                    "example": {"id": 128, "handle": "somehandle", "other": "stuff..."}
-                }
-            },
-        },
-    })
+@router.get("/getByHandle/{handle}", response_class=JSONResponse, response_model=PublicOutput_User)
 async def get_by_handle(handle: str):
-    """Получение пользователя, которому соответствует ID, указанный в поле id."""
+    """Получение пользователя, которому соответствует указанный handle."""
     targetUser = UsersModule.Select.oneUser(UsersModule.User.handle == handle)
     print(targetUser)
     if targetUser != None:
         return UsersModule.Convert.userToPublic(targetUser)
     else:
         raise HTTPException(status_code=404, detail="Couldn't find user")
+
+@router.get("/getMultipleById/{user_id_array}", response_class=JSONResponse, response_model=list[PublicOutput_User])
+async def get_multiple_by_id(user_id_array: str):
+    """Получение списка пользователей, которым соответсвуют указанные ID. ID в ссылке запроса должны быть записаны через запятую без пробелов."""
+    resultArray = []
+    for i in user_id_array.split(','):
+        targetUser = UsersModule.Select.oneUser(UsersModule.User.id == int(i))
+        print(targetUser)
+        if targetUser != None:
+            resultArray.append(UsersModule.Convert.userToPublic(targetUser))
+    return resultArray
 
 @router.get("/me")
 async def get_current_user(req: Request):

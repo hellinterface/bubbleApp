@@ -1,5 +1,6 @@
 <template>
     <div class="gialogCreateSetup_container">
+        <ErrorMessage :message="errorMessage" v-if="errorMessage != null"></ErrorMessage>
         <LabeledInput type="text" name="title" v-model="input_title_value">Название канала</LabeledInput>
         <XButton icon_name="done" @click="createChannel()">Создать</XButton>
     </div>
@@ -10,17 +11,20 @@ import { ref, toRefs } from 'vue';
 import XButton from '@/components/elements/XButton.vue';
 import LabeledInput from '@/components/LabeledInput.vue'
 import axios from 'axios';
-//import { useMainStore } from '@/stores/mainStore';
+import { useMainStore } from '@/stores/mainStore';
+import ErrorMessage from '../elements/ErrorMessage.vue';
 
-//var mainStore;
+var mainStore;
+const errorMessage = ref(null);
 const input_title_value = ref("");
 var group_id_ref = ref("");
 
 export default {
-	name: 'DialogAddGroupUser',
+	name: 'DialogCreateChannel',
 	components: {
         XButton,
-        LabeledInput
+        LabeledInput,
+        ErrorMessage
 	},
     props: {
         group_id: {
@@ -31,11 +35,16 @@ export default {
         createChannel() {
             console.log(group_id_ref.value);
             console.log(input_title_value.value, this.group_id);
-            axios.post("http://127.0.0.1:7070/api/groups/create_channel",
+            axios.post(location.protocol+"//"+location.hostname+":7070/api/groups/createChannel",
             {title: input_title_value.value, group_id: this.group_id, private: false},
             {withCredentials: true})
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
+            .then(res => {
+                console.log(res);
+                mainStore.root.closeDialogWindow();
+            })
+            .catch(err => {
+                console.log(err);
+            });
         }
     },
 	mounted() {
@@ -45,11 +54,12 @@ export default {
 	},
     setup(props) {
         input_title_value.value = "";
-        //mainStore = useMainStore();
+        mainStore = useMainStore();
         console.warn("SETUP DIALOG FRAGMENT");
         group_id_ref = toRefs(props).group_id;
         return {
-            input_title_value
+            input_title_value,
+            errorMessage
         }
     },
     data() {

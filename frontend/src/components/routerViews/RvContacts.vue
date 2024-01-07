@@ -1,7 +1,7 @@
 <template>
     <div class="router-view-container" id="rvContacts">
         <div class="contacts_list">
-            <ContactCard v-for="group in groupList" :key="group.id" :group_title="group.title"></ContactCard>
+            <ContactCard v-for="contact in contactList" :key="contact.id" :contact_object="contact"></ContactCard>
         </div>
     </div>
 </template>
@@ -11,31 +11,38 @@ import { ref } from 'vue';
 import ContactCard from "../elements/ContactCard.vue"
 import { useMainStore } from '@/stores/mainStore'
 import HbsContacts from '../headerButtonSets/HbsContacts.vue';
+import axios from 'axios';
 const headerTitle = "Контакты";
 var mainStore;
 
-const groupList = ref([
-    {id: "123", title: "user1"},
-    {id: "456", title: "user2"},
-]);
+const contactList = ref([]);
 
 export default {
 	name: 'RvGrouplist',
     components: {
         ContactCard
     },
-	mounted() {
+    setup() {
 		mainStore = useMainStore();
+        return {
+            mainStore,
+            contactList
+        }
+    },
+	mounted() {
 		mainStore.header.title = headerTitle;
         mainStore.header.buttonSet = HbsContacts;
 		console.log(mainStore.header.title);
 		console.log(mainStore.header.buttonSet);
-	},
-    data() {
-        return {
-            groupList
-        }
-    }
+        axios.get(location.protocol+"//"+location.hostname+":7070/api/users/getMultipleById/"+mainStore.currentUser.contacts.join(','))
+        .then(res => {
+            console.log(res);
+            contactList.value = res.data;
+        })
+        .catch(err => {
+            console.log(err);
+        })
+	}
 }
 </script>
 

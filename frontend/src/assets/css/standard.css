@@ -4,9 +4,12 @@
     --color-primary-lighter: #2ea8ef;
     --color-primary-darker: #1e8ac8;
     --color-primary-text: #03262b;
-    --color-pale1: #d7f3f7;
-    --color-pale2: #c4e8ee;
-    --color-pale3: #a4d7de;
+    --color-pale1: #d7eaf7;
+    --color-pale2: #c4d5ee;
+    --color-pale3: #a4c1de;
+    --color-red: #cc4422;
+    --color-red-lighter: #dc502d;
+    --color-red-darker: #ab3011;
 
     --mq-size-xs: 0px;
     --mq-size-sm: 576px;
@@ -93,7 +96,7 @@ input:focus, textarea:focus {
     background: #fff;
     border: solid 1px var(--color-primary-darker);
 }
-
+/*
 .dialogWindow {
     border-radius: 6px;
     background: darkcyan;
@@ -117,6 +120,7 @@ input:focus, textarea:focus {
     border-radius: 6px;
     padding: 8px;
 }
+*/
 
 .secondarySidebar {
     height: 100%;
@@ -132,4 +136,10 @@ input:focus, textarea:focus {
     background-color: #fff;
     box-shadow: 0 0 6px #0004;
     border-radius: 6px;
+}
+
+.headerButtonSet {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
 }

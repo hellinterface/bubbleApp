@@ -19,7 +19,7 @@
                 default: "",
                 type: String
             },
-            appearance: { // normal / outlined / small / round
+            appearance: { // normal / outlined / small / round / red
                 default: "normal",
                 type: String
             }
@@ -64,5 +64,14 @@ button.small:hover {
 button.round {
     border-radius: 50%;
     aspect-ratio: 1;
+}
+button.red {
+    background: var(--color-red);
+}
+button.red:hover {
+    background: var(--color-red-lighter);
+}
+button.red:pressed {
+    background: var(--color-red-darker);
 }
 </style>

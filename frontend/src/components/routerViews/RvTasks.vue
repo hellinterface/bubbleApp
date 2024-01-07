@@ -2,31 +2,32 @@
 	<div class="router-view-container" id="rvTasks">
 		<div class="secondarySidebar">
 			<div class="tasks_boardList">
-				<ChannelLink v-for="channel in groupList" :key="channel.id" :channel_title="channel.title"></ChannelLink>
+				<ChannelLink v-for="board in boardList" :key="board.id" :channel_title="board.title" @click="setBoard(board)"></ChannelLink>
 			</div>
-			<XButton class="createBoardButton" appearance="outlined" icon_name="add">Создать доску</XButton>
+			<XButton class="createBoardButton" appearance="outlined" icon_name="add" @click="showDialog_createBoard()">Создать доску</XButton>
 		</div>
 		<div class="routerView_mainContent">
-			<TaskBoardView></TaskBoardView>
+			<TaskBoardView :board_id="board_id"></TaskBoardView>
 		</div>
 	</div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import ChannelLink from '../elements/ChannelLink.vue'
 import TaskBoardView from '../TaskBoardView.vue';
-import HbsTasks from '../headerButtonSets/HbsTasks.vue';
 import XButton from '../elements/XButton.vue';
+import axios from 'axios';
+import DialogCreateTaskBoard from '../dialogs/DialogCreateTaskBoard.vue';
+import { useRoute } from 'vue-router';
 
 const headerTitle = "Задачи";
 var mainStore;
+var route;
 
-const groupList = ref([
-    {id: "123", title: "board1"},
-    {id: "456", title: "board2"},
-]);
+const boardList = ref([]);
+const board_id = ref(null);
 
 export default {
 	name: 'RvTasks',
@@ -35,19 +36,40 @@ export default {
 		TaskBoardView,
 		XButton
     },
+	methods: {
+		setBoard(boardObject) {
+			this.$router.push("/tasks/"+boardObject.id);
+		},
+		showDialog_createBoard() {
+			mainStore.root.showDialogWindow(DialogCreateTaskBoard)
+		}
+	},
 	setup() {
 		mainStore = useMainStore();
-		mainStore.header.title = headerTitle;
-        mainStore.header.buttonSet = HbsTasks;
 		console.log(mainStore.header.title);
+		axios.get(location.protocol+"//"+location.hostname+":7070/api/tasks/getMyBoards", {withCredentials: true})
+		.then(res => {
+			console.log(res);
+			boardList.value = res.data;
+		})
+		.catch(err => {
+			console.log(err);
+		})
+		
+        route = useRoute();
+		watch(() => route.params, (newVal, oldVal) => {
+			console.log("OH GOD IT CHANGED");
+			console.log(newVal, oldVal);
+			board_id.value = route.params.board_id;
+		}, {immediate: true});
+        return {
+            boardList,
+			board_id
+        }
 	},
 	mounted() {
-	},
-    data() {
-        return {
-            groupList
-        }
-    }
+		mainStore.header.title = headerTitle;
+	}
 }
 </script>
 

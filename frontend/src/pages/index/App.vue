@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { inject, ref, createApp } from 'vue'
+import { ref, createApp } from 'vue'
 import axios from 'axios';
 import SidebarMain from '@/components/sidebar/Sidebar.vue'
 import RightMainHeader from '@/components/RightMainHeader.vue'
@@ -63,46 +63,109 @@ async function captureScreen() {
 function rtc_onSessionDescription(config) {
 	console.log('Remote description received: ', config);
 	var peer_id = config.peer_id;
+	/*
 	var peer = mainStore.rtc.peerList.find(i => i.user_id == peer_id);
 	if (peer == null) {
 		console.log("TARGET PEER IS NULL...");
 		return;
 	}
-	var remote_description = config.session_description;
-	console.log(config.session_description);
-	var desc = new RTCSessionDescription(remote_description);
-	peer.peerConnection.setRemoteDescription(desc, 
-		function() {
-			console.log("setRemoteDescription succeeded");
-			if (remote_description.type == "offer") {
-				console.log("Creating answer");
-				peer.peerConnection.createAnswer(
-					function(local_description) {
-						console.log("Answer description is: ", local_description);
-						peer.peerConnection.setLocalDescription(local_description,
-							function() {
-								let dataToSend = JSON.stringify(
-										["relaySessionDescription", 
-										{targetPeer: peer_id, desc: local_description}]
-								);
-								console.log("relaySessionDescription 1", dataToSend);
-								ws.send(dataToSend);
-								console.log("Answer setLocalDescription succeeded");
-							},
-							function() { alert("Answer setLocalDescription failed!"); }
-						);
-					},
-					function(error) {
-						console.log("Error creating answer: ", error);
-						console.log(peer);
-					});
-			}
-		},
-		function(error) {
-			console.log("setRemoteDescription error: ", error);
+	*/
+	axios.get(location.protocol+"//"+location.hostname+":7070/api/users/getById/"+peer_id, {withCredentials: true})
+	.then(res => {
+		var remote_description = config.session_description;
+		console.log(config.session_description);
+		var desc = new RTCSessionDescription(remote_description);
+		var peer, peer_connection;
+		if (remote_description.type == "offer") { // OFFER
+			peer_connection = new RTCPeerConnection(
+				{"iceServers": configuration.iceServers},
+				{"optional": [{"DtlsSrtpKeyAgreement": true}]}
+			);
+			peer = {
+				user_id: peer_id,
+				userInformation: res.data,
+				peerConnection: peer_connection,
+				srcObject: null,
+				volume: 1
+			};
+			mainStore.rtc.peerList.push(peer);
+			let stream = mainStore.rtc.callPeerYou;
+			let tracks = stream.getTracks();
+			console.log("ADDING A STREAM YO", stream, tracks);
+			for (let i of tracks) peer_connection.addTrack(i, stream);
+			rtc_hookPeerConnectionEvents(peer);
 		}
-	);
-	console.log("Description Object: ", desc);
+		else { // ANSWER
+			peer = mainStore.rtc.peerList.find(i => i.user_id == peer_id);
+			peer_connection = peer.peerConnection;
+		}
+		console.log("Description Object: ", desc);
+		peer.peerConnection.setRemoteDescription(desc, 
+			function() {
+				console.log("setRemoteDescription succeeded");
+				if (remote_description.type == "offer") {
+					console.log("Creating answer");
+					peer.peerConnection.createAnswer(
+						function(local_description) {
+							console.log("Answer description is: ", local_description);
+							peer.peerConnection.setLocalDescription(local_description,
+								function() {
+									let dataToSend = JSON.stringify(
+											["relaySessionDescription", 
+											{peer_id: peer_id, session_description: local_description}]
+									);
+									console.log("relaySessionDescription 1", dataToSend);
+									ws.send(dataToSend);
+									console.log("Answer setLocalDescription succeeded");
+								},
+								function() { alert("Answer setLocalDescription failed!"); }
+							);
+						},
+						function(error) {
+							console.log("Error creating answer: ", error);
+							console.log(peer);
+						});
+				}
+			},
+			function(error) {
+				console.log("setRemoteDescription error: ", error);
+			}
+		);
+	})
+	.catch(err => {
+		console.log(err);
+	})
+}
+
+function rtc_hookPeerConnectionEvents(peer) {
+	let peer_connection = peer.peerConnection;
+	let peer_id = peer.user_id;
+	peer_connection.onicecandidate = function(event) {
+		if (event.candidate) {
+			let dataToSend = JSON.stringify(['relayICECandidate', {
+				'peer_id': peer_id, 
+				'ice_candidate': {
+					'sdpMLineIndex': event.candidate.sdpMLineIndex,
+					'candidate': event.candidate.candidate
+				}
+			}]);
+			//console.log("ICE CANDIDATE", dataToSend);
+			ws.send(dataToSend);
+		}
+	}
+	peer_connection.ontrack = function(event) {
+		console.log("SETTING PEER SRCOBJECT", peer.srcObject, event);
+		peer.srcObject = event.streams[0];
+		console.log("ontrack", event);
+		/*
+		let vid = document.createElement('video');
+		vid.autoplay = true;
+		vid.style.width = "600px";
+		vid.style.height = "400px";
+		vid.srcObject = event.streams[0];
+		ROOT.value.appendChild(vid);
+		*/
+	}
 }
 
 function rtc_onAddPeer(peer_id) {
@@ -117,7 +180,7 @@ function rtc_onAddPeer(peer_id) {
 		console.log("Already connected to peer ", peer_id);
 		return;
 	}
-	axios.get("http://127.0.0.1:7070/api/users/getById/"+peer_id, {withCredentials: true})
+	axios.get(location.protocol+"//"+location.hostname+":7070/api/users/getById/"+peer_id, {withCredentials: true})
 		.then(res => {
 			console.log(res.data);
 			var peer_connection = new RTCPeerConnection(
@@ -131,26 +194,12 @@ function rtc_onAddPeer(peer_id) {
 				srcObject: null,
 				volume: 1
 			};
-			peer_connection.onicecandidate = function(event) {
-				if (event.candidate) {
-					let dataToSend = JSON.stringify(['relayICECandidate', {
-						'peer_id': peer_id, 
-						'ice_candidate': {
-							'sdpMLineIndex': event.candidate.sdpMLineIndex,
-							'candidate': event.candidate.candidate
-						}
-					}]);
-					console.log("ICE CANDIDATE", dataToSend);
-					ws.send(dataToSend);
-				}
-			}
-			peer_connection.ontrack = function(event) {
-				if (peer.srcObject == null) {
-					peer.srcObject = event.streams[0];
-				}
-				console.log("ontrack", event);
-			}
-			peer_connection.addStream(mainStore.rtc.callPeerYou);
+			mainStore.rtc.peerList.push(peer);
+			rtc_hookPeerConnectionEvents(peer);
+			let stream = mainStore.rtc.callPeerYou;
+			let tracks = stream.getTracks();
+			console.log("ADDING A STREAM YO", stream, tracks);
+			for (let i of tracks) peer_connection.addTrack(i, stream);
 			let should_create_offer = true;
 			if (should_create_offer) {
 				console.log("Creating RTC offer to ", peer_id);
@@ -191,6 +240,7 @@ function rtc_onIceCandidate(config) {
 
 function rtc_onRemovePeer(peer_id) {
 	console.log('Signaling server said to remove peer:', peer_id);
+	console.log('Signaling server said to remove peer:', mainStore.rtc.peerList);
 	let peerObjectIndex = mainStore.rtc.peerList.findIndex(i => i.user_id == peer_id)
 	if (peerObjectIndex != -1) {
 		mainStore.rtc.peerList[peerObjectIndex].peerConnection.close();
@@ -198,11 +248,12 @@ function rtc_onRemovePeer(peer_id) {
 	else {
 		console.log("REMOVE PEER, COULDN'T FIND IT THOUGH")
 	}
-	delete mainStore.rtc.peerList[peerObjectIndex];
+	mainStore.rtc.peerList.splice(peerObjectIndex, 1);
+	//delete mainStore.rtc.peerList[peerObjectIndex];
 }
 
 function rtc_setupLocalMedia(callback, errorback) {
-	if (mainStore.rtc.callPeerYou != null) {  /* ie, if we've already been initialized */
+	if (mainStore.rtc.callPeerYou != null) {
 		if (callback) callback();
 		return; 
 	}
@@ -211,14 +262,14 @@ function rtc_setupLocalMedia(callback, errorback) {
 	console.log("Requesting access to local audio / video inputs");
 	navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 	navigator.mediaDevices.getUserMedia(constraints)
-		.then(function(stream) { /* user accepted access to a/v */
+		.then(function(stream) {
 			mainStore.rtc.callPeerYou = stream;
 			console.log("Access granted to audio/video");
+			console.log(mainStore.rtc.callPeerYou);
 			if (callback) callback();
 		})
-		.catch(function() { /* user denied access to a/v */
+		.catch(function() {
 			console.log("Access denied for audio/video");
-			alert("You chose not to provide access to the camera/microphone, demo will not work.");
 			if (errorback) errorback();
 		})
 	}
@@ -248,7 +299,7 @@ function webSocket_turnOn(room_id) {
 			}
 		}
 		*/
-		if (pdata[0] == "sessionDescription") {
+		if (pdata[0] == "relaySessionDescription") {
 			rtc_onSessionDescription(pdata[1]);
 		}
 		else if (pdata[0] == "addPeer") {
@@ -273,6 +324,21 @@ async function _startRTC(room_id) {
 		rtc_setupLocalMedia(function() {
 			console.log("Turning on the websocket");
 			webSocket_turnOn(room_id);
+			/*
+			axios.get(location.protocol+"//"+location.hostname+":7070/api/meetings/getRoomById/"+room_id,
+				{withCredentials: true})
+			.then(res => {
+				console.log("Get meeting room ->", res.data);
+				for (let i of res.data.userlist) {
+					rtc_onAddPeer(i);
+				}
+			})
+			.catch(err => {
+				console.log("Get meeting room ->", err);
+				// NO MEETING, SHOW THE START MEETING BUTTON
+				mainStore.header.buttonSet.methods.setActiveMeeting(null);
+			});
+			*/
 		});
 	}
 	catch (err) {
@@ -293,14 +359,10 @@ async function _startRTC(room_id) {
 		setup() {
 			axios.defaults.withCredentials = true;
 			console.log("===", axios.defaults.withCredentials);
-			const defaultUser = {"handle": "NOT_LOGGED_IN", "visible_name": "! АНОН !", "email": "no_email"};
 			mainStore = useMainStore();
-
-			const $cookies = inject('$cookies');
-			let token = $cookies.get('access_token');
-			console.log(token);
 			mainStore.root = {
-				showDialogWindow(dialogFragment, _props = {}) {
+				currentDialogWindowApp: null,
+				showDialogWindow: (dialogFragment, _props = {}) => {
 					console.log("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOO DIALOG");
 					console.log(dialogFragment);
 					let propsObject = {
@@ -311,7 +373,13 @@ async function _startRTC(room_id) {
 					let dialog = createApp(DialogWindow, propsObject);
 					//dialog.setFragment(dialogFragment);
 					console.log(dialog);
+					mainStore.root.currentDialogWindowApp = dialog;
 					dialog.mount(dialogWrapper.value);
+				},
+				closeDialogWindow: () => {
+					console.log("UNMOUNTING DIALOG WINDOW");
+					if (mainStore.root.currentDialogWindowApp != null) mainStore.root.currentDialogWindowApp.unmount();
+					mainStore.root.currentDialogWindowApp = null;
 				}
 			};
 			mainStore.rtc = {
@@ -319,7 +387,7 @@ async function _startRTC(room_id) {
 					console.log("STARTING RTC");
 					_startRTC(room_id, true);
 				},
-				peerList: [{
+				peerList: [/*{
 					user_id: 100,
 					userInformation: {id: 100, handle: "uwu", visible_name: "uwuman", avatar_fileid: 915915},
 					peerConnection: null,
@@ -327,35 +395,18 @@ async function _startRTC(room_id) {
 					//audioStream: null,
 					srcObject: null,
 					volume: 0.8
-				}]
+				}*/]
 			};
 			console.log(rightMainHeader);
 			mainStore.header = {
 				title: "",
 				buttonSet: null
 			};
-			mainStore.currentUser = defaultUser;
+			mainStore.currentFolderId = -1;
 			console.log('+++++++++++++++++++++++++++');
 			console.log(mainStore.root);
 			console.log(mainStore.currentUser);
 			console.log('+++++++++++++++++++++++++++');
-			if (!token) {
-				window.location.href = "/login";
-				//mainStore.currentUser = defaultUser;
-			}
-			else {
-				mainStore.accessToken = token;
-				console.warn("GETTING ME");
-				axios.get("http://127.0.0.1:7070/api/users/me", {withCredentials: true}).then(res => {
-					mainStore.currentUser = res.data;
-					console.warn("ME", res);
-				})
-				.catch(err => {
-					console.error("ME", err);
-					window.location.href = "/login";
-					//mainStore.currentUser = defaultUser;
-				})
-			}
 
 			const router = useRouter();
 			const route = useRoute();
@@ -384,6 +435,11 @@ async function _startRTC(room_id) {
 </script>
 
 <style>
+	#main {
+		max-width: 100%;
+		max-height: 100%;
+	}
+
 	#appContainer {
 		height: 100%;
 		width: 100%;
@@ -418,6 +474,8 @@ async function _startRTC(room_id) {
 
 	#rightSide_mainContainer {
 		flex-grow: 1;
+		flex-shrink: 1;
+		min-height: 0;
 	}
 
 	#bottombar {
@@ -428,6 +486,29 @@ async function _startRTC(room_id) {
 	.no-shrink-flex {
 		flex-shrink: 0;
 		display: flex;
+	}
+
+	.dialogWrapper {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		z-index: 80;
+		position: fixed;
+		top: 0;
+		left: 0;
+		transition: 0.3s ease;
+	}
+	
+	.dialogWrapper:not(:empty) {
+		background: #0004;
+		backdrop-filter: blur(12px);
+	}
+
+	.dialogWrapper:empty {
+		pointer-events: none;
 	}
 
 	@media (max-width: 767px) {

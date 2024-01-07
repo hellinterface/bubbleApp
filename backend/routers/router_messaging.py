@@ -3,9 +3,12 @@ from fastapi import APIRouter, Depends, Request, Body, HTTPException, WebSocket,
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Annotated
-from ..modules import mod_users as UsersModule
-from ..modules import mod_groups as GroupsModule
-from ..modules import mod_messaging as MessagingModule
+from sqlmodel import col
+from ..cores import core_users as UsersModule
+from ..cores import core_groups as GroupsModule
+from ..cores import core_messaging as MessagingModule
+from ..models import Output_Message, Output_PersonalConversation
+from ..requests import Message_CreateRequest, Message_UpdateRequest
 
 router = APIRouter(
     prefix="/api/messaging",
@@ -19,41 +22,47 @@ router_ws = APIRouter(
     # dependencies=[Depends(UsersModule.get_token_header)],
     responses={404: {"description": "Not found"}},
 )
-"""
-Не стоит давать доступ пользователю, лишь админу.
 
-@router.post('/create_conversation', response_class=JSONResponse)
-async def post_create_conversation():
-    return {"some": "stuff"}
-"""
-
-class SendMessageRequest(BaseModel):
+class RouterRequest_SendMessage(BaseModel):
     conversation_id: int = Field()
     text: str = Field()
     media_ids: list[int] = Field()
 
-class Query_ConversationChannel(BaseModel):
+class RouterRequest_SelectConversationChannel(BaseModel):
     channel_id: int
 
-class Query_Message(BaseModel):
-    id: int|None
-    conversation_id: int|None
-    user_id: str|None
-    time: int|None
+class RouterRequest_Delete(BaseModel):
+    id: int
 
-@router.post('/get_conversation_channel', response_class=JSONResponse)
-async def post_get_conversation_channel(query: Query_ConversationChannel, req: Request):
+@router.post('/getConversationChannel', response_class=JSONResponse)
+async def post_get_conversation_channel(query: RouterRequest_SelectConversationChannel, req: Request):
     conversation = MessagingModule.Select.oneConversation(MessagingModule.Conversation.allowed_from1 == query.channel_id, MessagingModule.Conversation.type == "channel")
     if conversation == None:
-        raise HTTPException(detail="Couldn't find conversation with specified ID", status_code=400)
+        raise HTTPException(detail="Couldn't find conversation with specified ID", status_code=404)
     else:
         return conversation
 
+@router.get('/getPersonalChatWithUser/{user_id}', response_class=JSONResponse, response_model=Output_PersonalConversation)
+async def get_personal_chat_with_user(user_id: int, req: Request):
+    conversation = MessagingModule.Select.oneConversation(MessagingModule.Conversation.allowed_from1 == req.state.current_user.id, MessagingModule.Conversation.allowed_from2 == user_id, MessagingModule.Conversation.type == "personal")
+    if conversation == None:
+        conversation = MessagingModule.Select.oneConversation(MessagingModule.Conversation.allowed_from1 == user_id, MessagingModule.Conversation.allowed_from2 == req.state.current_user.id, MessagingModule.Conversation.type == "personal")
+    if conversation == None:
+        # Создать, если не существует
+        conversation = MessagingModule.Create.conversation(
+            MessagingModule.Conversation_CreateRequest(type="personal", allowed_from1=req.state.current_user.id, allowed_from2=user_id)
+        )
+    return MessagingModule.Convert.personalConversation(conversation=conversation, requesting_user_id=req.state.current_user.id)
 
-@router.post('/send_message', response_class=JSONResponse)
-async def post_send_message(sendRequest: SendMessageRequest, req: Request):
+
+@router.post('/sendMessage', response_class=JSONResponse, response_model=Output_Message)
+async def post_send_message(sendRequest: RouterRequest_SendMessage, req: Request):
+    debugPrefix = "MESSAGING :: Sending message ::"
+    print(f"{debugPrefix} Request:")
+    print(sendRequest)
     conversation = MessagingModule.Select.oneConversation(MessagingModule.Conversation.id == sendRequest.conversation_id)
     if conversation == None:
+        print(f"{debugPrefix} ERROR :: Couldn't find conversation with specified ID = {sendRequest.conversation_id}")
         raise HTTPException(detail="Couldn't find conversation with specified ID", status_code=400)
     if (conversation.type == "personal"):
         user_to = conversation.allowed_from1
@@ -64,46 +73,81 @@ async def post_send_message(sendRequest: SendMessageRequest, req: Request):
             try:
                 print("SENDING!!!")
                 message = MessagingModule.Create.message(
-                    MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
+                    Message_CreateRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
                 )
                 await websocket_broadcast_update(sendRequest.conversation_id)
-                return message
+                return MessagingModule.Convert.message(message)
             except:
+                print(f"{debugPrefix} ERROR :: Couldn't find conversation for specified user")
                 raise HTTPException(detail="Couldn't find conversation for specified user", status_code=400)
         else:
+            print(f"{debugPrefix} ERROR :: Couldn't find user")
             raise HTTPException(detail="Couldn't find user", status_code=400)
     elif (conversation.type == "channel"):
         channel = GroupsModule.Select.oneChannel(GroupsModule.Channel.id == conversation.allowed_from1)
         if channel != None:
-            permissions = GroupsModule.get_channel_permissions_of_user(user_id=req.state.current_user.id, channel_id=conversation.allowed_from1)
-            if (not permissions.get('send_messages')):
-                raise HTTPException(detail="No permission for sending messages in specified channel", status_code=403)
-            print("SENDING!!!")
             message = MessagingModule.Create.message(
-                MessagingModule.Message_createRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
+                Message_CreateRequest(conversation_id=conversation.id, text=sendRequest.text, media_ids=sendRequest.media_ids, sender_id=req.state.current_user.id)
             )
+            print(f"{debugPrefix} Sending broadcast websocket message.")
             await websocket_broadcast_update(sendRequest.conversation_id)
-            return message
-            try:
-                pass
-            except:
-                raise HTTPException(detail="Couldn't find conversation for specified channel", status_code=400)
+            return MessagingModule.Convert.message(message)
         else:
+            print(f"{debugPrefix} ERROR :: Couldn't find channel")
             raise HTTPException(detail="Couldn't find channel", status_code=400)
     else:
+        print(f"{debugPrefix} ERROR :: Invalid request")
         raise HTTPException(detail="Invalid request", status_code=400)
 
-@router.post('/get_messages', response_class=JSONResponse)
-async def post_get_messages(query: Query_Message):
-    if (query.conversation_id):
-        return MessagingModule.Select.messages(MessagingModule.Message.conversation_id == query.conversation_id)
-    return []
+@router.get('/getMessages/{chat_id}', response_class=JSONResponse, response_model=list[Output_Message])
+async def get_messages(chat_id: int, time_start: int = 0, time_end: int = 10 ** 16, containing_string: str = ""):
+    if (chat_id):
+        return MessagingModule.Select.messages(
+            MessagingModule.Message.conversation_id == chat_id,
+            MessagingModule.Message.time <= time_end,
+            MessagingModule.Message.time >= time_start,
+            col(MessagingModule.Message.text).contains(containing_string)
+        )
+    raise HTTPException(detail="Couldn't find conversation with specified ID", status_code=404)
 
-    
-@router.get('/list_conversations', response_class=JSONResponse)
+@router.get('/getLastMessage/{chat_id}', response_class=JSONResponse, response_model=Output_Message)
+async def get_last_message(chat_id: int):
+    if (chat_id):
+        resultList = MessagingModule.Select.messages_extended(expressions=[MessagingModule.Message.conversation_id == chat_id], offset=0, limit=1, order_by=MessagingModule.Message.id.desc())
+        #resultList.sort(lambda x => x.id)
+        if len(resultList) == 0:
+            raise HTTPException(status_code=404)
+        return resultList[-1]
+
+    raise HTTPException(detail="Couldn't find conversation with specified ID", status_code=404)
+
+@router.get('/listConversations', response_class=JSONResponse)
 async def get_list_conversations():
     return MessagingModule.List.conversations()
 
+@router.get('/getMyPersonalChats', response_class=JSONResponse)
+async def get_list_conversations(req: Request):
+    return MessagingModule.Select.personalConversations(requesting_user_id=req.state.current_user.id)
+
+@router.post('/editMessage', response_class=JSONResponse, response_model=Output_Message)
+async def post_edit_message(request: Message_UpdateRequest, req: Request):
+    targetMessage = MessagingModule.RawSelect.oneMessage(MessagingModule.Message.id == request.id)
+    if (targetMessage.sender_id != req.state.current_user.id):
+        raise HTTPException(status_code=403)
+    raw_result = MessagingModule.Update.message(request)
+    result = MessagingModule.Convert.message(raw_result)
+    await websocket_broadcast_update(raw_result.conversation_id)
+    return result
+
+@router.post('/deleteMessage', response_class=JSONResponse, response_model=Output_Message)
+async def post_delete_message(request: RouterRequest_Delete, req: Request):
+    try:
+        result = MessagingModule.Delete.message(request.id)
+    except:
+        raise HTTPException(status_code=403)
+    
+    await websocket_broadcast_update(result.conversation_id)
+    return MessagingModule.Convert.message(result)
 
 class Connection:
     def __init__(self):
@@ -166,6 +210,7 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int):
         except WebSocketDisconnect:
             conn = ws_manager.getConnectionWithSocket(websocket)
             ws_manager.disconnect(conn)
+            break
 
 async def websocket_broadcast_update(chat_id: int):
     print("SENDING UPDATE MESSAGE TO", chat_id)

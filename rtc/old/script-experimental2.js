@@ -55,7 +55,7 @@ console.log("Current location:", location.host);
 
 function webSocket_turnOn() {
 	//ws = new WebSocket("ws://192.168.0.3/ws");
-	ws = new WebSocket("wss://"+location.host+"/ws");
+	ws = new WebSocket("wsss://"+location.host+"/ws");
 	button_toggleWebSocket.innerText = "Подключение...";
 	ws.onmessage = (event) => {
 		console.log("WEBSOCKET MESSAGE:", event.data);

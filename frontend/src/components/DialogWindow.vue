@@ -52,6 +52,7 @@ export default {
     mounted() {
         let fragmentWrapper = document.createElement('div');
         fragmentWrapper.classList.add('fragmentWrapper');
+        fragmentWrapper.style = "height: fit-content; width: fit-content; min-width: 100%;"
         contentContainer.value.appendChild(fragmentWrapper);
         fragmentInstance.mount(fragmentWrapper);
     },
@@ -68,18 +69,21 @@ export default {
     right: 0;
     bottom: 0;
     margin: auto;
-    width: 400px;
-    height: 300px;
+    min-width: 400px;
     background: white;
-    box-shadow: 0 2px 8px #0004;
+    box-shadow: 0 4px 12px #0006;
     display: flex;
     flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 6px;
 }
 
 .dialogWindowHeader {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    padding: 8px;
 }
 
 .dialogWindowCloseButton {
@@ -88,9 +92,10 @@ export default {
 
 .dialogWindowContent {
     flex-grow: 1;
-}
-
-.fragmentWrapper {
-    height: 100%;
+    height: fit-content;
+    width: fit-content;
+    min-width: 100%;
+    padding: 8px;
+    padding-top: 0;
 }
 </style>

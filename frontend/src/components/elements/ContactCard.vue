@@ -1,31 +1,53 @@
 <template>
 	<div class="groupList_card" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
 		<div class="groupList_avatar"></div>
-		<div class="groupList_title">{{ group_title }}</div>
+		<div class="groupList_title">{{ contact_object.visible_name }}</div>
 		<XButton class="groupList_moreMenuButton" icon_name="more_vert" appearance="round small"></XButton>
         <div class="groupList_actions">
             <XButton icon_name="call" appearance="outlined"></XButton>
-            <XButton icon_name="chat" appearance="outlined"></XButton>
+            <XButton icon_name="chat" appearance="outlined" @click="openChatWithUser(contact_object.id)"></XButton>
         </div>
 	</div>
 </template>
 
 <script>
     import { useMainStore } from '@/stores/mainStore'
+    //import axios from 'axios';
     import XButton from './XButton.vue';
+	var mainStore;
+
 	export default {
 		name: 'ContactCard',
         components: {
             XButton
         },
 		props: {
-			group_title: {
-				default: "GROUPTITLE",
-				type: String
+			contact_object: {
+				type: Object
 			},
 		},
+        methods: {
+            openChatWithUser(user_id) {
+                this.$router.push("/chats/"+user_id);
+                /*
+                axios.get(location.protocol+`//127.0.0.1:7070/api/messaging/getPersonalChatBetweenUsers/?user1='${mainStore.currentUser.id}&user2=${user_id})`, {withCredentials: true})
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(err => {
+                    console.log(err);
+                        axios.post(location.protocol+`//127.0.0.1:7070/api/messaging/createConversation/?user1='${mainStore.currentUser.id}&user2=${user_id})`, {withCredentials: true})
+                        .then(res => {
+                            console.log(res);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                })*/
+            }
+        },
         setup() {
-			const mainStore = useMainStore();
+            mainStore = useMainStore();
 			return {
 				mainStore
 			}

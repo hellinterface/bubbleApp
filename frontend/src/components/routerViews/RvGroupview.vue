@@ -3,10 +3,19 @@
 		<div class="secondarySidebar">
 			<div class="secondarySidebar_top">
 				<div class="groupView_channelList">
+					<ChannelLink :channel_title="'Хранилище'" @click="openFolder(groupObject.folder_id)"></ChannelLink>
+				</div>
+				<div class="secondarySidebarTitle">Каналы</div>
+				<div class="groupView_channelList">
 					<ChannelLink v-for="channel in groupObject.channels" :key="channel.id" :channel_title="channel.title" @click="openChannel(channel.id)"></ChannelLink>
 				</div>
+				<div class="secondarySidebarTitle">Пользователи</div>
 				<div class="groupView_userList">
 					<GroupUserEntry v-for="user in groupObject.users" :key="user.user_id" :user_object="user"></GroupUserEntry>
+				</div>
+				<div class="secondarySidebarTitle">Доски задач</div>
+				<div class="groupView_channelList">
+					<ChannelLink v-for="board in taskBoards" :key="board.id" :channel_title="board.title" @click="openTaskBoard(board.id)"></ChannelLink>
 				</div>
 			</div>
 			<div class="secondarySidebar_bottom">
@@ -15,7 +24,7 @@
 			</div>
 		</div>
 		<div class="routerView_mainContent">
-			<ChatView :chat_id="currentChatId" chat_type="channel"></ChatView>
+			<ChatView :chat_id="currentChatId" chat_type="channel" ref="CHATVIEW"></ChatView>
 		</div>
 	</div>
 </template>
@@ -35,6 +44,8 @@ import HbsGroupview from '../headerButtonSets/HbsGroupview.vue';
 var mainStore;
 const currentChannelId = ref(0);
 const currentChatId = ref(0);
+const CHATVIEW = ref(null);
+const taskBoards = ref([]);
 
 var groupObject = ref({
 	channels: [],
@@ -51,29 +62,38 @@ export default {
 		XButton
 	},
 	methods: {
+		openTaskBoard(board_id) {
+            this.$router.push("/tasks/"+board_id);
+		},
+		openFolder(folder_id) {
+            this.$router.push("/files/"+folder_id);
+		},
 		openChannel(channel_id) {
 			console.warn("OPENING CHANNEL")
 			mainStore.currentChannelId = channel_id;
+			console.log("SETTING CURRENT CHANNEL ID TO", channel_id);
 			currentChannelId.value = channel_id;
-			axios.post("http://127.0.0.1:7070/api/messaging/get_conversation_channel",
+			axios.post(location.protocol+"//"+location.hostname+":7070/api/messaging/getConversationChannel",
 				{channel_id: currentChannelId.value},
 				{withCredentials: true})
 			.then(res => {
-				console.log(res);
+				console.log("Get conversation channel ->", res);
+				console.log("SETTING CURRENT CHAT ID TO", res.data.id);
 				currentChatId.value = res.data.id;
+				CHATVIEW.value.refresh(currentChatId.value);
 			})
-			.catch(err => console.log(err));
-			axios.get("http://127.0.0.1:7070/api/meetings/get_room_by_id/"+currentChannelId.value,
+			.catch(err => console.log("Get conversation channel ->",err));
+			axios.get(location.protocol+"//"+location.hostname+":7070/api/meetings/getRoomById/"+currentChannelId.value,
 				{withCredentials: true})
 			.then(res => {
-				console.log("Meeting room:", res.data);
+				console.log("Get meeting room ->", res.data);
 				console.log("HBS:", mainStore.header.buttonSet);
 				// ACTIVE MEETING, SHOW THE JOIN BUTTON
 				console.log("Current ActiveMeeting data:", mainStore.header.buttonSet.activeMeeting);
 				mainStore.header.buttonSet.methods.setActiveMeeting(res.data);
 			})
 			.catch(err => {
-				console.log("Meeting room:", err);
+				console.log("Get meeting room ->", err);
 				// NO MEETING, SHOW THE START MEETING BUTTON
 				mainStore.header.buttonSet.methods.setActiveMeeting(null);
 			});
@@ -92,15 +112,22 @@ export default {
 		var group_id = route.params.group_id;
 		console.warn("PARAM ID", group_id);
 		groupObject.value = {};
-		axios.get("http://127.0.0.1:7070/api/groups/getGroupById/"+group_id,
-			{headers: {"X-Access-Token": mainStore.accessToken}})
+		axios.get(location.protocol+"//"+location.hostname+":7070/api/groups/getGroupById/"+group_id,
+			{withCredentials: true})
 		.then(res => {
-			console.log(res);
+			console.log("Get group by id ->", res);
 			groupObject.value = res.data;
 			mainStore.header.title = groupObject.value.title;
 			mainStore.header.buttonSet = HbsGroupview;
 			let primaryChannel = groupObject.value.channels.find(entry => entry.is_primary == true);
 			this.openChannel(primaryChannel.id);
+		})
+		.catch(err => console.log(err));
+		axios.get(location.protocol+"//"+location.hostname+":7070/api/tasks/getBoardsOfGroup/"+group_id,
+			{withCredentials: true})
+		.then(res => {
+			console.log("Get boards of group ->", res);
+			taskBoards.value = res.data;
 		})
 		.catch(err => console.log(err));
 	},
@@ -111,7 +138,9 @@ export default {
 		return {
 			groupObject,
 			currentChatId,
-			currentChannelId
+			currentChannelId,
+			CHATVIEW,
+			taskBoards
 		}
 	},
 	data() {
@@ -120,6 +149,9 @@ export default {
 </script>
 
 <style scoped>
+.secondarySidebarTitle {
+	font-weight: bold;
+}
 	.rvGroupview {
 		height: 100%;
 		display: flex;

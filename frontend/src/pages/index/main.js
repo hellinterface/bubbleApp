@@ -8,6 +8,8 @@ import { Vue3Mq } from "vue3-mq"
 import { createRouter, createWebHashHistory } from 'vue-router'
 import VueCookies from 'vue-cookies'
 import VueClickAway from 'vue3-click-away'
+import { useMainStore } from '@/stores/mainStore'
+import axios from 'axios';
 
 /*
 	CSS
@@ -28,7 +30,7 @@ import RvChats from '@/components/routerViews/RvChats.vue'
 import RvCalendar from '@/components/routerViews/RvCalendar.vue'
 import RvCall from '@/components/routerViews/RvCall.vue'
 import RvFiles from '@/components/routerViews/RvFiles.vue'
-
+import RvUserview from '@/components/routerViews/RvUserview.vue'
 
 /*
 	Vue Router
@@ -36,13 +38,17 @@ import RvFiles from '@/components/routerViews/RvFiles.vue'
 const routes = [
 	{ path: '/grouplist', component: RvGrouplist },
 	{ path: '/groupview/:group_id', component: RvGroupview },
+	{ path: '/tasks/:board_id', component: RvTasks },
 	{ path: '/tasks', component: RvTasks },
 	{ path: '/contacts', component: RvContacts },
 	{ path: '/settings', component: RvSettings },
+	{ path: '/chats/:other_user_id', component: RvChats },
 	{ path: '/chats', component: RvChats },
 	{ path: '/calendar', component: RvCalendar },
 	{ path: '/call', component: RvCall },
+	{ path: '/files/:folder_share_link', component: RvFiles },
 	{ path: '/files', component: RvFiles },
+	{ path: '/user/:user_id', component: RvUserview },
 ];
 
 const router = createRouter({
@@ -54,6 +60,7 @@ const router = createRouter({
 	Pinia
 */
 const pinia = createPinia();
+
 
 /*
 	App
@@ -74,4 +81,24 @@ app.use(Vue3Mq, {
 		xxl: 1400
 	}
 });
-app.mount('#main');
+
+var mainStore = useMainStore();
+
+var token = VueCookies.get('access_token');
+
+if (!token) {
+	window.location.href = "/login";
+}
+else {
+	mainStore.accessToken = token;
+	console.warn("GETTING ME");
+	axios.get(location.protocol+"//"+location.hostname+":7070/api/users/me", {withCredentials: true}).then(res => {
+		mainStore.currentUser = res.data;
+		console.warn("ME", res);
+		app.mount('#main');
+	})
+	.catch(err => {
+		console.error("ME", err);
+		window.location.href = "/login";
+	})
+}

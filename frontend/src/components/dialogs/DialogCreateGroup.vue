@@ -1,7 +1,7 @@
 <template>
-    <div class="gialogCreateSetup_container">
+    <div class="gialogCreateSetup_container"><ErrorMessage :message="errorMessage" v-if="errorMessage != null"></ErrorMessage>
+        <ErrorMessage :message="errorMessage" v-if="errorMessage != null"></ErrorMessage>
         <LabeledInput type="text" name="title" v-model="input_title_value">Название</LabeledInput>
-        <LabeledInput type="text" name="handle" v-model="input_handle_value">Ссылка</LabeledInput>
         <XButton icon_name="done" @click="createGroup()">Создать</XButton>
     </div>
 </template>
@@ -12,25 +12,33 @@ import XButton from '@/components/elements/XButton.vue';
 import LabeledInput from '@/components/LabeledInput.vue'
 import axios from 'axios';
 import { useMainStore } from '@/stores/mainStore';
+import ErrorMessage from '../elements/ErrorMessage.vue';
 
 var mainStore;
+const errorMessage = ref(null);
 const input_title_value = ref("");
-const input_handle_value = ref("");
 
 export default {
-	name: 'DialogCreateView',
+	name: 'DialogCreateGroup',
 	components: {
         XButton,
-        LabeledInput
+        LabeledInput,
+        ErrorMessage
 	},
     methods: {
         createGroup() {
             console.log(input_title_value);
-            axios.post("http://127.0.0.1:7070/api/groups/create_group",
-            {title: input_title_value.value, handle: input_handle_value.value},
-            {headers: {"X-Access-Token": mainStore.accessToken}})
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
+            axios.post(location.protocol+"//"+location.hostname+":7070/api/groups/create_group",
+            {title: input_title_value.value},
+            {withCredentials:true})
+            .then(res => {
+                console.log(res);
+                mainStore.root.closeDialogWindow();
+            })
+            .catch(err => {
+                console.log(err);
+                errorMessage.value = "Не удалось создать группу.";
+            });
         }
     },
 	mounted() {
@@ -38,12 +46,11 @@ export default {
 	},
     setup() {
         input_title_value.value = "";
-        input_handle_value.value = "";
         mainStore = useMainStore();
         console.warn("SETUP DIALOG FRAGMENT");
         return {
             input_title_value,
-            input_handle_value
+            errorMessage
         }
     },
     data() {

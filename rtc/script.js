@@ -41,7 +41,7 @@ console.log("Current location:", location.host);
 function webSocket_turnOn() {
 	//ws = new WebSocket("ws://192.168.0.3/ws");
 	let userId = input_userId.value;
-	console.log("ws://"+location.host+"/api/meetings/ws/"+userId);
+	console.log("ws://"+location.hostname+":7070/api/meetings/ws/"+userId);
 	ws = new WebSocket("ws://"+location.hostname+":7070/api/meetings/ws/"+userId);
 	button_toggleWebSocket.innerText = "Подключение...";
 	ws.onmessage = (event) => {

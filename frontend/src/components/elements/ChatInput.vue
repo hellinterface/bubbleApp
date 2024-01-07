@@ -2,7 +2,7 @@
 	<div class="chatInput">
 		<XButton class="chatInput_attachmentButton" icon_name="attachment"></XButton>
 		<div class="chatInput_fieldContainer">
-			<input type="text" class="chatInput_field" ref="chatInputField">
+			<input type="text" class="chatInput_field" ref="chatInputField" @keydown="event => onKeyDown(event)">
 		</div>
 		<XButton class="chatInput_sendButton" icon_name="send" @click="sendMessage()"></XButton>
 	</div>
@@ -30,6 +30,12 @@
 			}
 		},
 		methods: {
+			onKeyDown(event) {
+				console.log(event, event.key);
+				if (event.key == "Enter") {
+					this.sendMessage();
+				}
+			},
 			sendMessage() {
 				//var mainStore = useMainStore();
 				// recipient_id: this.recipient_id,
@@ -37,7 +43,7 @@
 				console.log(objectToSend);
 				console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				chatInputField.value.value = "";
-				axios.post("http://127.0.0.1:7070/api/messaging/send_message",
+				axios.post(location.protocol+"//"+location.hostname+":7070/api/messaging/sendMessage",
 					objectToSend,
 					{withCredentials: true})
 				.then(res => {

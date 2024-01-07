@@ -1,39 +1,52 @@
 <template>
-	<div class="groupList_card" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
-		<div class="groupList_avatar"></div>
-		<div class="groupList_title">{{ group_title }}</div>
-		<XButton class="groupList_moreMenuButton" icon_name="more_vert" appearance="round small"></XButton>
+	<div class="groupList_card" :style="{ background: `linear-gradient(145deg, white, ${group_object.color}33)` }" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
+		<div class="groupList_avatar" :style="{ backgroundColor: group_object.color }"></div>
+		<div class="groupList_title">{{ group_object.title }}</div>
 	</div>
 </template>
 
 <script>
     import { useMainStore } from '@/stores/mainStore'
-    import XButton from './XButton.vue';
+    import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 	export default {
 		name: 'GroupCard',
         components: {
-            XButton
         },
 		props: {
-			group_title: {
-				default: "GROUPTITLE",
-				type: String
+			group_object: {
+				type: Object
 			},
 		},
-        setup() {
+        methods: {
+        },
+        setup(props) {
 			const mainStore = useMainStore();
+            const router = useRouter()
+            var openGroup = function() {
+                router.push("/groupview/"+props.group_object.id)
+            };
+            var contextMenuObject = ref([
+                {text: "Открыть группу", onclick: () => {openGroup()}}
+            ]);
+            console.log(props.group_object.owner.id, mainStore.currentUser.id);
+            if (props.group_object.owner.id == mainStore.currentUser.id) {
+                console.log("SETINGS");
+                contextMenuObject.value.push({text: "Настройки группы", onclick: () => {console.log("EDIT GROUP")}});
+            }
+            else {
+                console.log("LEAVE");
+                contextMenuObject.value.push({text: "Покинуть группу", onclick: () => {console.log("LEAVE GROUP")}});
+            }
+            onMounted(() => {
+            });
 			return {
-				mainStore
+				mainStore,
+                contextMenuObject,
+                openGroup
 			}
         },
 		data() {
-            return {
-                contextMenuObject: [
-                    {text: "View group", onclick: () => {console.log("VIEW GROUP")}},
-                    {text: "Edit group", onclick: () => {console.log("EDIT GROUP")}},
-                    {text: "Leave group", onclick: () => {console.log("LEAVE GROUP")}},
-                ]
-            }
 		}
 	}
 </script>

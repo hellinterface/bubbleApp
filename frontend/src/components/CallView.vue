@@ -18,7 +18,7 @@
 <script>
 import { useMainStore } from '@/stores/mainStore';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import BBRouterLink from './BBRouterLink.vue';
 import CallPeer from './elements/CallPeer.vue'
 import XButton from './elements/XButton.vue';
@@ -39,7 +39,7 @@ export default {
 	},
 	setup() {
 		/*
-		axios.post("http://127.0.0.1:7070/api/messaging/get_conversation_channel",
+		axios.post(location.protocol+"//"+location.hostname+":7070/api/messaging/get_conversation_channel",
 			{channel_id: currentChannelId.value},
 			{headers: {"X-Access-Token": mainStore.accessToken}})
 		.then(res => {
@@ -49,8 +49,16 @@ export default {
 		.catch(err => console.log(err));
 		*/
 		mainStore = useMainStore();
-		peerList = ref(storeToRefs(mainStore).rtc.peerList);
-		
+		let storeAsRefs = storeToRefs(mainStore)
+		peerList.value = storeAsRefs.rtc.value.peerList;
+		console.log("%c EEEEEEEEEEE", "font-size: 24px; color: red");
+		console.log(storeAsRefs, peerList.value);
+		// IT DOESNT WORK
+		watch(() => storeAsRefs.rtc.value.peerList, (newValue, oldValue) => {
+			console.log("%c NO WAY PEER LIST UPDATED", "font-size: 24px; color: red");
+			console.log(newValue, oldValue, storeAsRefs.rtc.value.peerList);
+			peerList.value = storeAsRefs.rtc.value.peerList;
+		}, {immediate: true});
 		return {
 			callPeerElement_you,
 			callPeerYou
@@ -64,6 +72,7 @@ export default {
 		console.log(callPeerElement_you.value);
 		console.log("CallPeerYou:", callPeerYou, callPeerYou.value);
 		callPeerElement_you.value.srcObject = callPeerYou.value;
+		//callPeerElement_you.value.srcObject = storeToRefs(mainStore).rtc.value.peerList[0].srcObject;
 	},
 	data() {
 		return {

@@ -1,7 +1,7 @@
 <template>
     <div class="fileEntry">
 		<div>{{fileObject.title}}</div>
-		<div>{{fileObject.size}}</div>
+		<div>{{sizeConvert(fileObject.size)}}</div>
     </div>
 </template>
 
@@ -13,7 +13,23 @@
 				type: Object
 			}
 		},
-		setup() {
+		setup(props) {
+			console.log(props.fileObject);
+			
+		},
+		methods: {
+			sizeConvert(bytes) {
+				let units = [' Б', ' КБ', ' МБ', ' ГБ'];
+				let unit_int = 0;
+				let temp_big   = bytes;
+				let temp_small = (bytes / 1024);
+				while (temp_small > 1) {
+					unit_int++;
+					temp_big = temp_small;
+					temp_small = (temp_small / 1024)
+				}
+				return (Math.round(temp_big * 100) / 100) + units[unit_int]
+			}
 		}
 	}
 </script>

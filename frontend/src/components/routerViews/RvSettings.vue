@@ -1,10 +1,5 @@
 <template>
 	<div class="router-view-container" id="rvSettings">
-		<div class="secondarySidebar">
-			<div class="settings_categories">
-				<ChannelLink v-for="category in categoryList" :key="category.id" :channel_title="category.title"></ChannelLink>
-			</div>
-		</div>
 		<div class="routerView_mainContent">
 			<AvatarPicker></AvatarPicker>
 			<LabeledInput type="text" :required="true" name="handle" v-model="inputValue_handle">Имя пользователя</LabeledInput>
@@ -22,7 +17,6 @@
 import axios from 'axios';
 import { ref } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
-import ChannelLink from '../elements/ChannelLink.vue'
 import AvatarPicker from '../elements/AvatarPicker.vue';
 import LabeledInput from '../LabeledInput.vue';
 import XButton from '../elements/XButton.vue';
@@ -46,7 +40,6 @@ const categoryList = ref([
 export default {
 	name: 'RvSettings',
 	components: {
-		ChannelLink,
 		AvatarPicker,
 		LabeledInput,
 		XButton
@@ -71,7 +64,7 @@ export default {
 				if (inputValue_password.value != "") {
 					objectToSend.password = passwordHash;
 				}
-				axios.post("http://127.0.0.1:7070/api/users/update",
+				axios.post(location.protocol+"//"+location.hostname+":7070/api/users/update",
 					objectToSend,
 					{withCredentials: true})
 				.then(res => {
@@ -133,19 +126,6 @@ export default {
 		height: 100%;
 		display: flex;
 		flex-direction: row;
-		gap: 6px;
-	}
-	.secondarySidebar {
-		height: 100%;
-		width: 20%;
-		background-color: #fff;
-		box-shadow: 0 0 6px #0004;
-		border-radius: 6px;
-		padding: 6px;
-	}
-	.groupView_channelList {
-		display: flex;
-		flex-direction: column;
 		gap: 6px;
 	}
 	.routerView_mainContent {

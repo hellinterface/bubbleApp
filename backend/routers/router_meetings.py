@@ -3,12 +3,11 @@ from fastapi import APIRouter, Depends, Request, status, Response, WebSocket, We
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from datetime import timedelta
-from ..modules import mod_users as MainModule
 from pydantic import BaseModel
 import datetime
 import json
-from ..modules import mod_users as UsersModule
 import secrets
+from ..cores import core_users as UsersModule
 
 router = APIRouter(
     prefix="/api/meetings",
@@ -86,6 +85,12 @@ class MeetingRoomManager:
             if i.id == room_id:
                 return i
         return -1
+    def removeRoomById(self, room_id):
+        for i in self.rooms:
+            if i.id == room_id:
+                self.rooms.remove(i)
+                return True
+        return False
 
 
 roomManager = MeetingRoomManager()
@@ -112,7 +117,7 @@ class Room(BaseModel):
     id: int
     userlist: list[int]
 
-@router.get("/get_room_by_id/{room_id}")
+@router.get("/getRoomById/{room_id}")
 async def get_room_by_id(room_id: int):
     room = None
     for i in roomManager.rooms:
@@ -124,7 +129,7 @@ async def get_room_by_id(room_id: int):
             return Room(id=i.id, userlist=userlist)
     raise HTTPException(status_code=404, detail="Not found")
 
-@router.post("/create_room")
+@router.post("/createRoom")
 async def get_room_by_id(request: RouterRequest_CreateRoom):
     room = None
     for i in roomManager.rooms:
@@ -147,9 +152,9 @@ async def websocket_endpoint(websocket: WebSocket, channel_id: int, user_id: int
     if (room == None):
         room = roomManager.createNewRoom(channel_id)
     newconn = await room.connect(websocket, user)
+    await room.broadcast('["addPeer", ' + str(user_id) + ']')
     ws_userlist.append(user_id)
     print("Room:", room)
-    await room.broadcast(JSONWS("addPeer", user_id))
     while True:
         try:
             data = await websocket.receive_text()
@@ -159,11 +164,15 @@ async def websocket_endpoint(websocket: WebSocket, channel_id: int, user_id: int
             # await manager.send_personal_message(JSONWS("message", f"You wrote something."), conn)
             obj = json.loads(data)
             if obj[0] == "relaySessionDescription":
+                print("RELAYSESSIONDESCRIPTION ########################")
                 print(obj[1])
                 targetPeer = room.getConnectionWithUserId(obj[1]['peer_id'])
                 if targetPeer != -1:
+                    print("NICE", conn.user.id)
                     obj[1]['peer_id'] = conn.user.id
                     await targetPeer.socket.send_text(json.dumps(obj))
+                else:
+                    print("OOPS")
             if obj[0] == "relayICECandidate":
                 print("CANDIDATE")
                 print(obj[1])

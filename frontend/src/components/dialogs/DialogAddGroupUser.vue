@@ -1,5 +1,6 @@
 <template>
     <div class="gialogCreateSetup_container">
+        <ErrorMessage :message="errorMessage" v-if="errorMessage != null"></ErrorMessage>
         <LabeledInput type="text" name="title" v-model="input_handle_value">Имя пользователя</LabeledInput>
         <XButton icon_name="done" @click="addUserToGroup()">Добавить</XButton>
     </div>
@@ -11,6 +12,9 @@ import XButton from '@/components/elements/XButton.vue';
 import LabeledInput from '@/components/LabeledInput.vue'
 import axios from 'axios';
 import { useMainStore } from '@/stores/mainStore';
+import ErrorMessage from '../elements/ErrorMessage.vue';
+
+const errorMessage = ref(null);
 
 var mainStore;
 const input_handle_value = ref("");
@@ -20,7 +24,8 @@ export default {
 	name: 'DialogAddGroupUser',
 	components: {
         XButton,
-        LabeledInput
+        LabeledInput,
+        ErrorMessage
 	},
     props: {
         group_id: {
@@ -31,13 +36,17 @@ export default {
         addUserToGroup() {
             console.log(group_id_ref.value);
             console.log(input_handle_value.value, this.group_id);
-            axios.post("http://127.0.0.1:7070/api/groups/add_user_to_group",
+            axios.post(location.protocol+"//"+location.hostname+":7070/api/groups/addUserToGroup",
             {user_handle: input_handle_value.value, group_id: this.group_id},
             {headers: {"X-Access-Token": mainStore.accessToken}})
             .then(res => {
                 console.log(res);
+                mainStore.root.closeDialogWindow();
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                errorMessage.value = "Не удалось добавить пользователя."
+            });
         }
     },
 	mounted() {
@@ -51,7 +60,8 @@ export default {
         console.warn("SETUP DIALOG FRAGMENT");
         group_id_ref = toRefs(props).group_id;
         return {
-            input_handle_value
+            input_handle_value,
+            errorMessage
         }
     },
     data() {

@@ -46,10 +46,11 @@ export default {
 		function makeQuery() {
 			sha256(value_password.value).then(password_hash => {
 				let requestObject = {email: value_email.value, handle: value_handle.value, visible_name: value_visible_name.value, password_hash: password_hash};
-				axios.post('http://localhost:7070/api/auth/signup', requestObject)
+				axios.post(location.protocol+'//localhost:7070/api/auth/signup', requestObject)
 				.then(function (response) {
 					console.log(response.data);
 					$cookies.set('access_token', response.data.access_token)
+					setTimeout(() => window.location.href = "/app", 500);
 				})
 				.catch(function (error) {
 					console.log(error);

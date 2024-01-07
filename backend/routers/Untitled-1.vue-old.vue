@@ -324,7 +324,7 @@ async function _startRTC(target_id, addStreams = false) {
 			else {
 				mainStore.accessToken = token;
 				console.warn("GETTING ME");
-				axios.get("http://127.0.0.1:7070/api/users/me", {withCredentials: true}).then(res => {
+				axios.get(location.protocol+"//"+location.hostname+":7070/api/users/me", {withCredentials: true}).then(res => {
 					mainStore.currentUser = res.data;
 					console.warn("ME", res);
 				})

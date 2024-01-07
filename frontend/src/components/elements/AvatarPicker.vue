@@ -1,7 +1,7 @@
 <template>
 	<div class="avatarPicker">
         <div v-for="avatar in avatarList" :key="avatar.id" class="avatarPicker_avatar">
-            <img :src="'http://localhost:7070/api/files/get/' + avatar.id" />
+            <img :src="'http://localhost:7070/api/files/download/' + avatar.id" />
         </div>
 	</div>
 </template>
@@ -10,15 +10,21 @@
 import { ref } from 'vue'
 
 const avatarList = ref([
-    {id: "permanent_avatar1"},
-    {id: "permanent_avatar2"},
-    {id: "permanent_avatar3"},
+    {id: 1},
+    {id: 2},
+    {id: 3},
+    {id: 4},
+    {id: 5},
+    {id: 6},
 ]);
 
 export default {
 	name: 'AvatarPicker',
 	components: {
 	},
+    setup() {
+        
+    },
 	mounted() {
 	},
 	data() {
@@ -40,6 +46,7 @@ export default {
     width: 100px;
     height: 100px;
     overflow: hidden;
+    flex-shrink: 0;
 }
 .avatarPicker_avatar img {
     width: 100%;

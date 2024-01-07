@@ -1,8 +1,8 @@
 <template>
     <div>
       <label :for="name"><slot></slot></label>
-      <textarea v-if="type == 'textarea'" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" ref="mainInputElement"></textarea>
-      <input v-else :type="type" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" ref="mainInputElement"/>
+      <textarea v-if="type == 'textarea'" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" @focus="onFocus" @blur="onBlur" ref="mainInputElement"></textarea>
+      <input v-else :type="type" :name="name" :required="required" :placeholder="placeholder" :value="modelValue" @input="updateValue" @focus="onFocus" @blur="onBlur" ref="mainInputElement"/>
     </div>
 </template>
 
@@ -18,7 +18,7 @@
             placeholder: { default: "", type: String },
             modelValue: { default: "", type: String },
         },
-        emits: ['update:modelValue'],
+        emits: ['update:modelValue', 'focus', 'blur'],
         setup(props, {emit}) {
             //const emit = defineEmits([])
             onMounted(() => {
@@ -26,9 +26,17 @@
             const updateValue = (event) => {
                 emit('update:modelValue', event.target.value)
             }
+            const onFocus = (event) => {
+                emit('focus', event)
+            }
+            const onBlur = (event) => {
+                emit('blur', event)
+            }
             return {
                 mainInputElement,
-                updateValue
+                updateValue,
+                onFocus,
+                onBlur
             }
         },
         data() {

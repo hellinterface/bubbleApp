@@ -22,7 +22,7 @@ export default {
 		//currentButtonSet: {default: hbsContacts},
 		currentTitle: {
 			type: String,
-			default: "Nothing."
+			default: ""
 		},
 		buttonSet: {
 			type: Object

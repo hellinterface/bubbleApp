@@ -1,23 +1,15 @@
 <template>            
 <div id="sidebarCategory_mainLinks">
-    <SidebarCategoryLink icon_name="contacts" to="/contacts">Контакты</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="groups_3" to="/grouplist">Группы</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="task_alt" to="/tasks">Задачи</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="calendar_month" to="/calendar">Календарь</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="forum" to="/chats">Диалоги</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="folder" to="/files">Файлы</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="contacts" to="/contacts/">Контакты</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="groups_3" to="/grouplist/">Группы</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="task_alt" to="/tasks/">Задачи</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="calendar_month" to="/calendar/">Календарь</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="forum" to="/chats/">Диалоги</SidebarCategoryLink>
+    <SidebarCategoryLink icon_name="folder" to="/files/">Файлы</SidebarCategoryLink>
 </div>
 </template>
 
 <script>
-/*
-    <SidebarCategoryLink icon_name="contacts" to="/contacts">Контакты</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="groups_3" to="/grouplist">Группы</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="task_alt" to="/tasks">Задачи</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="calendar_month" to="/calendar">Календарь</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="forum" to="/chats">Диалоги</SidebarCategoryLink>
-    <SidebarCategoryLink icon_name="folder" to="/files">Файлы</SidebarCategoryLink>
-*/
 
 import SidebarCategoryLink from './SidebarCategoryLink.vue';
 
@@ -29,7 +21,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #sidebarCategory_mainLinks {
     display: flex;

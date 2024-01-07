@@ -1,5 +1,5 @@
 <template>
-	<div class="chatMessage">
+	<div class="chatMessage" @click.right.prevent="(event) => {mainStore.contextMenu.show(event, contextMenuObject)}">
 		<div class="chatMessage_meta">
 			<div class="chatMessage_avatar"></div>
 			<div class="chatMessage_name">{{ message_object?.sender?.visible_name ? message_object?.sender?.visible_name : "NO NAME" }}</div>
@@ -12,7 +12,11 @@
 </template>
 
 <script>
-//
+import { useMainStore } from '@/stores/mainStore';
+import DialogEditMessage from '../dialogs/DialogEditMessage.vue';
+import DialogDeleteMessage from '../dialogs/DialogDeleteMessage.vue';
+var mainStore;
+
 	export default {
 		name: 'ChatMessage',
 
@@ -28,23 +32,52 @@
 		},
 		methods: {
 			convertTime(unixTimestamp) {
-				var time = new Date(unixTimestamp);
+				var time = new Date(unixTimestamp*1000);
+				var y = time.getFullYear();
+				var mo = time.getMonth()+1;
+				var d = time.getDate();
 				var h = time.getHours();
 				var m = time.getMinutes();
+				if (mo < 10) mo = '0' + mo;
+				if (d < 10) d = '0' + d;
 				if (h < 10) h = '0' + h;
 				if (m < 10) m = '0' + m;
-				return h + ":" + m;
+				return `${h}:${m} ${d}.${mo}.${y}`;
+			},
+			openDialogWindow_editMessage() {
+				mainStore.root.showDialogWindow(DialogEditMessage, {message_object: this.message_object});
+			},
+			openDialogWindow_deleteMessage() {
+				mainStore.root.showDialogWindow(DialogDeleteMessage, {message_object: this.message_object});
 			}
+		},
+		setup() {
+			mainStore = useMainStore();
+			return {
+				mainStore
+			}
+		},
+		data() {
+            return {
+                contextMenuObject: [
+                    {text: "Редактировать", onclick: () => {this.openDialogWindow_editMessage()}},
+                    {text: "Удалить", onclick: () => {this.openDialogWindow_deleteMessage()}},
+                ]
+            }
 		}
 	}
 </script>
 
 <style scoped>
 .chatMessage {
-	background: #eee;
 	border-radius: 6px;
 	padding: 12px;
 	width: fit-content;
+	width: 100%;
+	transition: 0.2s ease;
+}
+.chatMessage:hover {
+	background: var(--color-pale1);
 }
 .chatMessage_meta {
 	display: flex;

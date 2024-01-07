@@ -2,44 +2,83 @@
 	<div class="router-view-container" id="rvChats">
 		<div class="secondarySidebar">
 			<div class="chats_chatList">
-				<ChannelLink v-for="channel in groupList" :key="channel.id" :channel_title="channel.title"></ChannelLink>
+				<ChatListItem v-for="chat in chatList" :key="chat.id" :chat_object="chat" @click="setChat(chat)"></ChatListItem>
 			</div>
 		</div>
 		<div class="routerView_mainContent">
-			<ChatView></ChatView>
+			<ChatView ref="chatViewElement" :chat_id="chat_id"></ChatView>
 		</div>
 	</div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
-import ChannelLink from '../elements/ChannelLink.vue'
+import ChatListItem from '../elements/ChatListItem.vue'
 import ChatView from '../ChatView.vue'
+import axios from 'axios'
+import { useRoute } from 'vue-router'
 const headerTitle = "Диалоги";
 var mainStore;
+var route;
 
-const groupList = ref([
-    {id: "123", title: "user1"},
-    {id: "456", title: "user2"},
-]);
+const chatList = ref([]);
+const chat_id = ref(null);
+const chatViewElement = ref(null);
 
 export default {
 	name: 'RvChats',
-    components: {
-        ChannelLink,
+	components: {
+		ChatListItem,
 		ChatView
-    },
-	mounted() {
-		mainStore = useMainStore();
-		mainStore.header.title = headerTitle;
-		console.log(mainStore.header.title);
 	},
-    data() {
-        return {
-            groupList
-        }
-    }
+	props: {
+		other_user_id: {
+			default: null, 
+			type: Number
+		}
+	},
+	methods: {
+		setChat(chatObject) {
+			this.$router.push("/chats/"+chatObject.other_user.id);
+			//chatViewElement.value.refresh(chatObject.id);
+		}
+	},
+	setup(props) {
+		mainStore = useMainStore();
+		console.warn(props.other_user_id);
+		route = useRoute();
+		watch(() => route.params, (newVal, oldVal) => {
+			console.log(newVal, oldVal);
+			console.log("CHATS - OTHER USER ID", route.params.other_user_id);
+			axios.get(location.protocol+"//"+location.hostname+":7070/api/messaging/getPersonalChatWithUser/"+route.params.other_user_id, {withCredentials: true})
+			.then(res => {
+				console.log(res);
+				chat_id.value = res.data.id;
+			})
+			.catch(err => {
+				console.log(err);
+			})
+		}, {immediate: true});
+		return {
+			chatList,
+			chat_id,
+			chatViewElement
+		}
+	},
+	mounted() {
+		axios.get(location.protocol+"//"+location.hostname+":7070/api/messaging/getMyPersonalChats", {withCredentials: true})
+		.then(res => {
+			console.log(res);
+			chatList.value = res.data;
+		})
+		.catch(err => {
+			console.log(err);
+		})
+		mainStore.header.title = headerTitle;
+		mainStore.header.buttonSet = null;
+		console.log(mainStore.header.title);
+	}
 }
 </script>
 
@@ -57,5 +96,10 @@ export default {
 	}
 	.routerView_mainContent {
 		flex-grow: 1;
+	}
+	.chats_chatList {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 	}
 </style>

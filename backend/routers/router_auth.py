@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request, status, Response, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.exceptions import HTTPException
 from datetime import timedelta
-from ..modules import mod_users as UsersModule
+from ..cores import core_users as UsersModule
 from pydantic import BaseModel
 from typing import Annotated
 import datetime
